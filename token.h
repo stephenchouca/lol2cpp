@@ -1,7 +1,9 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-enum TokenType {
+#include <string>
+
+enum class TokenType {
 	YARN,
 	NUMBR,
 	NUMBAR,
@@ -70,6 +72,11 @@ enum TokenType {
 	SAY,
 	SO,
 	FOUND
+};
+
+struct Token {
+	TokenType type;
+	std::string string;
 };
 
 #endif
