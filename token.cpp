@@ -150,8 +150,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "SO";
 		case TokenType::FOUND:
 			return "FOUND";
-		case TokenType::LINE_BREAK:
-			return "LINE_BREAK";
+		case TokenType::LINE_DELIMITER:
+			return "LINE_DELIMITER";
 		case TokenType::END_OF_FILE:
 			return "END_OF_FILE";
 		default:

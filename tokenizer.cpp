@@ -191,7 +191,7 @@ void Tokenizer::AddSimpleToken( TokenType newTokenType ) {
 	}
 
 	Token newToken;
-	newToken.type = TokenType::EXCLAMATION;
+	newToken.type = newTokenType;
 	tokens_.push( newToken );
 }
 
@@ -214,7 +214,6 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 			switch( state ) {
 				case TokenizeState::START:
 					tokenStart = i;
-					++i;
 					switch( GetCharType( ch ) ) {
 						case CharType::LETTER:
 							state = TokenizeState::READ_KEYWORD_OR_IDENT;
@@ -231,11 +230,15 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::EXCLAMATION:
 							AddSimpleToken( TokenType::EXCLAMATION );
 							break;
+						case CharType::LINE_DELIMITER:
+							AddSimpleToken( TokenType::LINE_DELIMITER );
+							break;
 						case CharType::SPACE:
 							break;
 						default:
 							return false;
 					}
+					++i;
 					break;
 				case TokenizeState::READ_LINE_CONTINUE:
 					switch( i - tokenStart ) {
@@ -269,6 +272,7 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::LETTER:
 						case CharType::DIGIT:
 						case CharType::UNDERSCORE:
+							++i;
 							break;
 						case CharType::EXCLAMATION:
 						case CharType::SPACE:
@@ -294,7 +298,6 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						default:
 							return false;
 					}
-					++i;
 					break;
 				case TokenizeState::READ_YARN_LITERAL:
 					break;
@@ -302,10 +305,12 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 				case TokenizeState::READ_NUMBAR_LITERAL:
 					switch( Tokenizer::GetCharType( ch ) ) {
 						case CharType::DIGIT:
+							++i;
 							break;
 						case CharType::PERIOD:
 							if( state == TokenizeState::READ_NUMBR_LITERAL ) {
 								state = TokenizeState::READ_NUMBAR_LITERAL;
+								++i;
 								break;
 							}
 						case CharType::EXCLAMATION:
@@ -322,14 +327,12 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						default:
 							return false;
 					}
-					++i;
 					break;
 				default:
 					return false;
 			}
-			//std::cout << (int)(line.at( i )) << " ";
 		}
-		//std::cout << std::endl;
+		AddSimpleToken( TokenType::LINE_DELIMITER );
 	}
 
 	return true;

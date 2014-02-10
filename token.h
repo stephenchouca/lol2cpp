@@ -78,7 +78,7 @@ enum class TokenType {
 	SAY,
 	SO,
 	FOUND,
-	LINE_BREAK,
+	LINE_DELIMITER,
 	END_OF_FILE
 };
 
