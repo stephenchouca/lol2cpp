@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include <string>
+#include <iostream>
 
 enum class TokenType {
 	YARN,
@@ -9,8 +10,13 @@ enum class TokenType {
 	NUMBAR,
 	TROOF,
 	NOOB,
+	YARN_LITERAL,
+	NUMBR_LITERAL,
+	NUMBAR_LITERAL,
 	WIN,
 	FAIL,
+	EXCLAMATION,
+	IDENTIFIER,
 	BTW,
 	I,
 	HAS,
@@ -71,12 +77,18 @@ enum class TokenType {
 	U,
 	SAY,
 	SO,
-	FOUND
+	FOUND,
+	LINE_BREAK,
+	END_OF_FILE
 };
+
+std::string TokenTypeToString(TokenType);
 
 struct Token {
 	TokenType type;
 	std::string string;
+
+	friend std::ostream &operator <<( std::ostream &, Token & );
 };
 
 #endif
