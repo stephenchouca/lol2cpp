@@ -33,7 +33,7 @@ class Tokenizer {
 		static TokenType GetTokenType(std::string);
 
 		void AddToken(Token);
-		void AddSimpleToken(TokenType);
+		void AddSimpleToken(TokenType, bool);
 
 	public:
 		Tokenizer();
@@ -45,6 +45,7 @@ class Tokenizer {
 	private:
 		std::queue<Token> tokens_;
 		bool inMultiLineComment_;
+		bool continueCurrentLine_;
 };
 
 #endif

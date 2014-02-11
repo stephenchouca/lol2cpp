@@ -6,7 +6,9 @@
 #include "token.h"
 #include "tokenizer.h"
 
-Tokenizer::Tokenizer() : inMultiLineComment_( false ) {}
+Tokenizer::Tokenizer() :
+	inMultiLineComment_( false ), 
+	continueCurrentLine_( false ) {}
 
 Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 	if( ( ch >= 'A' && ch <= 'Z' ) || ( ch >= 'a' && ch <= 'z' ) ) {
@@ -183,16 +185,20 @@ void Tokenizer::AddToken( Token newToken ) {
 	}
 
 	tokens_.push( newToken );
+
+	continueCurrentLine_ = false;
 }
 
-void Tokenizer::AddSimpleToken( TokenType newTokenType ) {
-	if( inMultiLineComment_ ) {
+void Tokenizer::AddSimpleToken( TokenType newTokenType, bool overrideGuard = false ) {
+	if( inMultiLineComment_ && !overrideGuard ) {
 		return;
 	}
 
 	Token newToken;
 	newToken.type = newTokenType;
 	tokens_.push( newToken );
+
+	continueCurrentLine_ = false;
 }
 
 bool Tokenizer::Tokenize( std::string srcFile ) {
@@ -206,8 +212,15 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 		unsigned int i = 0;
 		unsigned int tokenStart = 0;
 
+		if( continueCurrentLine_ && line == "" ) {
+			return false;
+		}
+
 		line += ' ';
 		inSingleLineComment = false;
+		continueCurrentLine_ = false;
+
+		bool startedInMultiLineComment = inMultiLineComment_;
 
 		while( i < line.length() && !inSingleLineComment ) {
 			char ch = line.at( i );
@@ -251,21 +264,21 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 								default:
 									return false;
 							}
+							++i;
 							break;
 						case 2:
 							if( Tokenizer::GetCharType( ch ) != CharType::PERIOD ) {
 								return false;
 							}
+							++i;
 							break;
 						case 3:
-							if( Tokenizer::GetCharType( ch ) != CharType::SPACE ) {
-								return false;
-							}
+							continueCurrentLine_ = !inMultiLineComment_ || continueCurrentLine_;
 							state = TokenizeState::START;
+							break;
 						default:
 							return false;
 					}
-					++i;
 					break;
 				case TokenizeState::READ_KEYWORD_OR_IDENT:
 					switch( Tokenizer::GetCharType( ch ) ) {
@@ -284,6 +297,14 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 								switch( newToken.type ) {
 									case TokenType::BTW:
 										inSingleLineComment = true;
+										state = TokenizeState::START;
+										break;
+									case TokenType::OBTW:
+										inMultiLineComment_ = true;
+										state = TokenizeState::START;
+										break;
+									case TokenType::TLDR:
+										inMultiLineComment_ = false;
 										state = TokenizeState::START;
 										break;
 									case TokenType::IDENTIFIER:
@@ -318,7 +339,8 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::LINE_DELIMITER:
 							{
 								Token newToken;
-								newToken.type = ( state == TokenizeState::READ_NUMBAR_LITERAL ) ? TokenType::NUMBAR_LITERAL : TokenType::NUMBR_LITERAL;
+								newToken.type = ( state == TokenizeState::READ_NUMBAR_LITERAL ) ? 
+												TokenType::NUMBAR_LITERAL : TokenType::NUMBR_LITERAL;
 								newToken.string = line.substr( tokenStart, i - tokenStart );
 								AddToken( newToken );
 								state = TokenizeState::START;
@@ -332,7 +354,9 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 					return false;
 			}
 		}
-		AddSimpleToken( TokenType::LINE_DELIMITER );
+		if( !continueCurrentLine_ && ( !inMultiLineComment_ || !startedInMultiLineComment ) ) {
+			AddSimpleToken( TokenType::LINE_DELIMITER, true );
+		}
 	}
 
 	return true;
