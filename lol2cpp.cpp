@@ -6,7 +6,7 @@
 
 int main() {
 	Tokenizer tokenizer;
-	std::string srcPath( "test/empty.lols" );
+	std::string srcPath( "test/randtokens.lols" );
 
 	tokenizer.Tokenize( srcPath );
 	while( true ) {

@@ -8,7 +8,8 @@
 
 Tokenizer::Tokenizer() :
 	inMultiLineComment_( false ), 
-	continueCurrentLine_( false ) {}
+	continueCurrentLine_( false ),
+	addLineDelimiter_( false ) {}
 
 Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 	if( ( ch >= 'A' && ch <= 'Z' ) || ( ch >= 'a' && ch <= 'z' ) ) {
@@ -187,6 +188,7 @@ void Tokenizer::AddToken( Token newToken ) {
 	tokens_.push( newToken );
 
 	continueCurrentLine_ = false;
+	addLineDelimiter_ = ( newToken.type != TokenType::LINE_DELIMITER );
 }
 
 void Tokenizer::AddSimpleToken( TokenType newTokenType, bool overrideGuard = false ) {
@@ -199,6 +201,7 @@ void Tokenizer::AddSimpleToken( TokenType newTokenType, bool overrideGuard = fal
 	tokens_.push( newToken );
 
 	continueCurrentLine_ = false;
+	addLineDelimiter_ = ( newTokenType != TokenType::LINE_DELIMITER );
 }
 
 bool Tokenizer::Tokenize( std::string srcFile ) {
@@ -354,7 +357,7 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 					return false;
 			}
 		}
-		if( !continueCurrentLine_ && ( !inMultiLineComment_ || !startedInMultiLineComment ) ) {
+		if( !continueCurrentLine_ && addLineDelimiter_ ) {
 			AddSimpleToken( TokenType::LINE_DELIMITER, true );
 		}
 	}

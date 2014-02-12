@@ -46,6 +46,7 @@ class Tokenizer {
 		std::queue<Token> tokens_;
 		bool inMultiLineComment_;
 		bool continueCurrentLine_;
+		bool addLineDelimiter_;
 };
 
 #endif
