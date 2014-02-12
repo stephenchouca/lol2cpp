@@ -29,6 +29,12 @@ Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 			return CharType::EXCLAMATION;
 		case ' ':
 			return CharType::SPACE;
+		case ':':
+			return CharType::YARN_ESCAPE;
+		case ')':
+			return CharType::YARN_NEWLINE;
+		case '>':
+			return CharType::YARN_TAB;
 		case ',':
 			return CharType::LINE_DELIMITER;
 		default:
@@ -209,7 +215,6 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 	std::string line;
 
 	TokenizeState state = TokenizeState::START;
-	bool inSingleLineComment;
 	
 	while( std::getline( inFile, line ) ) {
 		unsigned int i = 0;
@@ -220,10 +225,11 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 		}
 
 		line += ' ';
-		inSingleLineComment = false;
-		continueCurrentLine_ = false;
+		std::string yarnLiteral = "";
 
-		bool startedInMultiLineComment = inMultiLineComment_;
+		bool inSingleLineComment = false;
+		bool yarnEscaped = false;
+		continueCurrentLine_ = false;
 
 		while( i < line.length() && !inSingleLineComment ) {
 			char ch = line.at( i );
@@ -324,6 +330,48 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 					}
 					break;
 				case TokenizeState::READ_YARN_LITERAL:
+					if( yarnEscaped ) {
+						yarnEscaped = false;
+						switch( Tokenizer::GetCharType( ch ) ) {
+							case CharType::YARN_NEWLINE:
+								yarnLiteral += "\n";
+								break;
+							case CharType::YARN_TAB:
+								yarnLiteral += "\t";
+								break;
+							case CharType::LETTER:
+								if( ch == 'o' ) {
+									yarnLiteral += "\a";
+									break;
+								}
+							case CharType::DOUBLE_QUOTE:
+							case CharType::YARN_ESCAPE:
+							default:
+								yarnLiteral += ch;
+								break;
+						}
+					} else {
+						switch( Tokenizer::GetCharType( ch ) ) {
+							case CharType::DOUBLE_QUOTE:
+								{
+									Token newToken;
+									newToken.type = TokenType::YARN_LITERAL;
+									newToken.string = yarnLiteral;
+									AddToken( newToken );
+
+									state = TokenizeState::START;
+									yarnLiteral = "";
+								}
+								break;
+							case CharType::YARN_ESCAPE:
+								yarnEscaped = true;
+								break;
+							default:
+								yarnLiteral += ch;
+								break;
+						}
+					}
+					++i;
 					break;
 				case TokenizeState::READ_NUMBR_LITERAL:
 				case TokenizeState::READ_NUMBAR_LITERAL:
@@ -346,6 +394,7 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 												TokenType::NUMBAR_LITERAL : TokenType::NUMBR_LITERAL;
 								newToken.string = line.substr( tokenStart, i - tokenStart );
 								AddToken( newToken );
+
 								state = TokenizeState::START;
 							}
 							break;
@@ -356,6 +405,9 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 				default:
 					return false;
 			}
+		}
+		if( state == TokenizeState::READ_YARN_LITERAL ) {
+			return false;
 		}
 		if( !continueCurrentLine_ && addLineDelimiter_ ) {
 			AddSimpleToken( TokenType::LINE_DELIMITER, true );
