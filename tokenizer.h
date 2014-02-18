@@ -20,6 +20,7 @@ class Tokenizer {
 		enum class CharType {
 			LETTER,
 			DIGIT,
+			MINUS,
 			UNDERSCORE,
 			PERIOD,
 			DOUBLE_QUOTE,

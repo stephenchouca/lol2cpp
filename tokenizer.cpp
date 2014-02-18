@@ -37,6 +37,8 @@ Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 			return CharType::YARN_TAB;
 		case ',':
 			return CharType::LINE_DELIMITER;
+		case '-':
+			return CharType::MINUS;
 		default:
 			break;
 	}
@@ -248,6 +250,9 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							break;
 						case CharType::DOUBLE_QUOTE:
 							state = TokenizeState::READ_YARN_LITERAL;
+							break;
+						case CharType::MINUS:
+							AddSimpleToken( TokenType::NEGATIVE );
 							break;
 						case CharType::EXCLAMATION:
 							AddSimpleToken( TokenType::EXCLAMATION );

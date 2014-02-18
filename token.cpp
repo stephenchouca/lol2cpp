@@ -20,6 +20,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "NUMBR_LITERAL";
 		case TokenType::NUMBAR_LITERAL:
 			return "NUMBAR_LITERAL";
+		case TokenType::NEGATIVE:
+			return "NEGATIVE";
 		case TokenType::WIN:
 			return "WIN";
 		case TokenType::FAIL:
