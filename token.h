@@ -83,7 +83,7 @@ enum class TokenType {
 	END_OF_FILE
 };
 
-std::string TokenTypeToString(TokenType);
+std::string TokenTypeToString( TokenType );
 
 struct Token {
 	TokenType type;

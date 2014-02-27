@@ -9,12 +9,15 @@ int main() {
 	std::string srcPath( "test/randtokens.lols" );
 
 	tokenizer.Tokenize( srcPath );
+	tokenizer.GetTokens().StartIterating();
 	while( true ) {
-		Token token = tokenizer.GetNextToken();
+		Token token = tokenizer.GetTokens().GetNextToken();
+		Token nextToken = tokenizer.GetTokens().GetNextToken( 1 );
+		std::cout << token << " " << nextToken << std::endl;
 		if( token.type == TokenType::END_OF_FILE ) {
 			break;
 		}
-		std::cout << token << std::endl;
+		tokenizer.GetTokens().AdvanceToNextToken();
 	}
 	return 0;
 }

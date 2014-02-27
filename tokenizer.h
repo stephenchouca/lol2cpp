@@ -5,7 +5,8 @@
 #include <queue>
 
 #include "token.h"
-	
+#include "tokenlist.h"
+
 class Tokenizer {
 	private:
 		enum class TokenizeState {
@@ -33,24 +34,25 @@ class Tokenizer {
 			UNKNOWN
 		};
 
-		static CharType GetCharType(char);
-		static TokenType GetTokenType(std::string);
+		static CharType GetCharType( char );
+		static TokenType GetTokenType( std::string );
 
-		void AddToken(Token);
-		void AddSimpleToken(TokenType, bool);
+		void AddToken( Token );
+		void AddSimpleToken( TokenType, bool = false );
 
 	public:
 		Tokenizer();
 
-		bool Tokenize(std::string);
+		bool Tokenize( std::string );
 
-		Token GetNextToken();
+		inline TokenList &GetTokens() { return tokens_; }
 
 	private:
-		std::queue<Token> tokens_;
 		bool inMultiLineComment_;
 		bool continueCurrentLine_;
 		bool addLineDelimiter_;
+
+		TokenList tokens_;
 };
 
 #endif

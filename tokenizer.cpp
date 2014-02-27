@@ -193,20 +193,20 @@ void Tokenizer::AddToken( Token newToken ) {
 		return;
 	}
 
-	tokens_.push( newToken );
+	tokens_.AddToken( newToken );
 
 	continueCurrentLine_ = false;
 	addLineDelimiter_ = ( newToken.type != TokenType::LINE_DELIMITER );
 }
 
-void Tokenizer::AddSimpleToken( TokenType newTokenType, bool overrideGuard = false ) {
+void Tokenizer::AddSimpleToken( TokenType newTokenType, bool overrideGuard ) {
 	if( inMultiLineComment_ && !overrideGuard ) {
 		return;
 	}
 
 	Token newToken;
 	newToken.type = newTokenType;
-	tokens_.push( newToken );
+	tokens_.AddToken( newToken );
 
 	continueCurrentLine_ = false;
 	addLineDelimiter_ = ( newTokenType != TokenType::LINE_DELIMITER );
@@ -422,16 +422,3 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 	return true;
 }
 
-Token Tokenizer::GetNextToken() {
-	Token ret;
-	
-	if( tokens_.empty() ) {
-		ret.type = TokenType::END_OF_FILE;
-		return ret;
-	}
-
-	ret = tokens_.front();
-	tokens_.pop();
-
-	return ret;
-}
