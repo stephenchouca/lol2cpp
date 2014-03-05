@@ -55,6 +55,7 @@ enum class TokenType {
 	GIMMEH,
 	O,
 	RLY,
+	QUESTION,
 	YA,
 	NO,
 	WAI,
@@ -72,6 +73,7 @@ enum class TokenType {
 	WILE,
 	UPPIN,
 	NERFIN,
+	WATCHIN,
 	HOW,
 	IZ,
 	IF,
@@ -79,6 +81,10 @@ enum class TokenType {
 	SAY,
 	SO,
 	FOUND,
+	PLZ,
+	NOES,
+	WELL,
+	KTHX,
 	LINE_DELIMITER,
 	END_OF_FILE
 };

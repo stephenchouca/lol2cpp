@@ -9,9 +9,7 @@ class TokenList {
 	public:
 		TokenList();
 
-		inline void AddToken( Token newToken ) { 
-			tokens_.push_back( newToken );
-		}
+		void AddToken( Token );
 
 		inline void StartIterating() { it_ = tokens_.cbegin(); }
 		inline void AdvanceToNextToken() {
@@ -19,6 +17,7 @@ class TokenList {
 				++it_;
 			}
 		}
+		void SkipLine();
 		Token GetNextToken( unsigned int = 0 );
 
 	private:

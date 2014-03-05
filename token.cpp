@@ -104,6 +104,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "O";
 		case TokenType::RLY:
 			return "RLY";
+		case TOkenType::QUESTION:
+			return "QUESTION";
 		case TokenType::YA:
 			return "YA";
 		case TokenType::NO:
@@ -138,6 +140,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "UPPIN";
 		case TokenType::NERFIN:
 			return "NERFIN";
+		case TokenType::WATCHIN:
+			return "WATCHIN";
 		case TokenType::HOW:
 			return "HOW";
 		case TokenType::IZ:
@@ -152,6 +156,14 @@ std::string TokenTypeToString( TokenType type ) {
 			return "SO";
 		case TokenType::FOUND:
 			return "FOUND";
+		case TokenType::PLZ:
+			return "PLZ";
+		case TokenType::NOES:
+			return "NOES";
+		case TokenType::WELL:
+			return "WELL";
+		case TokenType::KTHX:
+			return "KTHX";
 		case TokenType::LINE_DELIMITER:
 			return "LINE_DELIMITER";
 		case TokenType::END_OF_FILE:

@@ -29,6 +29,7 @@ class Tokenizer {
 			YARN_NEWLINE,
 			YARN_TAB,
 			EXCLAMATION,
+			QUESTION,
 			SPACE,
 			LINE_DELIMITER,
 			UNKNOWN

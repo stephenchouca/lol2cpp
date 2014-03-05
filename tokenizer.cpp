@@ -27,6 +27,8 @@ Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 			return CharType::DOUBLE_QUOTE;
 		case '!':
 			return CharType::EXCLAMATION;
+		case '?':
+			return CharType::QUESTION:
 		case ' ':
 			return CharType::SPACE;
 		case ':':
@@ -169,6 +171,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::UPPIN;
 	} else if( str == "NERFIN" ) {
 		return TokenType::NERFIN;
+	} else if( str == "WATCHIN" ) {
+		return TokenType::WATCHIN;
 	} else if( str == "HOW" ) {
 		return TokenType::HOW;
 	} else if( str == "IZ" ) {
@@ -183,6 +187,14 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::SO;
 	} else if( str == "FOUND" ) {
 		return TokenType::FOUND;
+	} else if( str == "PLZ" ) {
+		return TokenType::PLZ;
+	} else if( str == "NOES" ) {
+		return TokenType::NOES;
+	} else if( str == "WELL" ) {
+		return TokenType::WELL;
+	} else if( str == "KTHX" ) {
+		return TOkenType::KTHX;
 	}
 
 	return TokenType::IDENTIFIER;
@@ -257,6 +269,9 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::EXCLAMATION:
 							AddSimpleToken( TokenType::EXCLAMATION );
 							break;
+						case CharType::QUESTION:
+							AddSimpleToken( TokenType::QUESTION );
+							break;
 						case CharType::LINE_DELIMITER:
 							AddSimpleToken( TokenType::LINE_DELIMITER );
 							break;
@@ -302,6 +317,7 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							++i;
 							break;
 						case CharType::EXCLAMATION:
+						case CharType::QUESTION:
 						case CharType::SPACE:
 						case CharType::LINE_DELIMITER:
 							{
@@ -391,6 +407,7 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 								break;
 							}
 						case CharType::EXCLAMATION:
+						case CharType::QUESTION:
 						case CharType::SPACE:
 						case CharType::LINE_DELIMITER:
 							{
