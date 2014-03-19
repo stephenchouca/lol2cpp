@@ -9,6 +9,7 @@ enum class TokenType {
 	NUMBR,
 	NUMBAR,
 	TROOF,
+	BUKKIT,
 	NOOB,
 	YARN_LITERAL,
 	NUMBR_LITERAL,
@@ -69,6 +70,7 @@ enum class TokenType {
 	IN,
 	OUTTA,
 	YR,
+	FROM,
 	TIL,
 	WILE,
 	UPPIN,
@@ -85,6 +87,8 @@ enum class TokenType {
 	NOES,
 	WELL,
 	KTHX,
+	SRS,
+	SLOT,
 	LINE_DELIMITER,
 	END_OF_FILE
 };

@@ -4,6 +4,8 @@
 #include "tokenlist.h"
 #include "token.h"
 #include "ast.h"
+#include "statement.h"
+#include "expression.h"
 
 class Parser {
 	public:
@@ -13,6 +15,7 @@ class Parser {
 
 	private:
 		AST::StatementBlock *ParseStatementBlock();
+		AST::StatementBlock *ParseProgramStatementBlock();
 
 		AST::ORlyBlock *ParseORlyBlock();
 		AST::WtfBlock *ParseWtfBlock();
@@ -22,13 +25,34 @@ class Parser {
 		AST::Statement *ParseStatement();
 
 		AST::VarDeclare *ParseVarDeclare();
-		AST::VarAssign *ParseVarAssign();
-
-		AST::TypeIdentifier *ParseTypeIdentifier();
-		bool ParseFunkshunCall();
+		AST::VarAssign *ParseVarAssign( AST::Identifier * );
+		AST::VarCast *ParseVarCast( AST::Identifier * );
+		AST::VisibleStatement *ParseVisibleStatement();
+		AST::GimmehStatement *ParseGimmehStatement();
+		AST::FunkshunReturn *ParseFunkshunReturn();
+		
 		AST::Expression *ParseExpression();
+		AST::FunkshunCall *ParseFunkshunCall();
+		AST::CastExpression *ParseCastExpression();
+		AST::SmooshExpression *ParseSmooshExpression();
+		AST::UnaryExpression *ParseUnaryOperator();
+		AST::BinaryExpression *ParseBinaryOperator();
+		AST::NaryExpression *ParseNaryOperator();
+		
 		AST::Literal *ParseLiteral();
+		AST::TroofLiteral *ParseTroofLiteral();
+		AST::NumbrLiteral *ParseNumbrLiteral();
+		AST::NumbarLiteral *ParseNumbarLiteral();
+		AST::YarnLiteral *ParseYarnLiteral();
+		
+		AST::Identifier *ParseIdentifier();
+		AST::Identifier *ParseExplicitIdentifier();
+		AST::Identifier *ParseInductionIdentifier();
 		AST::LiteralIdentifier *ParseLiteralIdentifier();
+		AST::SrsIdentifier *ParseSrsIdentifier();
+		AST::ItIdentifier *ParseItIdentifier();
+		AST::SlotIdentifier *ParseSlotIdentifier();
+		AST::TypeIdentifier *ParseTypeIdentifier();
 		
 		bool CheckTokenAndAdvance( TokenType, Token * = nullptr );
 	

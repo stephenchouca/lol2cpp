@@ -3,12 +3,20 @@
 
 #include "token.h"
 #include "tokenizer.h"
+#include "parser.h"
+#include "ast.h"
+#include "statement.h"
+#include "expression.h"
 
 int main() {
 	Tokenizer tokenizer;
-	std::string srcPath( "test/randtokens.lols" );
+	Parser parser;
+	
+	//std::string srcPath( "test/randtokens.lols" );
+	std::string srcPath( "test/empty.lols" );
 
 	tokenizer.Tokenize( srcPath );
+#if 0
 	tokenizer.GetTokens().StartIterating();
 	while( true ) {
 		Token token = tokenizer.GetTokens().GetNextToken();
@@ -19,5 +27,9 @@ int main() {
 		}
 		tokenizer.GetTokens().AdvanceToNextToken();
 	}
+#else
+	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
+	std::cout << (program != nullptr) << std::endl;
+#endif
 	return 0;
 }

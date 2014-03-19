@@ -18,6 +18,12 @@ namespace AST {
 
 	class LoopBlock : public Statement {
 	};
+	
+	class ForLoopBlock : public LoopBlock {
+	};
+	
+	class RangeLoopBlock : public LoopBlock {
+	};
 
 	class FunkshunBlock : public Statement {
 	};
@@ -37,7 +43,7 @@ namespace AST {
 	class FunkshunReturn : public Statement {
 	};
 
-	class GTFOStatement : public Statement {
+	class GtfoStatement : public Statement {
 	};
 
 	class VisibleStatement : public Statement {
@@ -51,7 +57,7 @@ namespace AST {
 
 	class Program : public ASTNode {
 		public:
-			inline void Accept( ASTVisitor &v ) { v.Visit( this ); }
+			//inline void Accept( ASTVisitor &v ) { v.Visit( this ); }
 	};
 }
 

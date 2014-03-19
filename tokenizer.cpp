@@ -28,7 +28,7 @@ Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 		case '!':
 			return CharType::EXCLAMATION;
 		case '?':
-			return CharType::QUESTION:
+			return CharType::QUESTION;
 		case ' ':
 			return CharType::SPACE;
 		case ':':
@@ -57,6 +57,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::NUMBAR;
 	} else if( str == "TROOF" ) {
 		return TokenType::TROOF;
+	} else if( str == "BUKKIT" ) {
+		return TokenType::BUKKIT;
 	} else if( str == "NOOB" ) {
 		return TokenType::NOOB;
 	} else if( str == "WIN" ) {
@@ -163,6 +165,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::OUTTA;
 	} else if( str == "YR" ) {
 		return TokenType::YR;
+	} else if( str == "FROM" ) {
+		return TokenType::FROM;
 	} else if( str == "TIL" ) {
 		return TokenType::TIL;
 	} else if( str == "WILE" ) {
@@ -194,7 +198,11 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 	} else if( str == "WELL" ) {
 		return TokenType::WELL;
 	} else if( str == "KTHX" ) {
-		return TOkenType::KTHX;
+		return TokenType::KTHX;
+	} else if( str == "SRS" ) {
+		return TokenType::SRS;
+	} else if( str == "SLOT" ) {
+		return TokenType::SLOT;
 	}
 
 	return TokenType::IDENTIFIER;
@@ -302,7 +310,8 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							++i;
 							break;
 						case 3:
-							continueCurrentLine_ = !inMultiLineComment_ || continueCurrentLine_;
+							continueCurrentLine_ = 
+								( !inMultiLineComment_ || continueCurrentLine_ );
 							state = TokenizeState::START;
 							break;
 						default:
@@ -322,7 +331,8 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::LINE_DELIMITER:
 							{
 								Token newToken;
-								std::string tokenStr = line.substr( tokenStart, i - tokenStart );
+								std::string tokenStr = 
+									line.substr( tokenStart, i - tokenStart );
 								newToken.type = GetTokenType( tokenStr );
 								switch( newToken.type ) {
 									case TokenType::BTW:
@@ -412,9 +422,12 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::LINE_DELIMITER:
 							{
 								Token newToken;
-								newToken.type = ( state == TokenizeState::READ_NUMBAR_LITERAL ) ? 
-												TokenType::NUMBAR_LITERAL : TokenType::NUMBR_LITERAL;
-								newToken.string = line.substr( tokenStart, i - tokenStart );
+								newToken.type = 
+									( state == TokenizeState::READ_NUMBAR_LITERAL ) ? 
+									TokenType::NUMBAR_LITERAL : 
+									TokenType::NUMBR_LITERAL;
+								newToken.string = 
+									line.substr( tokenStart, i - tokenStart );
 								AddToken( newToken );
 
 								state = TokenizeState::START;

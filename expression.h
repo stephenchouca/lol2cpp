@@ -5,7 +5,7 @@
 #include "statement.h"
 
 namespace AST {
-	class Literal : public ASTNode {
+	class Literal : public Expression {
 	};
 
 	class TroofLiteral : public Literal {
@@ -23,7 +23,7 @@ namespace AST {
 	class TypeIdentifier : public ASTNode {
 	};
 
-	class Identifier : public ASTNode {
+	class Identifier : public Expression {
 	};
 
 	class LiteralIdentifier : public Identifier {
@@ -43,6 +43,18 @@ namespace AST {
 
 	class NotExpression : public UnaryExpression {
 	};
+	
+	class UppinExpression : public UnaryExpression {
+	};
+	
+	class NerfinExpression : public UnaryExpression {
+	};
+	
+	class TilExpression : public UnaryExpression {
+	};
+	
+	class WileExpression : public UnaryExpression {
+	};
 
 	class BinaryExpression : public Expression {
 	};
@@ -57,15 +69,6 @@ namespace AST {
 	};
 
 	class QuoshuntExpression : public BinaryExpression {
-	};
-
-	class ModExpression : public BinaryExpression {
-	};
-
-	class BiggrExpression : public BinaryExpression {
-	};
-
-	class SmallrExpression : public BinaryExpression {
 	};
 
 	class ModExpression : public BinaryExpression {
@@ -100,14 +103,17 @@ namespace AST {
 
 	class AnyExpression : public NaryExpression {
 	};
+	
+	class SmooshExpression : public NaryExpression {
+	};
 
+	class FunkshunCall : public NaryExpression {
+	};
+	
 	class CastExpression : public Expression {
 	};
-
-	class SmooshExpression : public Expression {
-	};
-
-	class FunkshunCall : public Expression {
+	
+	class NoobExpression : public Expression {
 	};
 }
 
