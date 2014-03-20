@@ -27,6 +27,7 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 	CheckTokenAndAdvance( TokenType::KTHXBYE );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ||
 		!CheckTokenAndAdvance( TokenType::END_OF_FILE ) ) {
+		tokens_->AdvanceToNextToken();
 		delete program;
 		return nullptr;
 	}
@@ -114,12 +115,14 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 	CheckTokenAndAdvance( TokenType::RLY );
 	CheckTokenAndAdvance( TokenType::QUESTION );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 
 	CheckTokenAndAdvance( TokenType::YA );
 	CheckTokenAndAdvance( TokenType::RLY );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 
@@ -137,6 +140,7 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 			return nullptr;
 		}
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+			tokens_->AdvanceToNextToken();
 			delete oRlyBlock;
 			return nullptr;
 		}
@@ -151,6 +155,7 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 		tokens_->AdvanceToNextToken();
 		CheckTokenAndAdvance( TokenType::WAI );
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+			tokens_->AdvanceToNextToken();
 			delete oRlyBlock;
 			return nullptr;
 		}
@@ -164,6 +169,7 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 
 	CheckTokenAndAdvance( TokenType::OIC );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete oRlyBlock;
 		return nullptr;
 	}
@@ -175,6 +181,7 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 	CheckTokenAndAdvance( TokenType::WTF );
 	CheckTokenAndAdvance( TokenType::QUESTION );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 
@@ -192,6 +199,7 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 			return nullptr;
 		}
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+			tokens_->AdvanceToNextToken();
 			delete wtfBlock;
 			return nullptr;
 		}
@@ -209,6 +217,7 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 	if( tokens_->GetNextToken().type == TokenType::OMGWTF ) {
 		tokens_->AdvanceToNextToken();
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+			tokens_->AdvanceToNextToken();
 			delete wtfBlock;
 			return nullptr;
 		}
@@ -222,6 +231,7 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 	
 	CheckTokenAndAdvance( TokenType::OIC );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete wtfBlock;
 		return nullptr;
 	}
@@ -233,6 +243,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 	CheckTokenAndAdvance( TokenType::IM );
 	CheckTokenAndAdvance( TokenType::IN );
 	if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -250,6 +261,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 			loopBlock = new AST::RangeLoopBlock();
 			
 			if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+				tokens_->AdvanceToNextToken();
 				delete loopBlock;
 				return nullptr;
 			}
@@ -285,6 +297,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 					
 					Token token;
 					if( !CheckTokenAndAdvance( TokenType::IDENTIFIER, &token ) ) {
+						tokens_->AdvanceToNextToken();
 						delete loopBlock;
 						return nullptr;
 					}
@@ -295,6 +308,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 			assert( ( incExpr != nullptr ) ^ ( funkExpr != nullptr ) );
 			
 			if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+				tokens_->AdvanceToNextToken();
 				delete loopBlock;
 				return nullptr;
 			}
@@ -338,6 +352,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 	}
 	
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete loopBlock;
 		return nullptr;
 	}
@@ -351,6 +366,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 	CheckTokenAndAdvance( TokenType::IM );
 	CheckTokenAndAdvance( TokenType::OUTTA );
 	if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+		tokens_->AdvanceToNextToken();
 		delete loopBlock;
 		return nullptr;
 	}
@@ -363,6 +379,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 	}
 	
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete loopBlock;
 		return nullptr;
 	}
@@ -374,6 +391,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 	CheckTokenAndAdvance( TokenType::HOW );
 	CheckTokenAndAdvance( TokenType::IZ );
 	if( !CheckTokenAndAdvance( TokenType::I ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 
@@ -393,6 +411,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 		while( tokens_->GetNextToken().type == TokenType::AN ) {
 			tokens_->AdvanceToNextToken();
 			if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+				tokens_->AdvanceToNextToken();
 				delete funkshun;
 				return nullptr;
 			}
@@ -405,6 +424,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 	}
 
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete funkshun;
 		return nullptr;
 	}
@@ -420,6 +440,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 	CheckTokenAndAdvance( TokenType::SAY );
 	CheckTokenAndAdvance( TokenType::SO );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete funkshun;
 		return nullptr;
 	}
@@ -430,6 +451,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 AST::PlzBlock *Parser::ParsePlzBlock() {
 	CheckTokenAndAdvance( TokenType::PLZ );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 
@@ -451,6 +473,7 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 		}
 
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+			tokens_->AdvanceToNextToken();
 			delete plzBlock;
 			return nullptr;
 		}
@@ -465,6 +488,7 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 	if( tokens_->GetNextToken().type == TokenType::O ) {
 		CheckTokenAndAdvance( TokenType::WELL );
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+			tokens_->AdvanceToNextToken();
 			delete plzBlock;
 			return nullptr;
 		}
@@ -478,6 +502,7 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 
 	CheckTokenAndAdvance( TokenType::KTHX );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete plzBlock;
 		return nullptr;
 	}
@@ -537,6 +562,7 @@ AST::Statement *Parser::ParseStatement() {
 	}
 
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
+		tokens_->AdvanceToNextToken();
 		delete stmt;
 		return nullptr;
 	}
@@ -548,7 +574,6 @@ AST::VarDeclare *Parser::ParseVarDeclare() {
 	CheckTokenAndAdvance( TokenType::I );
 	CheckTokenAndAdvance( TokenType::HAS );
 	if( !CheckTokenAndAdvance( TokenType::A ) ) {
-		// TODO: Fix similar issue elsewhere.
 		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
@@ -584,6 +609,7 @@ AST::VarAssign *Parser::ParseVarAssign( AST::Identifier *id ) {
 	AST::VarAssign *varAssign = new AST::VarAssign();
 	
 	if( !CheckTokenAndAdvance( TokenType::R ) ) {
+		tokens_->AdvanceToNextToken();
 		delete varAssign;
 		return nullptr;
 	}
@@ -603,6 +629,7 @@ AST::VarCast *Parser::ParseVarCast( AST::Identifier *id ) {
 	CheckTokenAndAdvance( TokenType::IS );
 	CheckTokenAndAdvance( TokenType::NOW );
 	if( !CheckTokenAndAdvance( TokenType::A ) ) {
+		tokens_->AdvanceToNextToken();
 		delete varCast;
 		return nullptr;
 	}
@@ -618,6 +645,7 @@ AST::VarCast *Parser::ParseVarCast( AST::Identifier *id ) {
 
 AST::VisibleStatement *Parser::ParseVisibleStatement() {
 	if( !CheckTokenAndAdvance( TokenType::VISIBLE ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -640,6 +668,7 @@ AST::VisibleStatement *Parser::ParseVisibleStatement() {
 
 AST::GimmehStatement *Parser::ParseGimmehStatement() {
 	if( !CheckTokenAndAdvance( TokenType::GIMMEH ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -654,6 +683,7 @@ AST::GimmehStatement *Parser::ParseGimmehStatement() {
 AST::FunkshunReturn *Parser::ParseFunkshunReturn() {
 	CheckTokenAndAdvance( TokenType::FOUND );
 	if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -712,6 +742,7 @@ AST::Expression *Parser::ParseExpression() {
 		// TODO: Add operand to expr.
 		
 		if( !CheckTokenAndAdvance( TokenType::AN ) ) {
+			tokens_->AdvanceToNextToken();
 			delete expr;
 			return nullptr;
 		}
@@ -743,6 +774,7 @@ AST::Expression *Parser::ParseExpression() {
 			}
 			
 			if( !CheckTokenAndAdvance( TokenType::AN ) ) {
+				tokens_->AdvanceToNextToken();
 				delete expr;
 				return nullptr;
 			}
@@ -880,6 +912,7 @@ AST::NaryExpression *Parser::ParseNaryOperator() {
 AST::FunkshunCall *Parser::ParseFunkshunCall() {
 	CheckTokenAndAdvance( TokenType::I );
 	if( !CheckTokenAndAdvance( TokenType::IZ ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -899,6 +932,7 @@ AST::FunkshunCall *Parser::ParseFunkshunCall() {
 		
 		while( tokens_->GetNextToken().type == TokenType::AN ) {
 			if( !CheckTokenAndAdvance( TokenType::YR ) ) {
+				tokens_->AdvanceToNextToken();
 				delete funkshunCall;
 				return nullptr;
 			}
@@ -925,6 +959,7 @@ AST::FunkshunCall *Parser::ParseFunkshunCall() {
 
 AST::CastExpression *Parser::ParseCastExpression() {
 	if( !CheckTokenAndAdvance( TokenType::MAEK ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -936,6 +971,7 @@ AST::CastExpression *Parser::ParseCastExpression() {
 	AST::CastExpression *castExpr = new AST::CastExpression();
 	
 	if( !CheckTokenAndAdvance( TokenType::A ) ) {
+		tokens_->AdvanceToNextToken();
 		delete castExpr;
 		return nullptr;
 	}
@@ -951,6 +987,7 @@ AST::CastExpression *Parser::ParseCastExpression() {
 
 AST::SmooshExpression *Parser::ParseSmooshExpression() {
 	if( !CheckTokenAndAdvance( TokenType::SMOOSH ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -981,6 +1018,7 @@ AST::SmooshExpression *Parser::ParseSmooshExpression() {
 		}
 		
 		if( !CheckTokenAndAdvance( TokenType::AN ) ) {
+			tokens_->AdvanceToNextToken();
 			delete smooshExpr;
 			return nullptr;
 		}
@@ -1042,6 +1080,7 @@ AST::LiteralIdentifier *Parser::ParseLiteralIdentifier() {
 	Token curToken;
 	
 	if( !CheckTokenAndAdvance( TokenType::IDENTIFIER, &curToken ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1050,6 +1089,7 @@ AST::LiteralIdentifier *Parser::ParseLiteralIdentifier() {
 
 AST::SrsIdentifier *Parser::ParseSrsIdentifier() {
 	if( !CheckTokenAndAdvance( TokenType::SRS ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1063,6 +1103,7 @@ AST::SrsIdentifier *Parser::ParseSrsIdentifier() {
 
 AST::ItIdentifier *Parser::ParseItIdentifier() {
 	if( !CheckTokenAndAdvance( TokenType::IT ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1071,6 +1112,7 @@ AST::ItIdentifier *Parser::ParseItIdentifier() {
 
 AST::SlotIdentifier *Parser::ParseSlotIdentifier() {
 	if( !CheckTokenAndAdvance( TokenType::SLOT ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1080,6 +1122,7 @@ AST::SlotIdentifier *Parser::ParseSlotIdentifier() {
 	}
 	
 	if( !CheckTokenAndAdvance( TokenType::IN ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1144,6 +1187,7 @@ AST::NumbrLiteral *Parser::ParseNumbrLiteral() {
 	Token curToken;
 	
 	if( !CheckTokenAndAdvance( TokenType::NUMBR_LITERAL, &curToken ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1154,6 +1198,7 @@ AST::NumbarLiteral *Parser::ParseNumbarLiteral() {
 	Token curToken;
 	
 	if( !CheckTokenAndAdvance( TokenType::NUMBAR_LITERAL, &curToken ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
@@ -1164,6 +1209,7 @@ AST::YarnLiteral *Parser::ParseYarnLiteral() {
 	Token curToken;
 	
 	if( !CheckTokenAndAdvance( TokenType::YARN_LITERAL, &curToken ) ) {
+		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
 	
