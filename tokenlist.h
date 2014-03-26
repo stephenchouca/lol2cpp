@@ -7,7 +7,7 @@
 
 class TokenList {
 	public:
-		TokenList();
+		TokenList() : it_( tokens_.cend() ) {}
 
 		inline void AddToken( Token newToken ) {
 			if( newToken.type == TokenType::LINE_DELIMITER && !tokens_.empty() && 
@@ -30,6 +30,10 @@ class TokenList {
 				   GetNextToken().type != TokenType::END_OF_FILE ) {
 				AdvanceToNextToken();
 			}
+		}
+		inline void SkipToNextLine() {
+			SkipToEOL();
+			AdvanceToNextToken();
 		}
 		Token GetNextToken( unsigned int = 0 );
 

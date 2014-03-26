@@ -38,6 +38,7 @@ class Parser {
 		AST::UnaryExpression *ParseUnaryOperator();
 		AST::BinaryExpression *ParseBinaryOperator();
 		AST::NaryExpression *ParseNaryOperator();
+		AST::Expression *ParseBukkitReference();
 		
 		AST::Literal *ParseLiteral();
 		AST::TroofLiteral *ParseTroofLiteral();
@@ -47,7 +48,7 @@ class Parser {
 		
 		AST::Identifier *ParseIdentifier();
 		AST::Identifier *ParseExplicitIdentifier();
-		AST::Identifier *ParseInductionIdentifier();
+		AST::Identifier *ParseLoopVarIdentifier();
 		AST::LiteralIdentifier *ParseLiteralIdentifier();
 		AST::SrsIdentifier *ParseSrsIdentifier();
 		AST::ItIdentifier *ParseItIdentifier();

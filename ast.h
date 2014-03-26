@@ -7,13 +7,17 @@ namespace AST {
 	class ASTNode {
 		public:
 			ASTNode() : parent_( nullptr ) {}
+			virtual ~ASTNode() {}
 
+			inline void SetParent( ASTNode *parent ) { parent_ = parent; }
+			
 			//virtual void Accept( ASTVisitor & ) = 0;
+			
+			//friend std::ostream &operator <<( std::ostream &, ASTNode & ) {}
 
-			void SetParent( ASTNode * );
-			inline ASTNode *GetParent() { return parent_; }
+		protected:
 			inline unsigned int GetLevel() {
-				return ( parent_ == nullptr ? 0 : parent_->GetLevel() );
+				return ( parent_ == nullptr ? 0 : parent_->GetLevel() + 1 );
 			}
 
 		private:

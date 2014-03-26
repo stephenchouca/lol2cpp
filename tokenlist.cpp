@@ -1,9 +1,6 @@
 #include "tokenlist.h"
 #include "token.h"
 
-TokenList::TokenList() : 
-	it_( tokens_.cend() ) {}
-
 Token TokenList::GetNextToken( unsigned int k ) {
 	std::list<Token>::const_iterator it = it_;
 

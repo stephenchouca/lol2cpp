@@ -272,7 +272,7 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							state = TokenizeState::READ_YARN_LITERAL;
 							break;
 						case CharType::MINUS:
-							AddSimpleToken( TokenType::NEGATIVE );
+							AddSimpleToken( TokenType::MINUS_SIGN );
 							break;
 						case CharType::EXCLAMATION:
 							AddSimpleToken( TokenType::EXCLAMATION );
