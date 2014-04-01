@@ -54,6 +54,7 @@ enum class TokenType {
 	NOW,
 	VISIBLE,
 	GIMMEH,
+	LONG,
 	O,
 	RLY,
 	QUESTION,

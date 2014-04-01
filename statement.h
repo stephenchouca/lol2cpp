@@ -2,16 +2,17 @@
 #define STATEMENT_H
 
 #include <list>
+#include <iostream>
 
 #include "ast.h"
 
 namespace AST {
+	class StatementBlock;
 	class Statement;
 	class Expression;
 	class UnaryExpression;
 	class UnaryBooleanExpression;
 	class FunkshunCall;
-	class StatementBlock;
 	class Identifier;
 	class LiteralIdentifier;
 	class TypeIdentifier;
@@ -23,12 +24,22 @@ namespace AST {
 	typedef std::list<LiteralIdentifier *> LiteralIdentifierList;
 	typedef std::list<StatementBlock *> StatementBlockList;
 	
+	typedef std::list<Statement *>::const_iterator StatementListIterator;
+	typedef std::list<Expression *>::const_iterator ExpressionListIterator;
+	typedef std::list<Literal *>::const_iterator LiteralListIterator;
+	typedef std::list<LiteralIdentifier *>::const_iterator 
+		LiteralIdentifierListIterator;
+	typedef std::list<StatementBlock *>::const_iterator StatementBlockListIterator;
+	
 	class Statement : public ASTNode {
 	};
 	
 	class StatementBlock : public ASTNode {
 		public:
 			~StatementBlock();
+			
+			void Print( std::ostream & );
+			unsigned int GetWidth() { return 0; }
 			
 			void AddStatement( Statement * );
 			
@@ -46,14 +57,17 @@ namespace AST {
 			ORlyBlock( StatementBlock * );
 			~ORlyBlock();
 			
+			void Print( std::ostream & );
+			unsigned int GetWidth() { return 2; }
+			
 			void AddMeebeBlock( Expression *, StatementBlock * );
 			void SetNoWaiBlock( StatementBlock * );
 			
 		private:
 			StatementBlock *yaRlyBlock_;
-			StatementBlock *noWaiBlock_;
 			ExpressionList meebeConditions_;
 			StatementBlockList meebeBlocks_;
+			StatementBlock *noWaiBlock_;
 	};
 
 	class WtfBlock : public Statement {
@@ -61,12 +75,15 @@ namespace AST {
 			WtfBlock() : omgwtfBlock_( nullptr ) {}
 			~WtfBlock();
 			
-			void AddWtfStmtBlock( Literal *, StatementBlock * );
+			void Print( std::ostream & );
+			unsigned int GetWidth() { return 2; }
+			
+			void AddOmgBlock( Literal *, StatementBlock * );
 			void SetOmgwtfBlock( StatementBlock * );
 			
 		private:
-			LiteralList wtfConditions_;
-			StatementBlockList wtfStmtBlocks_;
+			LiteralList omgLabels_;
+			StatementBlockList omgStmtBlocks_;
 			StatementBlock *omgwtfBlock_;
 	};
 
@@ -74,6 +91,11 @@ namespace AST {
 		public:
 			LoopBlock( LiteralIdentifier * );
 			~LoopBlock();
+			
+			void Print( std::ostream & );
+			virtual void PrintLoopSpecific( std::ostream & ) = 0;
+			virtual std::string GetLoopType() = 0;
+			unsigned int GetWidth() { return 2; }
 			
 			void SetBody( StatementBlock * );
 			virtual void SetLoopVariable( Identifier *, bool );
@@ -91,6 +113,9 @@ namespace AST {
 			ForLoopBlock( LiteralIdentifier * );
 			~ForLoopBlock();
 			
+			void PrintLoopSpecific( std::ostream & );
+			std::string GetLoopType() { return "FOR LOOP"; }
+			
 			void SetLoopVariable( Identifier *, bool );
 			void SetLoopVariableIncExpr( Expression * );
 			void SetLoopVariableInitExpr( Expression * );
@@ -107,6 +132,9 @@ namespace AST {
 			RangeLoopBlock( LiteralIdentifier * );
 			~RangeLoopBlock();
 			
+			void PrintLoopSpecific( std::ostream & );
+			std::string GetLoopType() { return "RANGE LOOP"; }
+			
 			void SetBukkitRef( Expression * );
 			
 		private:
@@ -118,13 +146,16 @@ namespace AST {
 			FunkshunBlock( LiteralIdentifier * );
 			~FunkshunBlock();
 			
+			void Print( std::ostream & );
+			unsigned int GetWidth() { return 2; }
+			
 			void AddParameter( LiteralIdentifier * );
 			void SetBody( StatementBlock * );
 			
 		private:
 			LiteralIdentifier *funkshunId_;
 			LiteralIdentifierList params_;
-			StatementBlock *funkshunBody_;
+			StatementBlock *body_;
 	};
 
 	class PlzBlock : public Statement {
@@ -132,13 +163,16 @@ namespace AST {
 			PlzBlock( StatementBlock * );
 			~PlzBlock();
 			
+			void Print( std::ostream & );
+			unsigned int GetWidth() { return 2; }
+			
 			void AddNoesBlock( Expression *, StatementBlock * );
 			void SetWellBlock( StatementBlock * );
 			
 		private:
 			StatementBlock *tryBlock_;
 			ExpressionList exceptions_;
-			StatementBlockList noesBlocks_;
+			StatementBlockList handlers_;
 			StatementBlock *wellBlock_;
 	};
 
@@ -146,6 +180,8 @@ namespace AST {
 		public:
 			VarDeclare( Identifier * );
 			~VarDeclare();
+			
+			void Print( std::ostream & );
 			
 			void SetInitValue( Expression * );
 			void SetInitType( TypeIdentifier * );
@@ -161,6 +197,8 @@ namespace AST {
 			VarAssign( Identifier * );
 			~VarAssign();
 			
+			void Print( std::ostream & );
+			
 			void SetAssignValue( Expression * );
 			
 		private:
@@ -172,6 +210,8 @@ namespace AST {
 		public:
 			VarCast( Identifier * );
 			~VarCast();
+			
+			void Print( std::ostream & );
 			
 			void SetCastTargetType( TypeIdentifier * );
 			
@@ -185,17 +225,25 @@ namespace AST {
 			FunkshunReturn( Expression * );
 			~FunkshunReturn();
 			
+			void Print( std::ostream & );
+			
 		private:
 			Expression *retVal_;
 	};
 
 	class GtfoStatement : public Statement {
+		public:
+			void Print( std::ostream &out ) {
+				out << DebugIndent() << "GTFO";
+			}
 	};
 
 	class VisibleStatement : public Statement {
 		public:
 			VisibleStatement( Expression * );
 			~VisibleStatement();
+			
+			void Print( std::ostream & );
 			
 			void AddExpression( Expression * );
 			
@@ -205,11 +253,14 @@ namespace AST {
 
 	class GimmehStatement : public Statement {
 		public:
-			GimmehStatement( Identifier * );
+			GimmehStatement( Identifier *, bool );
 			~GimmehStatement();
+			
+			void Print( std::ostream & );
 			
 		private:
 			Identifier *targetId_;
+			bool isLong_;
 	};
 
 	class Program : public ASTNode {
@@ -218,6 +269,8 @@ namespace AST {
 			~Program() {
 				delete stmtBlock_;
 			}
+			
+			void Print( std::ostream & );
 			
 			//inline void Accept( ASTVisitor &v ) { v.Visit( this ); }
 		

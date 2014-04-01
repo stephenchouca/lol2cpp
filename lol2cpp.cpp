@@ -29,6 +29,7 @@ int main() {
 	}
 #else
 	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
+	std::cout << *program << std::endl;
 	std::cout << (program != nullptr) << std::endl;
 #endif
 	return 0;

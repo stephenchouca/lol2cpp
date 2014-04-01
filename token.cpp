@@ -102,6 +102,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "VISIBLE";
 		case TokenType::GIMMEH:
 			return "GIMMEH";
+		case TokenType::LONG:
+			return "LONG";
 		case TokenType::O:
 			return "O";
 		case TokenType::RLY:

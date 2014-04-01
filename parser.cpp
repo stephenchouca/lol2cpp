@@ -216,7 +216,7 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 			return nullptr;
 		}
 
-		wtfBlock->AddWtfStmtBlock( literal, stmtBlock );
+		wtfBlock->AddOmgBlock( literal, stmtBlock );
 		tokens_->AdvanceToNextToken();
 		curToken = tokens_->GetNextToken();
 	} while( curToken.type == TokenType::OMG );
@@ -728,12 +728,18 @@ AST::GimmehStatement *Parser::ParseGimmehStatement() {
 		return nullptr;
 	}
 	
+	bool isLong = false;
+	if( tokens_->GetNextToken().type == TokenType::LONG ) {
+		isLong = true;
+		tokens_->AdvanceToNextToken();
+	}
+	
 	AST::Identifier *id = ParseExplicitIdentifier();
 	if( id == nullptr ) {
 		return nullptr;
 	}
 	
-	return new AST::GimmehStatement( id );
+	return new AST::GimmehStatement( id, isLong );
 }
 
 AST::FunkshunReturn *Parser::ParseFunkshunReturn() {

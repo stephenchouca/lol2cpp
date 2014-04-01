@@ -17,15 +17,59 @@ namespace AST {
 		assert( *end == '\0' );
 	}
 	
+	void TypeIdentifier::Print( std::ostream &out ) {
+		out << DebugIndent() << "TYPE: ";
+		switch( type_ ) {
+			case Type::NUMBR:
+				out << "NUMBR";
+				break;
+			case Type::NUMBAR:
+				out << "NUMBAR";
+				break;
+			case Type::TROOF:
+				out << "TROOF";
+				break;
+			case Type::YARN:
+				out << "YARN";
+				break;
+			case Type::BUKKIT:
+				out << "BUKKIT";
+				break;
+			case Type::NOOB:
+				out << "NOOB";
+				break;
+			default:
+				break;
+		}
+	}
+	
 	SrsIdentifier::SrsIdentifier( Expression *ref ) : ref_( ref ) {
 		assert( ref_ != nullptr );
 		ref_->SetParent( this );
+	}
+	
+	void SrsIdentifier::Print( std::ostream &out ) {
+		out << DebugIndent() << "SRS:";
+		if( ref_ != nullptr ) {
+			out << std::endl << *ref_;
+		}
 	}
 	
 	SlotIdentifier::SlotIdentifier( Expression *key ) : 
 			key_( key ), bukkitRef_( nullptr ) {
 		assert( key_ != nullptr );
 		key_->SetParent( this );
+	}
+	
+	void SlotIdentifier::Print( std::ostream &out ) {
+		out << DebugIndent() << "SLOT:";
+		if( key_ != nullptr ) {
+			out << std::endl << DebugIndent( 1 ) << "Key:" << std::endl << *key_;
+		}
+		if( bukkitRef_ != nullptr ) {
+			out << std::endl << DebugIndent( 1 ) << "Bukkit Ref:" 
+				<< std::endl << *bukkitRef_;
+		}
 	}
 	
 	SlotIdentifier *SlotIdentifier::Clone() {
@@ -39,6 +83,13 @@ namespace AST {
 		assert( bukkitRef_ == nullptr );
 		bukkitRef_ = ref;
 		bukkitRef_->SetParent( this );
+	}
+	
+	void UnaryExpression::Print( std::ostream &out ) {
+		out << DebugIndent() << GetOperatorName() << ":";
+		if( operand_ != nullptr ) {
+			out << std::endl << *operand_;
+		}
 	}
 
 	void UnaryExpression::CloneOperand( UnaryExpression *newExpr ) {
@@ -81,6 +132,16 @@ namespace AST {
 		WileExpression *ret = new WileExpression();
 		CloneOperand( ret );
 		return ret;
+	}
+	
+	void BinaryExpression::Print( std::ostream &out ) {
+		out << DebugIndent() << GetOperatorName() << ":";
+		if( leftOperand_ != nullptr ) {
+			out << std::endl << *leftOperand_;
+		}
+		if( rightOperand_ != nullptr ) {
+			out << std::endl << *rightOperand_;
+		}
 	}
 	
 	void BinaryExpression::CloneOperands( BinaryExpression *newExpr ) {
@@ -182,6 +243,17 @@ namespace AST {
 		}
 	}
 	
+	void NaryExpression::Print( std::ostream &out ) {
+		out << DebugIndent() << GetOperatorName() << ":";
+		
+		ExpressionListIterator operandIt;
+		for( operandIt = operands_.cbegin(); 
+			 operandIt != operands_.cend(); ++operandIt ) {
+			Expression *operand = *operandIt;
+			out << std::endl << *operand;
+		}
+	}
+	
 	void NaryExpression::CloneOperands( NaryExpression *newExpr ) {
 		assert( newExpr != nullptr );
 		newExpr->operands_ = this->operands_;
@@ -227,6 +299,16 @@ namespace AST {
 			srcExpr_( srcExpr ), targetType_( nullptr ) {
 		assert( srcExpr_ != nullptr );
 		srcExpr_->SetParent( this );
+	}
+	
+	void CastExpression::Print( std::ostream &out ) {
+		out << DebugIndent() << "CAST:";
+		if( srcExpr_ != nullptr ) {
+			out << *srcExpr_ << std::endl;
+		}
+		if( targetType_ != nullptr ) {
+			out << *targetType_;
+		}
 	}
 	
 	CastExpression *CastExpression::Clone() {

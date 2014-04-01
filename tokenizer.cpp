@@ -135,6 +135,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::VISIBLE;
 	} else if( str == "GIMMEH" ) {
 		return TokenType::GIMMEH;
+	} else if( str == "LONG" ) {
+		return TokenType::LONG;
 	} else if( str == "O" ) {
 		return TokenType::O;
 	} else if( str == "RLY" ) {
