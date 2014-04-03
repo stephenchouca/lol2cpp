@@ -30,6 +30,7 @@ Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 		case '?':
 			return CharType::QUESTION;
 		case ' ':
+		case '\t':
 			return CharType::SPACE;
 		case ':':
 			return CharType::YARN_ESCAPE;
@@ -88,7 +89,7 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 	} else if( str == "MKAY" ) {
 		return TokenType::MKAY;
 	} else if( str == "AN" ) {
-		return TokenType::SUM;
+		return TokenType::AN;
 	} else if( str == "SUM" ) {
 		return TokenType::SUM;
 	} else if( str == "DIFF" ) {
@@ -149,8 +150,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::WAI;
 	} else if( str == "OIC" ) {
 		return TokenType::OIC;
-	} else if( str == "MEEBE" ) {
-		return TokenType::MEEBE;
+	} else if( str == "MEBBE" ) {
+		return TokenType::MEBBE;
 	} else if( str == "WTF" ) {
 		return TokenType::WTF;
 	} else if( str == "OMG" ) {
@@ -183,6 +184,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::HOW;
 	} else if( str == "IZ" ) {
 		return TokenType::IZ;
+	} else if( str == "DAT" ) {
+		return TokenType::DAT;
 	} else if( str == "IF" ) {
 		return TokenType::IF;
 	} else if( str == "U" ) {

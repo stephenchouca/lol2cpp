@@ -18,14 +18,14 @@ namespace AST {
 			
 			virtual void Print( std::ostream & ) = 0;
 			inline std::string DebugIndent( unsigned int tabs = 0 ) {
-				return std::string( ( GetLevel() + tabs ) * 4, ' ' );
+				return std::string( ( GetLevel() + tabs ) * 3, ' ' );
 			}
 			friend std::ostream &operator <<( std::ostream &, ASTNode & );
 
 		protected:
 			virtual unsigned int GetWidth() { return 1; }
 			inline unsigned int GetLevel() {
-				return ( parent_ == nullptr ? 0 : parent_->GetLevel() + GetWidth() );
+				return ( parent_ == nullptr ? 0 : parent_->GetLevel() + parent_->GetWidth() );
 			}
 
 		private:

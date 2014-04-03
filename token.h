@@ -62,7 +62,7 @@ enum class TokenType {
 	NO,
 	WAI,
 	OIC,
-	MEEBE,
+	MEBBE,
 	WTF,
 	OMG,
 	GTFO,
@@ -79,6 +79,7 @@ enum class TokenType {
 	WATCHIN,
 	HOW,
 	IZ,
+	DAT,
 	IF,
 	U,
 	SAY,
@@ -100,7 +101,7 @@ struct Token {
 	TokenType type;
 	std::string string;
 
-	friend std::ostream &operator <<( std::ostream &, Token & );
+	friend std::ostream &operator <<( std::ostream &, Token );
 };
 
 #endif

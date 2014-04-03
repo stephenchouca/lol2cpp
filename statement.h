@@ -2,6 +2,7 @@
 #define STATEMENT_H
 
 #include <list>
+#include <utility>
 #include <iostream>
 
 #include "ast.h"
@@ -18,18 +19,28 @@ namespace AST {
 	class TypeIdentifier;
 	class Literal;
 	
+	typedef std::pair<Expression *, StatementBlock *> MebbeBlock;
+	typedef std::pair<Literal *, StatementBlock *> OmgBlock;
+	typedef std::pair<Expression *, StatementBlock *> NoesBlock;
+	typedef std::pair<LiteralIdentifier *, bool> FunkshunParam;
+	
 	typedef std::list<Statement *> StatementList;
 	typedef std::list<Expression *> ExpressionList;
 	typedef std::list<Literal *> LiteralList;
-	typedef std::list<LiteralIdentifier *> LiteralIdentifierList;
 	typedef std::list<StatementBlock *> StatementBlockList;
+	typedef std::list<MebbeBlock> MebbeBlockList;
+	typedef std::list<OmgBlock> OmgBlockList;
+	typedef std::list<NoesBlock> NoesBlockList;
+	typedef std::list<FunkshunParam> FunkshunParamList;
 	
 	typedef std::list<Statement *>::const_iterator StatementListIterator;
 	typedef std::list<Expression *>::const_iterator ExpressionListIterator;
 	typedef std::list<Literal *>::const_iterator LiteralListIterator;
-	typedef std::list<LiteralIdentifier *>::const_iterator 
-		LiteralIdentifierListIterator;
 	typedef std::list<StatementBlock *>::const_iterator StatementBlockListIterator;
+	typedef std::list<MebbeBlock>::const_iterator MebbeBlockListIterator;
+	typedef std::list<OmgBlock>::const_iterator OmgBlockListIterator;
+	typedef std::list<NoesBlock>::const_iterator NoesBlockListIterator;
+	typedef std::list<FunkshunParam>::const_iterator FunkshunParamListIterator;
 	
 	class Statement : public ASTNode {
 	};
@@ -58,15 +69,14 @@ namespace AST {
 			~ORlyBlock();
 			
 			void Print( std::ostream & );
-			unsigned int GetWidth() { return 2; }
+			unsigned int GetWidth() { return 3; }
 			
-			void AddMeebeBlock( Expression *, StatementBlock * );
+			void AddMebbeBlock( Expression *, StatementBlock * );
 			void SetNoWaiBlock( StatementBlock * );
 			
 		private:
 			StatementBlock *yaRlyBlock_;
-			ExpressionList meebeConditions_;
-			StatementBlockList meebeBlocks_;
+			MebbeBlockList mebbeBlocks_;
 			StatementBlock *noWaiBlock_;
 	};
 
@@ -76,14 +86,13 @@ namespace AST {
 			~WtfBlock();
 			
 			void Print( std::ostream & );
-			unsigned int GetWidth() { return 2; }
+			unsigned int GetWidth() { return 3; }
 			
 			void AddOmgBlock( Literal *, StatementBlock * );
 			void SetOmgwtfBlock( StatementBlock * );
 			
 		private:
-			LiteralList omgLabels_;
-			StatementBlockList omgStmtBlocks_;
+			OmgBlockList omgBlocks_;
 			StatementBlock *omgwtfBlock_;
 	};
 
@@ -149,12 +158,12 @@ namespace AST {
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 2; }
 			
-			void AddParameter( LiteralIdentifier * );
+			void AddParameter( LiteralIdentifier *, bool );
 			void SetBody( StatementBlock * );
 			
 		private:
 			LiteralIdentifier *funkshunId_;
-			LiteralIdentifierList params_;
+			FunkshunParamList params_;
 			StatementBlock *body_;
 	};
 
@@ -164,15 +173,14 @@ namespace AST {
 			~PlzBlock();
 			
 			void Print( std::ostream & );
-			unsigned int GetWidth() { return 2; }
+			unsigned int GetWidth() { return 3; }
 			
 			void AddNoesBlock( Expression *, StatementBlock * );
 			void SetWellBlock( StatementBlock * );
 			
 		private:
 			StatementBlock *tryBlock_;
-			ExpressionList exceptions_;
-			StatementBlockList handlers_;
+			NoesBlockList noesBlocks_;
 			StatementBlock *wellBlock_;
 	};
 

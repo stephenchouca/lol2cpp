@@ -39,14 +39,11 @@ namespace AST {
 	ORlyBlock::~ORlyBlock() {
 		delete yaRlyBlock_;
 		
-		while( !meebeConditions_.empty() ) {
-			assert( !meebeBlocks_.empty() );
-			delete meebeConditions_.back();
-			delete meebeBlocks_.back();
-			meebeConditions_.pop_back();
-			meebeBlocks_.pop_back();
+		while( !mebbeBlocks_.empty() ) {
+			delete mebbeBlocks_.back().first;
+			delete mebbeBlocks_.back().second;
+			mebbeBlocks_.pop_back();
 		}
-		assert( meebeBlocks_.empty() );
 		
 		delete noWaiBlock_;
 	}
@@ -56,37 +53,33 @@ namespace AST {
 		
 		if( yaRlyBlock_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "YA RLY:" 
+				<< std::endl << DebugIndent( 2 ) << "Body:"
 				<< std::endl << *yaRlyBlock_;
 		}
 		
-		ExpressionListIterator conditionIt;
-		StatementBlockListIterator stmtBlockIt;
-		for( conditionIt = meebeConditions_.cbegin(), 
-			 stmtBlockIt = meebeBlocks_.cbegin();
-			 conditionIt != meebeConditions_.cend() && 
-			 stmtBlockIt != meebeBlocks_.cend(); ++conditionIt, ++stmtBlockIt ) {
-			assert( conditionIt != meebeConditions_.cend() );
-			assert( stmtBlockIt != meebeBlocks_.cend() );
-			Expression *condition = *conditionIt;
-			StatementBlock *stmtBlock = *stmtBlockIt;
-			out << std::endl << DebugIndent( 1 ) << "MEEBE:" 
-				<< std::endl << *condition << std::endl << *stmtBlock;
+		for( MebbeBlockListIterator mebbeBlockIt = mebbeBlocks_.cbegin();
+			 mebbeBlockIt != mebbeBlocks_.cend(); ++mebbeBlockIt ) {
+			out << std::endl << DebugIndent( 1 ) << "MEBBE:" 
+				<< std::endl << DebugIndent( 2 ) << "Condition:"
+				<< std::endl << *(mebbeBlockIt->first) 
+				<< std::endl << DebugIndent( 2 ) << "Body:"
+				<< std::endl << *(mebbeBlockIt->second);
 		}
 		
 		if( noWaiBlock_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "NO WAI:" 
+				<< std::endl << DebugIndent( 2 ) << "Body:"
 				<< std::endl << *noWaiBlock_;
 		}
 	}
 	
-	void ORlyBlock::AddMeebeBlock( Expression *meebeCond, 
-								   StatementBlock *meebeBlock ) {
-		assert( meebeCond != nullptr );
-		assert( meebeBlock != nullptr );
-		meebeConditions_.push_back( meebeCond );
-		meebeBlocks_.push_back( meebeBlock );
-		meebeCond->SetParent( this );
-		meebeBlock->SetParent( this );
+	void ORlyBlock::AddMebbeBlock( Expression *mebbeCond, 
+								   StatementBlock *mebbeBody ) {
+		assert( mebbeCond != nullptr );
+		assert( mebbeBody != nullptr );
+		mebbeBlocks_.push_back( MebbeBlock( mebbeCond, mebbeBody ) );
+		mebbeCond->SetParent( this );
+		mebbeBody->SetParent( this );
 	}
 	
 	void ORlyBlock::SetNoWaiBlock( StatementBlock *noWaiBlock ) {
@@ -96,14 +89,11 @@ namespace AST {
 	}
 	
 	WtfBlock::~WtfBlock() {
-		while( !omgLabels_.empty() ) {
-			assert( !omgStmtBlocks_.empty() );
-			delete omgLabels_.back();
-			delete omgStmtBlocks_.back();
-			omgLabels_.pop_back();
-			omgStmtBlocks_.pop_back();
+		while( !omgBlocks_.empty() ) {
+			delete omgBlocks_.back().first;
+			delete omgBlocks_.back().second;
+			omgBlocks_.pop_back();
 		}
-		assert( omgStmtBlocks_.empty() );
 		
 		delete omgwtfBlock_;
 	}
@@ -111,32 +101,28 @@ namespace AST {
 	void WtfBlock::Print( std::ostream &out ) {
 		out << DebugIndent() << "WTF:";
 		
-		LiteralListIterator labelIt;
-		StatementBlockListIterator stmtBlockIt;
-		for( labelIt = omgLabels_.cbegin(), stmtBlockIt = omgStmtBlocks_.cbegin();
-			 labelIt != omgLabels_.cend() && stmtBlockIt != omgStmtBlocks_.cend();
-			 ++labelIt, ++stmtBlockIt ) {
-			assert( labelIt != omgLabels_.cend() );
-			assert( stmtBlockIt != omgStmtBlocks_.cend() );
-			Literal *label = *labelIt;
-			StatementBlock *stmtBlock = *stmtBlockIt;
+		for( OmgBlockListIterator omgBlockIt = omgBlocks_.cbegin(); 
+			 omgBlockIt != omgBlocks_.cend(); ++omgBlockIt ) {
 			out << std::endl << DebugIndent( 1 ) << "OMG:" 
-				<< std::endl << *label << std::endl << *stmtBlock;
+				<< std::endl << DebugIndent( 2 ) << "Label:"
+				<< std::endl << *(omgBlockIt->first) 
+				<< std::endl << DebugIndent( 2 ) << "Body:"
+				<< std::endl << *(omgBlockIt->second);
 		}
 		
 		if( omgwtfBlock_ != nullptr ) {
-			out << std::endl << DebugIndent( 1 ) << "OMGWTF:" 
+			out << std::endl << DebugIndent( 1 ) << "OMGWTF:"
+				<< std::endl << DebugIndent( 2 ) << "Body:"
 				<< std::endl << *omgwtfBlock_;
 		}
 	}
 	
-	void WtfBlock::AddOmgBlock( Literal *label, StatementBlock *stmtBlock ) {
-		assert( label != nullptr );
-		assert( stmtBlock != nullptr );
-		omgLabels_.push_back( label );
-		omgStmtBlocks_.push_back( stmtBlock );
-		label->SetParent( this );
-		stmtBlock->SetParent( this );
+	void WtfBlock::AddOmgBlock( Literal *omgLabel, StatementBlock *omgBody ) {
+		assert( omgLabel != nullptr );
+		assert( omgBody != nullptr );
+		omgBlocks_.push_back( OmgBlock( omgLabel, omgBody ) );
+		omgLabel->SetParent( this );
+		omgBody->SetParent( this );
 	}
 	
 	void WtfBlock::SetOmgwtfBlock( StatementBlock *omgwtfBlock ) {
@@ -184,6 +170,7 @@ namespace AST {
 	void LoopBlock::SetLoopVariable( Identifier *loopVar, bool isLocal ) {
 		assert( loopVar != nullptr );
 		loopVar_ = loopVar;
+		loopVar_->SetParent( this );
 		loopVarIsLocal_ = isLocal;
 	}
 	
@@ -285,7 +272,7 @@ namespace AST {
 		delete funkshunId_;
 		
 		while( !params_.empty() ) {
-			delete params_.back();
+			delete params_.back().first;
 			params_.pop_back();
 		}
 		
@@ -296,11 +283,13 @@ namespace AST {
 		out << DebugIndent() << "FUNKSHUN: " << funkshunId_->GetIdentifier();
 		
 		if( !params_.empty() ) {
-			out << std::endl << DebugIndent( 1 ) << "Parameters:";
-			for( LiteralIdentifierListIterator it = params_.cbegin();
-				 it != params_.cend(); ++it ) {
-				LiteralIdentifier *param = *it;
-				out << std::endl << *param;
+			for( FunkshunParamListIterator paramIt = params_.cbegin();
+				 paramIt != params_.cend(); ++paramIt ) {
+				out << std::endl << DebugIndent( 1 ) << "Parameter:"
+					<< std::endl << *(paramIt->first);
+				if( paramIt->second ) {
+					out << std::endl << DebugIndent( 2 ) << "isPassByRef";
+				}
 			}
 		}
 		
@@ -309,9 +298,9 @@ namespace AST {
 		}
 	}
 	
-	void FunkshunBlock::AddParameter( LiteralIdentifier *param ) {
+	void FunkshunBlock::AddParameter( LiteralIdentifier *param, bool isPassByRef ) {
 		assert( param != nullptr );
-		params_.push_back( param );
+		params_.push_back( FunkshunParam( param, isPassByRef ) );
 		param->SetParent( this );
 	}
 	
@@ -330,14 +319,11 @@ namespace AST {
 	PlzBlock::~PlzBlock() {
 		delete tryBlock_;
 		
-		while( !exceptions_.empty() ) {
-			assert( !handlers_.empty() );
-			delete exceptions_.back();
-			delete handlers_.back();
-			exceptions_.pop_back();
-			handlers_.pop_back();
+		while( !noesBlocks_.empty() ) {
+			delete noesBlocks_.back().first;
+			delete noesBlocks_.back().second;
+			noesBlocks_.pop_back();
 		}
-		assert( handlers_.empty() );
 		
 		delete wellBlock_;
 	}
@@ -346,24 +332,23 @@ namespace AST {
 		out << DebugIndent() << "PLZ:";
 		
 		if( tryBlock_ != nullptr ) {
-			out << std::endl << DebugIndent( 1 ) << "Do:" << std::endl << *tryBlock_;
+			out << std::endl << DebugIndent( 1 ) << "Try:" 
+				<< std::endl << DebugIndent( 2 ) << "Body:" 
+				<< std::endl << *tryBlock_;
 		}
 		
-		ExpressionListIterator exceptIt;
-		StatementBlockListIterator handlerIt;
-		for( exceptIt = exceptions_.cbegin(), handlerIt = handlers_.cbegin();
-			 exceptIt != exceptions_.cend() && handlerIt != handlers_.cend();
-			 ++exceptIt, ++handlerIt ) {
-			assert( exceptIt != exceptions_.cend() );
-			assert( handlerIt != handlers_.cend() );
-			Expression *except = *exceptIt;
-			StatementBlock *handler = *handlerIt;
+		for( NoesBlockListIterator noesBlockIt = noesBlocks_.cbegin();
+			 noesBlockIt != noesBlocks_.cend(); ++noesBlockIt ) {
 			out << std::endl << DebugIndent( 1 ) << "NOES:" 
-				<< std::endl << *except << std::endl << *handler;
+				<< std::endl << DebugIndent( 2 ) << "Exception:"
+				<< std::endl << *(noesBlockIt->first) 
+				<< std::endl << DebugIndent( 2 ) << "Handler:"
+				<< std::endl << *(noesBlockIt->second);
 		}
 		
 		if( wellBlock_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "WELL:" 
+				<< std::endl << DebugIndent( 2 ) << "Body:"
 				<< std::endl << *wellBlock_;
 		}
 	}
@@ -371,8 +356,7 @@ namespace AST {
 	void PlzBlock::AddNoesBlock( Expression *exception, StatementBlock *handler ) {
 		assert( exception != nullptr );
 		assert( handler != nullptr );
-		exceptions_.push_back( exception );
-		handlers_.push_back( handler );
+		noesBlocks_.push_back( NoesBlock( exception, handler ) );
 		exception->SetParent( this );
 		handler->SetParent( this );
 	}

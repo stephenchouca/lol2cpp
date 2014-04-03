@@ -13,7 +13,8 @@ int main() {
 	Parser parser;
 	
 	//std::string srcPath( "test/randtokens.lols" );
-	std::string srcPath( "test/empty.lols" );
+	std::string srcPath( "test/large.lols" );
+	//std::string srcPath( "test/empty.lols" );
 
 	tokenizer.Tokenize( srcPath );
 #if 0
@@ -29,8 +30,11 @@ int main() {
 	}
 #else
 	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
-	std::cout << *program << std::endl;
-	std::cout << (program != nullptr) << std::endl;
+	if( program != nullptr ) {
+		std::cout << *program << std::endl;
+	} else {
+		std::cout << "NULL" << std::endl;
+	}
 #endif
 	return 0;
 }

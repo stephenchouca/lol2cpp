@@ -68,7 +68,7 @@ namespace AST {
 			YarnLiteral( yarn_t &val ) : val_( val ) {}
 			
 			void Print( std::ostream &out ) {
-				out << DebugIndent() << "YARN: " << val_;
+				out << DebugIndent() << "YARN: \"" << val_ << "\"";
 			}
 			
 			YarnLiteral *Clone() { return new YarnLiteral( val_ ); }
@@ -341,7 +341,7 @@ namespace AST {
 			~NaryExpression();
 			
 			void Print( std::ostream & );
-			virtual std::string GetOperatorName() { return ""; }
+			virtual std::string GetOperatorName() = 0;
 			
 			void CloneOperands( NaryExpression * );
 			

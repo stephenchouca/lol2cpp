@@ -118,8 +118,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "WAI";
 		case TokenType::OIC:
 			return "OIC";
-		case TokenType::MEEBE:
-			return "MEEBE";
+		case TokenType::MEBBE:
+			return "MEBBE";
 		case TokenType::WTF:
 			return "WTF";
 		case TokenType::OMG:
@@ -152,6 +152,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "HOW";
 		case TokenType::IZ:
 			return "IZ";
+		case TokenType::DAT:
+			return "DAT";
 		case TokenType::IF:
 			return "IF";
 		case TokenType::U:
@@ -183,7 +185,7 @@ std::string TokenTypeToString( TokenType type ) {
 	}
 }
 
-std::ostream &operator <<( std::ostream &out, Token &token ) {
+std::ostream &operator <<( std::ostream &out, Token token ) {
 	out << "( " << TokenTypeToString( token.type ) << ", \"" << token.string << "\" )";
 	return out;
 }
