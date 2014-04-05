@@ -176,12 +176,12 @@ namespace AST {
 			unsigned int GetWidth() { return 3; }
 			
 			void AddNoesBlock( Expression *, StatementBlock * );
-			void SetWellBlock( StatementBlock * );
+			void SetWelBlock( StatementBlock * );
 			
 		private:
 			StatementBlock *tryBlock_;
 			NoesBlockList noesBlocks_;
-			StatementBlock *wellBlock_;
+			StatementBlock *welBlock_;
 	};
 
 	class VarDeclare : public Statement {

@@ -40,7 +40,6 @@ AST::StatementBlock *Parser::ParseStatementBlock( const BodyType bodyType ) {
 	
 	while( true ) {
 		AST::Statement *stmt = nullptr;
-		std::cout << "next token: " << tokens_->GetNextToken() << std::endl;
 		switch( tokens_->GetNextToken().type ) {
 			case TokenType::KTHXBYE:
 				if( bodyType == BodyType::PROGRAM ) {
@@ -69,8 +68,6 @@ AST::StatementBlock *Parser::ParseStatementBlock( const BodyType bodyType ) {
 					case BodyType::ORLY_NO:
 					case BodyType::WTF_OMG:
 					case BodyType::WTF_OMGWTF:
-						std::cout << "return from oic" << std::endl;
-						std::cout << tokens_->GetNextToken() << std::endl;
 						return stmtBlock;
 					default:
 						break;
@@ -86,7 +83,7 @@ AST::StatementBlock *Parser::ParseStatementBlock( const BodyType bodyType ) {
 				switch( bodyType ) {
 					case BodyType::PLZ_BODY:
 					case BodyType::PLZ_ONOES:
-					case BodyType::PLZ_OWELL:
+					case BodyType::PLZ_OWEL:
 						return stmtBlock;
 					default:
 						break;
@@ -98,7 +95,7 @@ AST::StatementBlock *Parser::ParseStatementBlock( const BodyType bodyType ) {
 						stmt = ParseORlyBlock();
 						break;
 					case TokenType::NOES:
-					case TokenType::WELL:
+					case TokenType::WEL:
 						switch( bodyType ) {
 							case BodyType::PLZ_BODY:
 							case BodyType::PLZ_ONOES:
@@ -144,13 +141,11 @@ AST::StatementBlock *Parser::ParseStatementBlock( const BodyType bodyType ) {
 			delete stmtBlock;
 			return nullptr;
 		}
-		std::cout << *stmt << std::endl;
 		stmtBlock->AddStatement( stmt );
 	}
 }
 
 AST::ORlyBlock *Parser::ParseORlyBlock() {
-	std::cout << "here0" << std::endl;
 	CheckTokenAndAdvance( TokenType::O );
 	CheckTokenAndAdvance( TokenType::RLY );
 	CheckTokenAndAdvance( TokenType::QUESTION );
@@ -158,14 +153,14 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
-	std::cout << "here" << std::endl;
+	
 	CheckTokenAndAdvance( TokenType::YA );
 	CheckTokenAndAdvance( TokenType::RLY );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
 		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
-	std::cout << "here24" << std::endl;
+	
 	AST::StatementBlock *stmtBlock = ParseStatementBlock( BodyType::ORLY_YA );
 	if( stmtBlock == nullptr ) {
 		return nullptr;
@@ -173,7 +168,6 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 	AST::ORlyBlock *oRlyBlock = new AST::ORlyBlock( stmtBlock );
 
 	while( tokens_->GetNextToken().type == TokenType::MEBBE ) {
-		std::cout << "here3" << std::endl;
 		tokens_->AdvanceToNextToken();
 		
 		AST::Expression *cond = ParseExpression();
@@ -216,7 +210,6 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 		
 		oRlyBlock->SetNoWaiBlock( stmtBlock );
 	}
-	std::cout << "here4" << std::endl;
 
 	CheckTokenAndAdvance( TokenType::OIC );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
@@ -262,7 +255,6 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 			delete wtfBlock;
 			return nullptr;
 		}
-		std::cout << "got omg" << std::endl;
 
 		wtfBlock->AddOmgBlock( literal, stmtBlock );
 	} while( tokens_->GetNextToken().type == TokenType::OMG );
@@ -274,23 +266,22 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 			delete wtfBlock;
 			return nullptr;
 		}
-		std::cout << "before parse omgwtf" << std::endl;
+		
 		AST::StatementBlock *stmtBlock = ParseStatementBlock( BodyType::WTF_OMGWTF );
 		if( stmtBlock == nullptr ) {
 			delete wtfBlock;
 			return nullptr;
 		}
-		
 		wtfBlock->SetOmgwtfBlock( stmtBlock );
 	}
-	std::cout << "at end of parsewtf: " << tokens_->GetNextToken() << std::endl;
+	
 	CheckTokenAndAdvance( TokenType::OIC );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
 		tokens_->AdvanceToNextToken();
 		delete wtfBlock;
 		return nullptr;
 	}
-	std::cout << "done parsewtf" << std::endl;
+	
 	return wtfBlock;
 }
 
@@ -493,7 +484,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 			isPassByRef = true;
 		case TokenType::YR:
 			tokens_->AdvanceToNextToken();
-		
+			
 			id = ParseLiteralIdentifier();
 			if( id == nullptr ) {
 				delete funkshun;
@@ -516,6 +507,7 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 						delete funkshun;
 						return nullptr;
 				}
+				tokens_->AdvanceToNextToken();
 				
 				id = ParseLiteralIdentifier();
 				if( id == nullptr ) {
@@ -597,19 +589,19 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 	}
 
 	if( tokens_->GetNextToken().type == TokenType::O ) {
-		CheckTokenAndAdvance( TokenType::WELL );
+		CheckTokenAndAdvance( TokenType::WEL );
 		if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
 			tokens_->AdvanceToNextToken();
 			delete plzBlock;
 			return nullptr;
 		}
 
-		stmtBlock = ParseStatementBlock( BodyType::PLZ_OWELL );
+		stmtBlock = ParseStatementBlock( BodyType::PLZ_OWEL );
 		if( stmtBlock == nullptr ) {
 			delete plzBlock;
 			return nullptr;
 		}
-		plzBlock->SetWellBlock( stmtBlock );
+		plzBlock->SetWelBlock( stmtBlock );
 	}
 
 	CheckTokenAndAdvance( TokenType::KTHX );
@@ -666,14 +658,13 @@ AST::Statement *Parser::ParseStatement() {
 			break;
 		}
 		default:
-			std::cout << "here" << std::endl;
 			stmt = ParseExpression();
 			break;
 	}
 	if( stmt == nullptr ) {
 		return nullptr;
 	}
-	std::cout << "got stmt" << std::endl;
+	
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ) {
 		tokens_->AdvanceToNextToken();
 		delete stmt;
@@ -767,7 +758,7 @@ AST::VisibleStatement *Parser::ParseVisibleStatement() {
 		tokens_->AdvanceToNextToken();
 		return nullptr;
 	}
-	std::cout << "parse visible" << std::endl;
+	
 	AST::Expression *expr = ParseExpression();
 	if( expr == nullptr ) {
 		return nullptr;
@@ -861,7 +852,7 @@ AST::Expression *Parser::ParseExpression() {
 		
 		return unaryExpr;
 	}
-	std::cout << "here2" << std::endl;
+	
 	AST::BinaryExpression *binaryExpr = ParseBinaryOperator();
 	if( binaryExpr != nullptr ) {
 		AST::Expression *operand = ParseExpression();
@@ -886,7 +877,7 @@ AST::Expression *Parser::ParseExpression() {
 		
 		return binaryExpr;
 	}
-	std::cout << "here4" << std::endl;
+	
 	AST::NaryExpression *naryExpr = ParseNaryOperator();
 	if( naryExpr != nullptr ) {
 		AST::Expression *operand = ParseExpression();
@@ -939,7 +930,6 @@ AST::UnaryExpression *Parser::ParseUnaryOperator() {
 }
 
 AST::BinaryExpression *Parser::ParseBinaryOperator() {
-	std::cout << tokens_->GetNextToken() << std::endl;
 	switch( tokens_->GetNextToken().type ) {
 		case TokenType::SUM:
 			if( tokens_->GetNextToken( 1 ).type == TokenType::OF ) {
@@ -991,7 +981,6 @@ AST::BinaryExpression *Parser::ParseBinaryOperator() {
 			tokens_->SkipToNextLine();
 			break;
 		case TokenType::BOTH:
-			std::cout << "in both" << std::endl;
 			switch( tokens_->GetNextToken( 1 ).type ) {
 				case TokenType::OF:
 					tokens_->AdvanceToNextToken( 2 );
@@ -1065,6 +1054,8 @@ AST::FunkshunCall *Parser::ParseFunkshunCall() {
 	AST::FunkshunCall *funkshunCall = new AST::FunkshunCall( funkshunId );
 	
 	if( tokens_->GetNextToken().type == TokenType::YR ) {
+		tokens_->AdvanceToNextToken();
+		
 		AST::Expression *operand = ParseExpression();
 		if( operand == nullptr ) {
 			delete funkshunCall;
@@ -1073,6 +1064,7 @@ AST::FunkshunCall *Parser::ParseFunkshunCall() {
 		funkshunCall->AddOperand( operand );
 		
 		while( tokens_->GetNextToken().type == TokenType::AN ) {
+			tokens_->AdvanceToNextToken();
 			if( !CheckTokenAndAdvance( TokenType::YR ) ) {
 				tokens_->AdvanceToNextToken();
 				delete funkshunCall;

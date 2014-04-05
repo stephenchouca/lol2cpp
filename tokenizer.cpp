@@ -200,8 +200,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::PLZ;
 	} else if( str == "NOES" ) {
 		return TokenType::NOES;
-	} else if( str == "WELL" ) {
-		return TokenType::WELL;
+	} else if( str == "WEL" ) {
+		return TokenType::WEL;
 	} else if( str == "KTHX" ) {
 		return TokenType::KTHX;
 	} else if( str == "SRS" ) {
@@ -274,7 +274,9 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							state = TokenizeState::READ_LINE_CONTINUE;
 							break;
 						case CharType::DOUBLE_QUOTE:
-							state = TokenizeState::READ_YARN_LITERAL;
+							if( !inSingleLineComment && !inMultiLineComment_ ) {
+								state = TokenizeState::READ_YARN_LITERAL;
+							}
 							break;
 						case CharType::MINUS:
 							AddSimpleToken( TokenType::MINUS_SIGN );
@@ -291,7 +293,10 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 						case CharType::SPACE:
 							break;
 						default:
-							return false;
+							if( !inSingleLineComment && !inMultiLineComment_ ) {
+								return false;
+							}
+							break;
 					}
 					++i;
 					break;
@@ -304,12 +309,16 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 								case CharType::PERIOD:
 									break;
 								default:
+									if( inSingleLineComment || inMultiLineComment_ ) {
+										break;
+									}
 									return false;
 							}
 							++i;
 							break;
 						case 2:
-							if( Tokenizer::GetCharType( ch ) != CharType::PERIOD ) {
+							if( Tokenizer::GetCharType( ch ) != CharType::PERIOD && 
+								!inSingleLineComment && !inMultiLineComment_ ) {
 								return false;
 							}
 							++i;
@@ -320,7 +329,11 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							state = TokenizeState::START;
 							break;
 						default:
-							return false;
+							if( !inSingleLineComment && !inMultiLineComment_ ) {
+								return false;
+							}
+							++i;
+							break;
 					}
 					break;
 				case TokenizeState::READ_KEYWORD_OR_IDENT:
@@ -362,7 +375,11 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							}
 							break;
 						default:
-							return false;
+							if( !inSingleLineComment && !inMultiLineComment_ ) {
+								return false;
+							}
+							++i;
+							break;
 					}
 					break;
 				case TokenizeState::READ_YARN_LITERAL:
@@ -439,14 +456,20 @@ bool Tokenizer::Tokenize( std::string srcFile ) {
 							}
 							break;
 						default:
-							return false;
+							if( !inSingleLineComment && !inMultiLineComment_ ) {
+								return false;
+							}
+							++i;
+							break;
 					}
 					break;
 				default:
+					assert( false );
 					return false;
 			}
 		}
-		if( state == TokenizeState::READ_YARN_LITERAL ) {
+		if( state == TokenizeState::READ_YARN_LITERAL &&
+			!inSingleLineComment && !inMultiLineComment_ ) {
 			return false;
 		}
 		if( !continueCurrentLine_ && addLineDelimiter_ ) {

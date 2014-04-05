@@ -168,8 +168,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "PLZ";
 		case TokenType::NOES:
 			return "NOES";
-		case TokenType::WELL:
-			return "WELL";
+		case TokenType::WEL:
+			return "WEL";
 		case TokenType::KTHX:
 			return "KTHX";
 		case TokenType::SRS:

@@ -87,7 +87,7 @@ enum class TokenType {
 	FOUND,
 	PLZ,
 	NOES,
-	WELL,
+	WEL,
 	KTHX,
 	SRS,
 	SLOT,

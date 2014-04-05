@@ -1,9 +1,20 @@
+OBTW
+	This test program is clearly not a valid program and is 
+	only intended for testing various elements of parser. 
+	Bits of it are shamelessly copied from 
+	http://lolcode.org/1.2_spec.html
+TLDR
+
 HAI
 
 	I HAS A var1 ITZ 1
 	I HAS A var2 ITZ A NOOB
 	BOTH SAEM ANIMAL AN "CAT"
 	
+	HOW IZ I MyProd YR a AN YR b
+		GIMMEH LONG c
+		FOUND YR PRODUKT OF a AN SUM OF b AN c
+	IF U SAY SO
 	
 	SUM OF 1 AN 2
 	
@@ -39,7 +50,8 @@ HAI
 	OIC 
 	
 	IM IN YR loop UPPIN YR var TIL BOTH SAEM var AN 1
-		SUM OF -3 AN var
+		SUM OF -3 AN I IZ MyProd YR SUM OF var AN "2" AN YR var
+		SUM OF I IZ MyProd YR var AN YR var MKAY AN - 4.0
 		O RLY?
 			YA RLY
 				VISIBLE var

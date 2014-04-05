@@ -25,7 +25,7 @@ class Parser {
 			LOOP_BODY,
 			PLZ_BODY,
 			PLZ_ONOES,
-			PLZ_OWELL
+			PLZ_OWEL
 		};
 		
 		AST::StatementBlock *ParseStatementBlock( const BodyType );

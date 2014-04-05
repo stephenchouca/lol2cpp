@@ -144,14 +144,15 @@ namespace AST {
 	}
 	
 	void LoopBlock::Print( std::ostream &out ) {
-		out << DebugIndent() << GetLoopType() << ":" << loopId_->GetIdentifier();
+		out << DebugIndent() << GetLoopType() << ":" << std::endl 
+			<< DebugIndent( 1 ) << "Identifier: " << loopId_->GetIdentifier();
 		
 		if( loopVar_ != nullptr ) {
-			out << std::endl << DebugIndent( 1 ) << "Loop Var:" 
-				<< std::endl << *loopVar_;
+			out << std::endl << DebugIndent( 1 ) << "Loop Var";
 			if( loopVarIsLocal_ ) {
-				out << std::endl << DebugIndent( 2 ) << "isLocal";
+				out << " (isLocal)";
 			}
+			out << ":" << std::endl << *loopVar_;
 		}
 		
 		PrintLoopSpecific( out );
@@ -311,7 +312,7 @@ namespace AST {
 	}
 	
 	PlzBlock::PlzBlock( StatementBlock *tryBlock ) : 
-			tryBlock_( tryBlock ), wellBlock_( nullptr ) {
+			tryBlock_( tryBlock ), welBlock_( nullptr ) {
 		assert( tryBlock_ != nullptr );
 		tryBlock_->SetParent( this );
 	}
@@ -325,7 +326,7 @@ namespace AST {
 			noesBlocks_.pop_back();
 		}
 		
-		delete wellBlock_;
+		delete welBlock_;
 	}
 	
 	void PlzBlock::Print( std::ostream &out ) {
@@ -346,10 +347,10 @@ namespace AST {
 				<< std::endl << *(noesBlockIt->second);
 		}
 		
-		if( wellBlock_ != nullptr ) {
-			out << std::endl << DebugIndent( 1 ) << "WELL:" 
+		if( welBlock_ != nullptr ) {
+			out << std::endl << DebugIndent( 1 ) << "WEL:" 
 				<< std::endl << DebugIndent( 2 ) << "Body:"
-				<< std::endl << *wellBlock_;
+				<< std::endl << *welBlock_;
 		}
 	}
 	
@@ -361,10 +362,10 @@ namespace AST {
 		handler->SetParent( this );
 	}
 	
-	void PlzBlock::SetWellBlock( StatementBlock *wellBlock ) {
-		assert( wellBlock != nullptr );
-		wellBlock_ = wellBlock;
-		wellBlock_->SetParent( this );
+	void PlzBlock::SetWelBlock( StatementBlock *welBlock ) {
+		assert( welBlock != nullptr );
+		welBlock_ = welBlock;
+		welBlock_->SetParent( this );
 	}
 	
 	VarDeclare::VarDeclare( Identifier *varId ) :
@@ -516,12 +517,14 @@ namespace AST {
 	}
 	
 	void GimmehStatement::Print( std::ostream &out ) {
-		out << DebugIndent() << "GIMMEH:";
+		out << DebugIndent() << "GIMMEH";
+		if( isLong_ ) {
+			out << " (isLong)";
+		}
+		out << ":";
+		
 		if( targetId_ != nullptr ) {
 			out << std::endl << *targetId_;
-		}
-		if( isLong_ ) {
-			out << std::endl << DebugIndent( 1 ) << "isLong";
 		}
 	}
 	
