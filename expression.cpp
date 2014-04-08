@@ -74,11 +74,11 @@ namespace AST {
 	
 	SlotIdentifier *SlotIdentifier::Clone() {
 		SlotIdentifier *ret = new SlotIdentifier( key_->Clone() );
-		ret->bukkitRef_ = this->bukkitRef_->Clone();
+		ret->SetBukkitRef( bukkitRef_->Clone() );
 		return ret;
 	}
 	
-	void SlotIdentifier::SetBukkitReference( Expression *ref ) {
+	void SlotIdentifier::SetBukkitRef( Expression *ref ) {
 		assert( ref != nullptr );
 		assert( bukkitRef_ == nullptr );
 		bukkitRef_ = ref;
@@ -94,8 +94,9 @@ namespace AST {
 
 	void UnaryExpression::CloneOperand( UnaryExpression *newExpr ) {
 		assert( newExpr != nullptr );
-		newExpr->operand_ = ( this->operand_ == nullptr ) ? 
-							nullptr : this->operand_->Clone();
+		if( operand_ != nullptr ) {
+			newExpr->SetOperand( operand_->Clone() );
+		}
 	}
 	
 	void UnaryExpression::SetOperand( Expression *operand ) {
@@ -146,10 +147,12 @@ namespace AST {
 	
 	void BinaryExpression::CloneOperands( BinaryExpression *newExpr ) {
 		assert( newExpr != nullptr );
-		newExpr->leftOperand_ = ( this->leftOperand_ == nullptr ) ? 
-								nullptr : this->leftOperand_->Clone();
-		newExpr->rightOperand_ = ( this->rightOperand_ == nullptr ) ? 
-								 nullptr : this->rightOperand_->Clone();
+		if( leftOperand_ != nullptr ) {
+			newExpr->SetLeftOperand( leftOperand_->Clone() );
+		}
+		if( rightOperand_ != nullptr ) {
+			newExpr->SetRightOperand( rightOperand_->Clone() );
+		}
 	}
 	
 	void BinaryExpression::SetLeftOperand( Expression *leftOperand ) {
@@ -246,9 +249,8 @@ namespace AST {
 	void NaryExpression::Print( std::ostream &out ) {
 		out << DebugIndent() << GetOperatorName() << ":";
 		
-		ExpressionListIterator operandIt;
-		for( operandIt = operands_.cbegin(); 
-			 operandIt != operands_.cend(); ++operandIt ) {
+		for( ExpressionListIterator operandIt = operands_.begin(); 
+			 operandIt != operands_.end(); ++operandIt ) {
 			Expression *operand = *operandIt;
 			out << std::endl << *operand;
 		}
@@ -256,7 +258,17 @@ namespace AST {
 	
 	void NaryExpression::CloneOperands( NaryExpression *newExpr ) {
 		assert( newExpr != nullptr );
-		newExpr->operands_ = this->operands_;
+		for( ExpressionListIterator operandIt = operands_.begin(); 
+			 operandIt != operands_.end(); ++operandIt ) {
+			Expression *operand = *operandIt;
+			newExpr->AddOperand( operand->Clone() );
+		}
+	}
+	
+	void NaryExpression::AddOperand( Expression *operand ) {
+		assert( operand != nullptr );
+		operands_.push_back( operand );
+		operand->SetParent( this );
 	}
 	
 	AllExpression *AllExpression::Clone() {
@@ -281,12 +293,6 @@ namespace AST {
 		FunkshunCall *ret = new FunkshunCall( funkshunName_->Clone() );
 		CloneOperands( ret );
 		return ret;
-	}
-	
-	void NaryExpression::AddOperand( Expression *operand ) {
-		assert( operand != nullptr );
-		operands_.push_back( operand );
-		operand->SetParent( this );
 	}
 	
 	FunkshunCall::FunkshunCall( LiteralIdentifier *funkshunName ) : 

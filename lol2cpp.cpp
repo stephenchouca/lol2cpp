@@ -7,14 +7,15 @@
 #include "ast.h"
 #include "statement.h"
 #include "expression.h"
+#include "funkshunhoister.h"
 
 int main() {
 	Tokenizer tokenizer;
 	Parser parser;
 	
 	//std::string srcPath( "test/randtokens.lols" );
-	//std::string srcPath( "test/large.lols" );
-	std::string srcPath( "test/99beers.lols" );
+	std::string srcPath( "test/large.lols" );
+	//std::string srcPath( "test/99beers.lols" );
 	//std::string srcPath( "test/empty.lols" );
 
 	tokenizer.Tokenize( srcPath );
@@ -36,6 +37,10 @@ int main() {
 	} else {
 		std::cout << "NULL" << std::endl;
 	}
+	
+	FunkshunHoister funkshunHoister;
+	funkshunHoister.Visit( program );
+	std::cout << *program << std::endl;
 #endif
 	return 0;
 }

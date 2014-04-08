@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "ast.h"
+#include "visitor.h"
 
 namespace AST {
 	class StatementBlock;
@@ -33,28 +34,52 @@ namespace AST {
 	typedef std::list<NoesBlock> NoesBlockList;
 	typedef std::list<FunkshunParam> FunkshunParamList;
 	
-	typedef std::list<Statement *>::const_iterator StatementListIterator;
-	typedef std::list<Expression *>::const_iterator ExpressionListIterator;
-	typedef std::list<Literal *>::const_iterator LiteralListIterator;
-	typedef std::list<StatementBlock *>::const_iterator StatementBlockListIterator;
-	typedef std::list<MebbeBlock>::const_iterator MebbeBlockListIterator;
-	typedef std::list<OmgBlock>::const_iterator OmgBlockListIterator;
-	typedef std::list<NoesBlock>::const_iterator NoesBlockListIterator;
-	typedef std::list<FunkshunParam>::const_iterator FunkshunParamListIterator;
+	typedef std::list<Statement *>::iterator StatementListIterator;
+	typedef std::list<Expression *>::iterator ExpressionListIterator;
+	typedef std::list<Literal *>::iterator LiteralListIterator;
+	typedef std::list<StatementBlock *>::iterator StatementBlockListIterator;
+	typedef std::list<MebbeBlock>::iterator MebbeBlockListIterator;
+	typedef std::list<OmgBlock>::iterator OmgBlockListIterator;
+	typedef std::list<NoesBlock>::iterator NoesBlockListIterator;
+	typedef std::list<FunkshunParam>::iterator FunkshunParamListIterator;
 	
 	class Statement : public ASTNode {
 	};
 	
 	class StatementBlock : public ASTNode {
 		public:
+			enum class Type { 
+				PROGRAM_BODY,
+				PROGRAM_GLOBALS,
+				FUNKSHUN_BODY,
+				ORLY_YA,
+				ORLY_MEBBE,
+				ORLY_NO,
+				WTF_OMG,
+				WTF_OMGWTF,
+				LOOP_BODY,
+				PLZ_BODY,
+				PLZ_ONOES,
+				PLZ_OWEL
+			};
+			
+		public:
+			StatementBlock( Type type ) : type_( type ) {}
 			~StatementBlock();
 			
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 0; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Type GetType() { return type_; }
+			StatementList &GetStatements() { return stmts_; }
+			
 			void AddStatement( Statement * );
+			void SwapStatement( StatementListIterator &, Statement * );
 			
 		private:
+			Type type_;
 			StatementList stmts_;
 	};
 
@@ -70,6 +95,12 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 3; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			StatementBlock *GetYaRlyBlock() { return yaRlyBlock_; }
+			MebbeBlockList &GetMebbeBlocks() { return mebbeBlocks_; }
+			StatementBlock *GetNoWaiBlock() { return noWaiBlock_; }
 			
 			void AddMebbeBlock( Expression *, StatementBlock * );
 			void SetNoWaiBlock( StatementBlock * );
@@ -87,6 +118,11 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 3; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			OmgBlockList &GetOmgBlocks() { return omgBlocks_; }
+			StatementBlock *GetOmgwtfBlock() { return omgwtfBlock_; }
 			
 			void AddOmgBlock( Literal *, StatementBlock * );
 			void SetOmgwtfBlock( StatementBlock * );
@@ -106,11 +142,15 @@ namespace AST {
 			virtual std::string GetLoopType() = 0;
 			unsigned int GetWidth() { return 2; }
 			
+			LiteralIdentifier *GetLabel() { return label_; }
+			StatementBlock *GetBody() { return body_; }
+			Identifier *GetLoopVariable() { return loopVar_; }
+			
 			void SetBody( StatementBlock * );
 			virtual void SetLoopVariable( Identifier *, bool );
 			
 		protected:
-			LiteralIdentifier *loopId_;
+			LiteralIdentifier *label_;
 			StatementBlock *body_;
 			
 			Identifier *loopVar_;
@@ -124,6 +164,12 @@ namespace AST {
 			
 			void PrintLoopSpecific( std::ostream & );
 			std::string GetLoopType() { return "FOR LOOP"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Expression *GetLoopVariableIncExpr() { return loopVarIncExpr_; }
+			Expression *GetLoopVariableInitExpr() { return loopVarInitExpr_; }
+			UnaryBooleanExpression *GetLoopGuard() { return loopGuard_; }
 			
 			void SetLoopVariable( Identifier *, bool );
 			void SetLoopVariableIncExpr( Expression * );
@@ -144,6 +190,10 @@ namespace AST {
 			void PrintLoopSpecific( std::ostream & );
 			std::string GetLoopType() { return "RANGE LOOP"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Expression *GetBukkitRef() { return bukkitRef_; }
+			
 			void SetBukkitRef( Expression * );
 			
 		private:
@@ -158,13 +208,34 @@ namespace AST {
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 2; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			LiteralIdentifier *GetName() { return name_; }
+			FunkshunParamList &GetParameters() { return params_; }
+			StatementBlock *GetBody() { return body_; }
+			
 			void AddParameter( LiteralIdentifier *, bool );
 			void SetBody( StatementBlock * );
 			
 		private:
-			LiteralIdentifier *funkshunId_;
+			LiteralIdentifier *name_;
 			FunkshunParamList params_;
 			StatementBlock *body_;
+	};
+	
+	class FunkshunDeclare : public Statement {
+		public:
+			FunkshunDeclare( LiteralIdentifier * );
+			~FunkshunDeclare();
+			
+			void Print( std::ostream & );
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			LiteralIdentifier *GetFunkshunName() { return funkshunName_; }
+		
+		private:
+			LiteralIdentifier *funkshunName_;
 	};
 
 	class PlzBlock : public Statement {
@@ -174,6 +245,8 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 3; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			void AddNoesBlock( Expression *, StatementBlock * );
 			void SetWelBlock( StatementBlock * );
@@ -191,6 +264,12 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Identifier *GetVariable() { return varId_; }
+			Expression *GetInitValue() { return initVal_; }
+			TypeIdentifier *GetInitType() { return initType_; }
+			
 			void SetInitValue( Expression * );
 			void SetInitType( TypeIdentifier * );
 			
@@ -207,6 +286,11 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Identifier *GetVariable() { return varId_; }
+			Expression *GetAssignValue() { return assignVal_; }
+			
 			void SetAssignValue( Expression * );
 			
 		private:
@@ -220,6 +304,11 @@ namespace AST {
 			~VarCast();
 			
 			void Print( std::ostream & );
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Identifier *GetVariable() { return varId_; }
+			TypeIdentifier *GetCastTargetType() { return targetType_; }
 			
 			void SetCastTargetType( TypeIdentifier * );
 			
@@ -235,6 +324,10 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
+			Expression *GetReturnValue() { return retVal_; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 		private:
 			Expression *retVal_;
 	};
@@ -244,6 +337,8 @@ namespace AST {
 			void Print( std::ostream &out ) {
 				out << DebugIndent() << "GTFO";
 			}
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 	};
 
 	class VisibleStatement : public Statement {
@@ -253,10 +348,16 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			ExpressionList &GetExpressions() { return exprs_; }
+			
 			void AddExpression( Expression * );
+			void SetSuppressNewline() { suppressNewline_ = true; }
 			
 		private:
 			ExpressionList exprs_;
+			bool suppressNewline_;
 	};
 
 	class GimmehStatement : public Statement {
@@ -266,8 +367,12 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Identifier *GetTargetVariable() { return targetVar_; }
+			
 		private:
-			Identifier *targetId_;
+			Identifier *targetVar_;
 			bool isLong_;
 	};
 
@@ -275,15 +380,21 @@ namespace AST {
 		public:
 			Program( StatementBlock * );
 			~Program() {
-				delete stmtBlock_;
+				delete globals_;
+				delete body_;
 			}
 			
 			void Print( std::ostream & );
+			unsigned int GetWidth() { return 2; }
 			
-			//inline void Accept( ASTVisitor &v ) { v.Visit( this ); }
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			StatementBlock *GetGlobals() { return globals_; }
+			StatementBlock *GetBody() { return body_; }
 		
 		private:
-			StatementBlock *stmtBlock_;
+			StatementBlock *globals_;
+			StatementBlock *body_;
 	};
 }
 

@@ -5,6 +5,7 @@
 
 #include "ast.h"
 #include "statement.h"
+#include "visitor.h"
 
 namespace AST {
 	typedef bool troof_t;
@@ -23,6 +24,8 @@ namespace AST {
 				out << DebugIndent() << "TROOF: " << ( val_ ? "WIN" : "FAIL" );
 			}
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			TroofLiteral *Clone() { return new TroofLiteral( val_ ); }
 			
 		private:
@@ -36,6 +39,8 @@ namespace AST {
 			void Print( std::ostream &out ) {
 				out << DebugIndent() << "NUMBR: " << val_;
 			}
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			NumbrLiteral *Clone() { return new NumbrLiteral( val_ ); }
 		
@@ -54,6 +59,8 @@ namespace AST {
 				out << DebugIndent() << "NUMBAR: " << val_;
 			}
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			NumbarLiteral *Clone() { return new NumbarLiteral( val_ ); }
 		
 		private:
@@ -71,6 +78,8 @@ namespace AST {
 				out << DebugIndent() << "YARN: \"" << val_ << "\"";
 			}
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			YarnLiteral *Clone() { return new YarnLiteral( val_ ); }
 			
 		private:
@@ -83,16 +92,28 @@ namespace AST {
 				out << DebugIndent() << "NOOB";
 			}
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			NoobLiteral *Clone() { return new NoobLiteral(); }
 	};
 
 	class TypeIdentifier : public ASTNode {
 		public:
-			enum class Type { NUMBR, NUMBAR, TROOF, YARN, BUKKIT, NOOB };
-			
+			enum class Type {
+				NUMBR, 
+				NUMBAR, 
+				TROOF, 
+				YARN, 
+				BUKKIT, 
+				NOOB 
+			};
+		
+		public:
 			TypeIdentifier( Type type ) : type_( type ) {}
 			
 			void Print( std::ostream & );
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			TypeIdentifier *Clone() { return new TypeIdentifier( type_ ); }
 			
@@ -111,6 +132,8 @@ namespace AST {
 				out << DebugIndent() << "IDENTIFIER: " << GetIdentifier();
 			}
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			LiteralIdentifier *Clone() { return new LiteralIdentifier( id_ ); }
 			
 			std::string GetIdentifier() { return id_; }
@@ -128,7 +151,9 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
-			SrsIdentifier *Clone() { return new SrsIdentifier( ref_ ); }
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			SrsIdentifier *Clone() { return new SrsIdentifier( ref_->Clone() ); }
 			
 		private:
 			Expression *ref_;
@@ -139,6 +164,8 @@ namespace AST {
 			void Print( std::ostream &out ) {
 				out << DebugIndent() << "IT";
 			}
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			ItIdentifier *Clone() { return new ItIdentifier(); }
 	};
@@ -154,9 +181,14 @@ namespace AST {
 			void Print( std::ostream & );
 			inline unsigned int GetWidth() { return 2; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			SlotIdentifier *Clone();
 			
-			void SetBukkitReference( Expression * );
+			Expression *GetKey() { return key_; }
+			Expression *GetBukkitRef() { return bukkitRef_; }
+			
+			void SetBukkitRef( Expression * );
 			
 		private:
 			Expression *key_;
@@ -175,6 +207,8 @@ namespace AST {
 			
 			void CloneOperand( UnaryExpression * );
 			
+			Expression *GetOperand() { return operand_; }
+			
 			void SetOperand( Expression * );
 			
 		protected:
@@ -191,12 +225,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "NOT"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			NotExpression *Clone();
 	};
 	
 	class UppinExpression : public UnaryMathExpression {
 		public:
 			std::string GetOperatorName() { return "UPPIN"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			UppinExpression *Clone();
 	};
@@ -205,6 +243,8 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "NERFIN"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			NerfinExpression *Clone();
 	};
 	
@@ -212,12 +252,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "TIL"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			TilExpression *Clone();
 	};
 	
 	class WileExpression : public UnaryBooleanExpression {
 		public:
 			std::string GetOperatorName() { return "WILE"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			WileExpression *Clone();
 	};
@@ -235,6 +279,9 @@ namespace AST {
 			
 			void CloneOperands( BinaryExpression * );
 			
+			Expression *GetLeftOperand() { return leftOperand_; }
+			Expression *GetRightOperand() { return rightOperand_; }
+			
 			void SetLeftOperand( Expression * );
 			void SetRightOperand( Expression * );
 			
@@ -246,7 +293,7 @@ namespace AST {
 	class BinaryMathExpression : public BinaryExpression {
 	};
 	
-	class BinaryBoolExpression : public BinaryExpression {
+	class BinaryBooleanExpression : public BinaryExpression {
 	};
 	
 	class BinaryCompareExpression : public BinaryExpression {
@@ -256,12 +303,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "SUM"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			SumExpression *Clone();
 	};
 
 	class DiffExpression : public BinaryMathExpression {
 		public:
 			std::string GetOperatorName() { return "DIFF"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			DiffExpression *Clone();
 	};
@@ -270,12 +321,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "PRODUKT"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			ProduktExpression *Clone();
 	};
 
 	class QuoshuntExpression : public BinaryMathExpression {
 		public:
 			std::string GetOperatorName() { return "QUOSHUNT"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			QuoshuntExpression *Clone();
 	};
@@ -284,12 +339,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "MOD"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			ModExpression *Clone();
 	};
 
 	class BiggrExpression : public BinaryMathExpression {
 		public:
 			std::string GetOperatorName() { return "BIGGR"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			BiggrExpression *Clone();
 	};
@@ -298,26 +357,34 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "SMALLR"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			SmallrExpression *Clone();
 	};
 
-	class BothExpression : public BinaryBoolExpression {
+	class BothExpression : public BinaryBooleanExpression {
 		public:
 			std::string GetOperatorName() { return "BOTH"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			BothExpression *Clone();
 	};
 
-	class EitherExpression : public BinaryBoolExpression {
+	class EitherExpression : public BinaryBooleanExpression {
 		public:
 			std::string GetOperatorName() { return "EITHER"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			EitherExpression *Clone();
 	};
 
-	class WonExpression : public BinaryBoolExpression {
+	class WonExpression : public BinaryBooleanExpression {
 		public:
 			std::string GetOperatorName() { return "WON"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			WonExpression *Clone();
 	};
@@ -326,12 +393,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "SAEM"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			SaemExpression *Clone();
 	};
 
 	class DiffrintExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "DIFFRINT"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			DiffrintExpression *Clone();
 	};
@@ -344,6 +415,8 @@ namespace AST {
 			virtual std::string GetOperatorName() = 0;
 			
 			void CloneOperands( NaryExpression * );
+			
+			ExpressionList &GetOperands() { return operands_; }
 			
 			void AddOperand( Expression * );
 			
@@ -358,6 +431,8 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "ALL"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			AllExpression *Clone();
 	};
 
@@ -365,12 +440,16 @@ namespace AST {
 		public:
 			std::string GetOperatorName() { return "ANY"; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			AnyExpression *Clone();
 	};
 	
 	class SmooshExpression : public NaryExpression {
 		public:
 			std::string GetOperatorName() { return "SMOOSH"; }
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			SmooshExpression *Clone();
 	};
@@ -385,6 +464,10 @@ namespace AST {
 			std::string GetOperatorName() { 
 				return "CALL " + funkshunName_->GetIdentifier();
 			}
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			LiteralIdentifier *GetFunkshunName() { return funkshunName_; }
 			
 			FunkshunCall *Clone();
 				
@@ -402,7 +485,12 @@ namespace AST {
 			
 			void Print( std::ostream &out );
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			CastExpression *Clone();
+			
+			Expression *GetSourceExpr() { return srcExpr_; }
+			TypeIdentifier *GetCastTargetType() { return targetType_; }
 			
 			void SetCastTargetType( TypeIdentifier * );
 			

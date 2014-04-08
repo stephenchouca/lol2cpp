@@ -14,12 +14,13 @@ namespace AST {
 	
 	void StatementBlock::Print( std::ostream &out ) {
 		bool newline = false;
-		for( StatementListIterator it = stmts_.cbegin();
-			 it != stmts_.cend(); ++it, newline = true ) {
+		for( StatementListIterator it = stmts_.begin();
+			 it != stmts_.end(); ++it, newline = true ) {
 			if( newline ) {
 				out << std::endl;
 			}
 			Statement *stmt = *it;
+			assert( stmt != nullptr );
 			out << *stmt;
 		}
 	}
@@ -28,6 +29,19 @@ namespace AST {
 		assert( stmt != nullptr );
 		stmts_.push_back( stmt );
 		stmt->SetParent( this );
+	}
+	
+	void StatementBlock::SwapStatement( StatementListIterator &it, Statement *stmt ) {
+		if( it == stmts_.end() ) {
+			return;
+		}
+		
+		if( stmt != nullptr ) {
+			stmts_.insert( it, stmt );
+			stmt->SetParent( this );
+		}
+		
+		it = stmts_.erase( it );
 	}
 		
 	ORlyBlock::ORlyBlock( StatementBlock *yaRlyBlock ) :
@@ -57,8 +71,8 @@ namespace AST {
 				<< std::endl << *yaRlyBlock_;
 		}
 		
-		for( MebbeBlockListIterator mebbeBlockIt = mebbeBlocks_.cbegin();
-			 mebbeBlockIt != mebbeBlocks_.cend(); ++mebbeBlockIt ) {
+		for( MebbeBlockListIterator mebbeBlockIt = mebbeBlocks_.begin();
+			 mebbeBlockIt != mebbeBlocks_.end(); ++mebbeBlockIt ) {
 			out << std::endl << DebugIndent( 1 ) << "MEBBE:" 
 				<< std::endl << DebugIndent( 2 ) << "Condition:"
 				<< std::endl << *(mebbeBlockIt->first) 
@@ -101,8 +115,8 @@ namespace AST {
 	void WtfBlock::Print( std::ostream &out ) {
 		out << DebugIndent() << "WTF:";
 		
-		for( OmgBlockListIterator omgBlockIt = omgBlocks_.cbegin(); 
-			 omgBlockIt != omgBlocks_.cend(); ++omgBlockIt ) {
+		for( OmgBlockListIterator omgBlockIt = omgBlocks_.begin(); 
+			 omgBlockIt != omgBlocks_.end(); ++omgBlockIt ) {
 			out << std::endl << DebugIndent( 1 ) << "OMG:" 
 				<< std::endl << DebugIndent( 2 ) << "Label:"
 				<< std::endl << *(omgBlockIt->first) 
@@ -131,28 +145,26 @@ namespace AST {
 		omgwtfBlock_->SetParent( this );
 	}
 	
-	LoopBlock::LoopBlock( LiteralIdentifier *loopId ) : loopId_( loopId ), 
+	LoopBlock::LoopBlock( LiteralIdentifier *label ) : label_( label ), 
 			body_( nullptr ), loopVar_( nullptr ), loopVarIsLocal_( false ) {
-		assert( loopId_ != nullptr );
-		loopId_->SetParent( this );
+		assert( label_ != nullptr );
+		label_->SetParent( this );
 	}
 	
 	LoopBlock::~LoopBlock() {
-		delete loopId_;
+		delete label_;
 		delete body_;
 		delete loopVar_;
 	}
 	
 	void LoopBlock::Print( std::ostream &out ) {
 		out << DebugIndent() << GetLoopType() << ":" << std::endl 
-			<< DebugIndent( 1 ) << "Identifier: " << loopId_->GetIdentifier();
+			<< DebugIndent( 1 ) << "Label: " << label_->GetIdentifier();
 		
 		if( loopVar_ != nullptr ) {
-			out << std::endl << DebugIndent( 1 ) << "Loop Var";
-			if( loopVarIsLocal_ ) {
-				out << " (isLocal)";
-			}
-			out << ":" << std::endl << *loopVar_;
+			out << std::endl << DebugIndent( 1 ) 
+				<< ( loopVarIsLocal_ ? "Local " : "" ) << "Loop Var:" 
+				<< std::endl << *loopVar_;
 		}
 		
 		PrintLoopSpecific( out );
@@ -175,7 +187,7 @@ namespace AST {
 		loopVarIsLocal_ = isLocal;
 	}
 	
-	ForLoopBlock::ForLoopBlock( LiteralIdentifier *loopId ) : LoopBlock( loopId ), 
+	ForLoopBlock::ForLoopBlock( LiteralIdentifier *label ) : LoopBlock( label ), 
 		loopVarIncExpr_( nullptr ), 
 		loopVarInitExpr_( nullptr ),
 		loopGuard_( nullptr ) {}
@@ -243,8 +255,8 @@ namespace AST {
 		loopGuard_->SetParent( this );
 	}
 	
-	RangeLoopBlock::RangeLoopBlock( LiteralIdentifier *loopId ) : 
-		LoopBlock( loopId ), bukkitRef_( nullptr ) {}
+	RangeLoopBlock::RangeLoopBlock( LiteralIdentifier *label ) : 
+		LoopBlock( label ), bukkitRef_( nullptr ) {}
 	
 	RangeLoopBlock::~RangeLoopBlock() {
 		delete bukkitRef_;
@@ -263,14 +275,14 @@ namespace AST {
 		bukkitRef_->SetParent( this );
 	}
 	
-	FunkshunBlock::FunkshunBlock( LiteralIdentifier *id ) : 
-			funkshunId_( id ), body_( nullptr ) {
-		assert( funkshunId_ != nullptr );
-		funkshunId_->SetParent( this );
+	FunkshunBlock::FunkshunBlock( LiteralIdentifier *name ) : 
+			name_( name ), body_( nullptr ) {
+		assert( name_ != nullptr );
+		name_->SetParent( this );
 	}
 	
 	FunkshunBlock::~FunkshunBlock() {
-		delete funkshunId_;
+		delete name_;
 		
 		while( !params_.empty() ) {
 			delete params_.back().first;
@@ -281,11 +293,11 @@ namespace AST {
 	}
 	
 	void FunkshunBlock::Print( std::ostream &out ) {
-		out << DebugIndent() << "FUNKSHUN: " << funkshunId_->GetIdentifier();
+		out << DebugIndent() << "FUNKSHUN: " << name_->GetIdentifier();
 		
 		if( !params_.empty() ) {
-			for( FunkshunParamListIterator paramIt = params_.cbegin();
-				 paramIt != params_.cend(); ++paramIt ) {
+			for( FunkshunParamListIterator paramIt = params_.begin();
+				 paramIt != params_.end(); ++paramIt ) {
 				out << std::endl << DebugIndent( 1 ) << "Parameter:"
 					<< std::endl << *(paramIt->first);
 				if( paramIt->second ) {
@@ -309,6 +321,20 @@ namespace AST {
 		assert( body != nullptr );
 		body_ = body;
 		body_->SetParent( this );
+	}
+	
+	FunkshunDeclare::FunkshunDeclare( LiteralIdentifier *funkshunName ) : 
+			funkshunName_( funkshunName ) {
+		assert( funkshunName_ != nullptr );
+		funkshunName_->SetParent( this );
+	}
+	
+	FunkshunDeclare::~FunkshunDeclare() {
+		delete funkshunName_;
+	}
+	
+	void FunkshunDeclare::Print( std::ostream &out ) {
+		out << DebugIndent() << "FUNKSHUN DECLARE: " << funkshunName_->GetIdentifier();
 	}
 	
 	PlzBlock::PlzBlock( StatementBlock *tryBlock ) : 
@@ -338,8 +364,8 @@ namespace AST {
 				<< std::endl << *tryBlock_;
 		}
 		
-		for( NoesBlockListIterator noesBlockIt = noesBlocks_.cbegin();
-			 noesBlockIt != noesBlocks_.cend(); ++noesBlockIt ) {
+		for( NoesBlockListIterator noesBlockIt = noesBlocks_.begin();
+			 noesBlockIt != noesBlocks_.end(); ++noesBlockIt ) {
 			out << std::endl << DebugIndent( 1 ) << "NOES:" 
 				<< std::endl << DebugIndent( 2 ) << "Exception:"
 				<< std::endl << *(noesBlockIt->first) 
@@ -478,7 +504,8 @@ namespace AST {
 		}
 	}
 	
-	VisibleStatement::VisibleStatement( Expression *expr ) {
+	VisibleStatement::VisibleStatement( Expression *expr ) : 
+			suppressNewline_( false ) {
 		AddExpression( expr );
 	}
 	
@@ -492,11 +519,15 @@ namespace AST {
 	void VisibleStatement::Print( std::ostream &out ) {
 		out << DebugIndent() << "VISIBLE:";
 		
-		for( ExpressionListIterator it = exprs_.cbegin();
-			 it != exprs_.cend(); ++it ) {
+		for( ExpressionListIterator it = exprs_.begin();
+			 it != exprs_.end(); ++it ) {
 			Expression *expr = *it;
 			assert( expr != nullptr );
 			out << std::endl << *expr;
+		}
+		
+		if( !suppressNewline_ ) {
+			out << std::endl << DebugIndent( 1 ) << "NEWLINE";
 		}
 	}
 	
@@ -506,37 +537,45 @@ namespace AST {
 		expr->SetParent( this );
 	}
 	
-	GimmehStatement::GimmehStatement( Identifier *targetId, bool isLong ) :
-			targetId_( targetId ), isLong_( isLong ) {
-		assert( targetId_ != nullptr );
-		targetId_->SetParent( this );
+	GimmehStatement::GimmehStatement( Identifier *targetVar, bool isLong ) :
+			targetVar_( targetVar ), isLong_( isLong ) {
+		assert( targetVar_ != nullptr );
+		targetVar_->SetParent( this );
 	}
 	
 	GimmehStatement::~GimmehStatement() {
-		delete targetId_;
+		delete targetVar_;
 	}
 	
 	void GimmehStatement::Print( std::ostream &out ) {
 		out << DebugIndent() << "GIMMEH";
 		if( isLong_ ) {
-			out << " (isLong)";
+			out << " LONG";
 		}
 		out << ":";
 		
-		if( targetId_ != nullptr ) {
-			out << std::endl << *targetId_;
+		if( targetVar_ != nullptr ) {
+			out << std::endl << *targetVar_;
 		}
 	}
 	
-	Program::Program( StatementBlock *stmtBlock ) : stmtBlock_( stmtBlock ) {
-		assert( stmtBlock_ != nullptr );
-		stmtBlock_->SetParent( this );
+	Program::Program( StatementBlock *body ) : 
+			globals_( new StatementBlock( 
+				AST::StatementBlock::Type::PROGRAM_GLOBALS ) ), 
+			body_( body ) {
+		assert( body_ != nullptr );
+		body_->SetParent( this );
+		globals_->SetParent( this );
 	}
 	
 	void Program::Print( std::ostream &out ) {
 		out << DebugIndent() << "PROGRAM:";
-		if( stmtBlock_ != nullptr ) {
-			out << std::endl << *stmtBlock_;
+		
+		assert( globals_ != nullptr );
+		out << std::endl << DebugIndent( 1 ) << "Globals:" << std::endl << *globals_;
+		
+		if( body_ != nullptr ) {
+			out << std::endl << DebugIndent( 1 ) << "Body:" << std::endl << *body_;
 		}
 	}
 }

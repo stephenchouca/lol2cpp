@@ -14,21 +14,7 @@ class Parser {
 		AST::Program *Parse( TokenList * );
 
 	private:
-		enum class BodyType { 
-			PROGRAM,
-			FUNKSHUN_BODY,
-			ORLY_YA,
-			ORLY_MEBBE,
-			ORLY_NO,
-			WTF_OMG,
-			WTF_OMGWTF,
-			LOOP_BODY,
-			PLZ_BODY,
-			PLZ_ONOES,
-			PLZ_OWEL
-		};
-		
-		AST::StatementBlock *ParseStatementBlock( const BodyType );
+		AST::StatementBlock *ParseStatementBlock( const AST::StatementBlock::Type );
 
 		AST::ORlyBlock *ParseORlyBlock();
 		AST::WtfBlock *ParseWtfBlock();
