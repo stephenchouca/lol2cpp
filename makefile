@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-c -std=c++11
 
 OBJS=lol2cpp.o \
-	 funkshunhoister.o \
+	 globalshoister.o \
 	 programvisitor.o \
 	 parser.o \
 	 expression.o \
@@ -25,4 +25,4 @@ run: all
 	./lol2cpp
 
 clean:
-	rm -rf *.o lol2cpp
+	rm -rf *.d *.o lol2cpp

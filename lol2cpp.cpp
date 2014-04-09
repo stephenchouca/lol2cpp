@@ -7,7 +7,7 @@
 #include "ast.h"
 #include "statement.h"
 #include "expression.h"
-#include "funkshunhoister.h"
+#include "globalshoister.h"
 
 int main() {
 	Tokenizer tokenizer;
@@ -38,8 +38,8 @@ int main() {
 		std::cout << "NULL" << std::endl;
 	}
 	
-	FunkshunHoister funkshunHoister;
-	funkshunHoister.Visit( program );
+	GlobalsHoister globalsHoister;
+	globalsHoister.Visit( program );
 	std::cout << *program << std::endl;
 #endif
 	return 0;

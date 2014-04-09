@@ -5,14 +5,117 @@
 #include "expression.h"
 
 namespace AST {
-	void ASTProgramOrderVisitor::Visit( StatementBlock *node ) {
-		assert( node != nullptr );
-		ProcessBegin( node );
-		
+	void ASTProgramOrderVisitor::VisitStatementBlock( StatementBlock *node ) {
 		for( StatementListIterator it = node->GetStatements().begin(); 
 			 it != node->GetStatements().end(); ++it ) {
 			Accept( *it );
 		}
+	}
+	
+	void ASTProgramOrderVisitor::Visit( ProgramBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( ProgramGlobals *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( FunkshunBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( ORlyYaBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( ORlyMebbeBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( ORlyNoBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( WtfOmgBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( WtfOmgwtfBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( LoopBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( PlzBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( PlzONoesBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
+		
+		ProcessEnd( node );
+	}
+	
+	void ASTProgramOrderVisitor::Visit( PlzOWelBody *node ) {
+		assert( node != nullptr );
+		ProcessBegin( node );
+		
+		VisitStatementBlock( node );
 		
 		ProcessEnd( node );
 	}
@@ -21,13 +124,13 @@ namespace AST {
 		assert( node != nullptr );
 		ProcessBegin( node );
 		
-		Accept( node->GetYaRlyBlock() );
+		Accept( node->GetYaRlyBody() );
 		for( MebbeBlockListIterator it = node->GetMebbeBlocks().begin(); 
 			 it != node->GetMebbeBlocks().end(); ++it ) {
 			Accept( it->first );
 			Accept( it->second );
 		}
-		Accept( node->GetNoWaiBlock() );
+		Accept( node->GetNoWaiBody() );
 		
 		ProcessEnd( node );
 	}
@@ -41,7 +144,7 @@ namespace AST {
 			Accept( it->first );
 			Accept( it->second );
 		}
-		Accept( node->GetOmgwtfBlock() );
+		Accept( node->GetOmgwtfBody() );
 		
 		ProcessEnd( node );
 	}

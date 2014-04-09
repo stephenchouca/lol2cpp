@@ -8,7 +8,20 @@
 namespace AST {
 	class ASTProgramOrderVisitor : public ASTVisitor {
 		public:
-			void Visit( StatementBlock * );
+			void VisitStatementBlock( StatementBlock * );
+			void Visit( ProgramBody * );
+			void Visit( ProgramGlobals * );
+			void Visit( FunkshunBody * );
+			void Visit( ORlyYaBody * );
+			void Visit( ORlyMebbeBody * );
+			void Visit( ORlyNoBody * );
+			void Visit( WtfOmgBody * );
+			void Visit( WtfOmgwtfBody * );
+			void Visit( LoopBody * );
+			void Visit( PlzBody * );
+			void Visit( PlzONoesBody * );
+			void Visit( PlzOWelBody * );
+			
 			void Visit( ORlyBlock * );
 			void Visit( WtfBlock * );
 			void Visit( ForLoopBlock * );

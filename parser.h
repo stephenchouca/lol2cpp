@@ -14,7 +14,70 @@ class Parser {
 		AST::Program *Parse( TokenList * );
 
 	private:
-		AST::StatementBlock *ParseStatementBlock( const AST::StatementBlock::Type );
+		enum class Type { 
+			PROGRAM_BODY,
+			PROGRAM_GLOBALS,
+			FUNKSHUN_BODY,
+			ORLY_YA,
+			ORLY_MEBBE,
+			ORLY_NO,
+			WTF_OMG,
+			WTF_OMGWTF,
+			LOOP_BODY,
+			PLZ_BODY,
+			PLZ_ONOES,
+			PLZ_OWEL
+		};
+			
+		AST::StatementBlock *ParseStatementBlock( const Type );
+		AST::ProgramBody *ParseProgramBody() {
+			return dynamic_cast<AST::ProgramBody *>( 
+				ParseStatementBlock( Type::PROGRAM_BODY ) );
+		}
+		AST::ProgramGlobals *ParseProgramGlobals(){
+			return dynamic_cast<AST::ProgramGlobals *>( 
+				ParseStatementBlock( Type::PROGRAM_GLOBALS ) );
+		}
+		AST::FunkshunBody *ParseFunkshunBody(){
+			return dynamic_cast<AST::FunkshunBody *>( 
+				ParseStatementBlock( Type::FUNKSHUN_BODY ) );
+		}
+		AST::ORlyYaBody *ParseORlyYaBody(){
+			return dynamic_cast<AST::ORlyYaBody *>( 
+				ParseStatementBlock( Type::ORLY_YA ) );
+		}
+		AST::ORlyMebbeBody *ParseORlyMebbeBody(){
+			return dynamic_cast<AST::ORlyMebbeBody *>( 
+				ParseStatementBlock( Type::ORLY_MEBBE ) );
+		}
+		AST::ORlyNoBody *ParseORlyNoBody(){
+			return dynamic_cast<AST::ORlyNoBody *>( 
+				ParseStatementBlock( Type::ORLY_NO ) );
+		}
+		AST::WtfOmgBody *ParseWtfOmgBody(){
+			return dynamic_cast<AST::WtfOmgBody *>( 
+				ParseStatementBlock( Type::WTF_OMG ) );
+		}
+		AST::WtfOmgwtfBody *ParseWtfOmgwtfBody(){
+			return dynamic_cast<AST::WtfOmgwtfBody *>( 
+				ParseStatementBlock( Type::WTF_OMGWTF ) );
+		}
+		AST::LoopBody *ParseLoopBody(){
+			return dynamic_cast<AST::LoopBody *>( 
+				ParseStatementBlock( Type::LOOP_BODY ) );
+		}
+		AST::PlzBody *ParsePlzBody(){
+			return dynamic_cast<AST::PlzBody *>( 
+				ParseStatementBlock( Type::PLZ_BODY ) );
+		}
+		AST::PlzONoesBody *ParsePlzONoesBody(){
+			return dynamic_cast<AST::PlzONoesBody *>( 
+				ParseStatementBlock( Type::PLZ_ONOES ) );
+		}
+		AST::PlzOWelBody *ParsePlzOWelBody(){
+			return dynamic_cast<AST::PlzOWelBody *>( 
+				ParseStatementBlock( Type::PLZ_OWEL ) );
+		}
 
 		AST::ORlyBlock *ParseORlyBlock();
 		AST::WtfBlock *ParseWtfBlock();

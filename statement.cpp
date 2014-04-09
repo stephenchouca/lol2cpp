@@ -44,14 +44,14 @@ namespace AST {
 		it = stmts_.erase( it );
 	}
 		
-	ORlyBlock::ORlyBlock( StatementBlock *yaRlyBlock ) :
-			yaRlyBlock_( yaRlyBlock ), noWaiBlock_( nullptr ) {
-		assert( yaRlyBlock_ != nullptr );
-		yaRlyBlock_->SetParent( this );
+	ORlyBlock::ORlyBlock( ORlyYaBody *yaRlyBody ) :
+			yaRlyBody_( yaRlyBody ), noWaiBody_( nullptr ) {
+		assert( yaRlyBody_ != nullptr );
+		yaRlyBody_->SetParent( this );
 	}
 	
 	ORlyBlock::~ORlyBlock() {
-		delete yaRlyBlock_;
+		delete yaRlyBody_;
 		
 		while( !mebbeBlocks_.empty() ) {
 			delete mebbeBlocks_.back().first;
@@ -59,16 +59,16 @@ namespace AST {
 			mebbeBlocks_.pop_back();
 		}
 		
-		delete noWaiBlock_;
+		delete noWaiBody_;
 	}
 	
 	void ORlyBlock::Print( std::ostream &out ) {
 		out << DebugIndent() << "O RLY:";
 		
-		if( yaRlyBlock_ != nullptr ) {
+		if( yaRlyBody_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "YA RLY:" 
 				<< std::endl << DebugIndent( 2 ) << "Body:"
-				<< std::endl << *yaRlyBlock_;
+				<< std::endl << *yaRlyBody_;
 		}
 		
 		for( MebbeBlockListIterator mebbeBlockIt = mebbeBlocks_.begin();
@@ -80,15 +80,15 @@ namespace AST {
 				<< std::endl << *(mebbeBlockIt->second);
 		}
 		
-		if( noWaiBlock_ != nullptr ) {
+		if( noWaiBody_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "NO WAI:" 
 				<< std::endl << DebugIndent( 2 ) << "Body:"
-				<< std::endl << *noWaiBlock_;
+				<< std::endl << *noWaiBody_;
 		}
 	}
 	
 	void ORlyBlock::AddMebbeBlock( Expression *mebbeCond, 
-								   StatementBlock *mebbeBody ) {
+								   ORlyMebbeBody *mebbeBody ) {
 		assert( mebbeCond != nullptr );
 		assert( mebbeBody != nullptr );
 		mebbeBlocks_.push_back( MebbeBlock( mebbeCond, mebbeBody ) );
@@ -96,10 +96,10 @@ namespace AST {
 		mebbeBody->SetParent( this );
 	}
 	
-	void ORlyBlock::SetNoWaiBlock( StatementBlock *noWaiBlock ) {
-		assert( noWaiBlock != nullptr );
-		noWaiBlock_ = noWaiBlock;
-		noWaiBlock_->SetParent( this );
+	void ORlyBlock::SetNoWaiBody( ORlyNoBody *noWaiBody ) {
+		assert( noWaiBody != nullptr );
+		noWaiBody_ = noWaiBody;
+		noWaiBody_->SetParent( this );
 	}
 	
 	WtfBlock::~WtfBlock() {
@@ -109,7 +109,7 @@ namespace AST {
 			omgBlocks_.pop_back();
 		}
 		
-		delete omgwtfBlock_;
+		delete omgwtfBody_;
 	}
 	
 	void WtfBlock::Print( std::ostream &out ) {
@@ -124,14 +124,14 @@ namespace AST {
 				<< std::endl << *(omgBlockIt->second);
 		}
 		
-		if( omgwtfBlock_ != nullptr ) {
+		if( omgwtfBody_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "OMGWTF:"
 				<< std::endl << DebugIndent( 2 ) << "Body:"
-				<< std::endl << *omgwtfBlock_;
+				<< std::endl << *omgwtfBody_;
 		}
 	}
 	
-	void WtfBlock::AddOmgBlock( Literal *omgLabel, StatementBlock *omgBody ) {
+	void WtfBlock::AddOmgBlock( Literal *omgLabel, WtfOmgBody *omgBody ) {
 		assert( omgLabel != nullptr );
 		assert( omgBody != nullptr );
 		omgBlocks_.push_back( OmgBlock( omgLabel, omgBody ) );
@@ -139,10 +139,10 @@ namespace AST {
 		omgBody->SetParent( this );
 	}
 	
-	void WtfBlock::SetOmgwtfBlock( StatementBlock *omgwtfBlock ) {
-		assert( omgwtfBlock != nullptr );
-		omgwtfBlock_ = omgwtfBlock;
-		omgwtfBlock_->SetParent( this );
+	void WtfBlock::SetOmgwtfBody( WtfOmgwtfBody *omgwtfBody ) {
+		assert( omgwtfBody != nullptr );
+		omgwtfBody_ = omgwtfBody;
+		omgwtfBody_->SetParent( this );
 	}
 	
 	LoopBlock::LoopBlock( LiteralIdentifier *label ) : label_( label ), 
@@ -174,7 +174,7 @@ namespace AST {
 		}
 	}
 	
-	void LoopBlock::SetBody( StatementBlock *body ) {
+	void LoopBlock::SetBody( LoopBody *body ) {
 		assert( body != nullptr );
 		body_ = body;
 		body_->SetParent( this );
@@ -317,7 +317,7 @@ namespace AST {
 		param->SetParent( this );
 	}
 	
-	void FunkshunBlock::SetBody( StatementBlock *body ) {
+	void FunkshunBlock::SetBody( FunkshunBody *body ) {
 		assert( body != nullptr );
 		body_ = body;
 		body_->SetParent( this );
@@ -337,35 +337,35 @@ namespace AST {
 		out << DebugIndent() << "FUNKSHUN DECLARE: " << funkshunName_->GetIdentifier();
 	}
 	
-	PlzBlock::PlzBlock( StatementBlock *tryBlock ) : 
-			tryBlock_( tryBlock ), welBlock_( nullptr ) {
-		assert( tryBlock_ != nullptr );
-		tryBlock_->SetParent( this );
+	PlzBlock::PlzBlock( PlzBody *tryBody ) : 
+			tryBody_( tryBody ), oWelBody_( nullptr ) {
+		assert( tryBody_ != nullptr );
+		tryBody_->SetParent( this );
 	}
 	
 	PlzBlock::~PlzBlock() {
-		delete tryBlock_;
+		delete tryBody_;
 		
-		while( !noesBlocks_.empty() ) {
-			delete noesBlocks_.back().first;
-			delete noesBlocks_.back().second;
-			noesBlocks_.pop_back();
+		while( !oNoesBlocks_.empty() ) {
+			delete oNoesBlocks_.back().first;
+			delete oNoesBlocks_.back().second;
+			oNoesBlocks_.pop_back();
 		}
 		
-		delete welBlock_;
+		delete oWelBody_;
 	}
 	
 	void PlzBlock::Print( std::ostream &out ) {
 		out << DebugIndent() << "PLZ:";
 		
-		if( tryBlock_ != nullptr ) {
+		if( tryBody_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "Try:" 
 				<< std::endl << DebugIndent( 2 ) << "Body:" 
-				<< std::endl << *tryBlock_;
+				<< std::endl << *tryBody_;
 		}
 		
-		for( NoesBlockListIterator noesBlockIt = noesBlocks_.begin();
-			 noesBlockIt != noesBlocks_.end(); ++noesBlockIt ) {
+		for( NoesBlockListIterator noesBlockIt = oNoesBlocks_.begin();
+			 noesBlockIt != oNoesBlocks_.end(); ++noesBlockIt ) {
 			out << std::endl << DebugIndent( 1 ) << "NOES:" 
 				<< std::endl << DebugIndent( 2 ) << "Exception:"
 				<< std::endl << *(noesBlockIt->first) 
@@ -373,25 +373,25 @@ namespace AST {
 				<< std::endl << *(noesBlockIt->second);
 		}
 		
-		if( welBlock_ != nullptr ) {
+		if( oWelBody_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "WEL:" 
 				<< std::endl << DebugIndent( 2 ) << "Body:"
-				<< std::endl << *welBlock_;
+				<< std::endl << *oWelBody_;
 		}
 	}
 	
-	void PlzBlock::AddNoesBlock( Expression *exception, StatementBlock *handler ) {
+	void PlzBlock::AddONoesBlock( Expression *exception, PlzONoesBody *handler ) {
 		assert( exception != nullptr );
 		assert( handler != nullptr );
-		noesBlocks_.push_back( NoesBlock( exception, handler ) );
+		oNoesBlocks_.push_back( NoesBlock( exception, handler ) );
 		exception->SetParent( this );
 		handler->SetParent( this );
 	}
 	
-	void PlzBlock::SetWelBlock( StatementBlock *welBlock ) {
-		assert( welBlock != nullptr );
-		welBlock_ = welBlock;
-		welBlock_->SetParent( this );
+	void PlzBlock::SetOWelBody( PlzOWelBody *oWelBody ) {
+		assert( oWelBody != nullptr );
+		oWelBody_ = oWelBody;
+		oWelBody_->SetParent( this );
 	}
 	
 	VarDeclare::VarDeclare( Identifier *varId ) :
@@ -559,10 +559,8 @@ namespace AST {
 		}
 	}
 	
-	Program::Program( StatementBlock *body ) : 
-			globals_( new StatementBlock( 
-				AST::StatementBlock::Type::PROGRAM_GLOBALS ) ), 
-			body_( body ) {
+	Program::Program( ProgramBody *body ) : 
+			globals_( new ProgramGlobals() ), body_( body ) {
 		assert( body_ != nullptr );
 		body_->SetParent( this );
 		globals_->SetParent( this );

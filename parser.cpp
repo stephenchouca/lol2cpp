@@ -19,12 +19,11 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 	CheckTokenAndAdvance( TokenType::HAI );
 	CheckTokenAndAdvance( TokenType::LINE_DELIMITER );
 
-	AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-		AST::StatementBlock::Type::PROGRAM_BODY );
-	if( stmtBlock == nullptr ) {
+	AST::ProgramBody *body = ParseProgramBody();
+	if( body == nullptr ) {
 		return nullptr;
 	}
-	AST::Program *program = new AST::Program( stmtBlock );
+	AST::Program *program = new AST::Program( body );
 
 	CheckTokenAndAdvance( TokenType::KTHXBYE );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ||
@@ -37,28 +36,68 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 	return program;
 }
 
-AST::StatementBlock *Parser::ParseStatementBlock( 
-		const AST::StatementBlock::Type bodyType ) {
-	AST::StatementBlock *stmtBlock = new AST::StatementBlock( bodyType );
+AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
+	AST::StatementBlock *stmtBlock;
+	
+	switch( bodyType ) {
+		case Type::PROGRAM_BODY:
+			stmtBlock = new AST::ProgramBody();
+			break;
+		case Type::PROGRAM_GLOBALS:
+			stmtBlock = new AST::ProgramGlobals();
+			break;
+		case Type::FUNKSHUN_BODY:
+			stmtBlock = new AST::FunkshunBody();
+			break;
+		case Type::ORLY_YA:
+			stmtBlock = new AST::ORlyYaBody();
+			break;
+		case Type::ORLY_MEBBE:
+			stmtBlock = new AST::ORlyMebbeBody();
+			break;
+		case Type::ORLY_NO:
+			stmtBlock = new AST::ORlyNoBody();
+			break;
+		case Type::WTF_OMG:
+			stmtBlock = new AST::WtfOmgBody();
+			break;
+		case Type::WTF_OMGWTF:
+			stmtBlock = new AST::WtfOmgwtfBody();
+			break;
+		case Type::LOOP_BODY:
+			stmtBlock = new AST::LoopBody();
+			break;
+		case Type::PLZ_BODY:
+			stmtBlock = new AST::PlzBody();
+			break;
+		case Type::PLZ_ONOES:
+			stmtBlock = new AST::PlzONoesBody();
+			break;
+		case Type::PLZ_OWEL:
+			stmtBlock = new AST::PlzOWelBody();
+			break;
+		default:
+			return nullptr;
+	}
 	
 	while( true ) {
 		AST::Statement *stmt = nullptr;
 		switch( tokens_->GetNextToken().type ) {
 			case TokenType::KTHXBYE:
-				if( bodyType == AST::StatementBlock::Type::PROGRAM_BODY ) {
+				if( bodyType == Type::PROGRAM_BODY ) {
 					return stmtBlock;
 				}
 				break;
 			case TokenType::IF:
-				if( bodyType == AST::StatementBlock::Type::FUNKSHUN_BODY ) {
+				if( bodyType == Type::FUNKSHUN_BODY ) {
 					return stmtBlock;
 				}
 				break;
 			case TokenType::MEBBE:
 			case TokenType::NO:
 				switch( bodyType ) {
-					case AST::StatementBlock::Type::ORLY_YA:
-					case AST::StatementBlock::Type::ORLY_MEBBE:
+					case Type::ORLY_YA:
+					case Type::ORLY_MEBBE:
 						return stmtBlock;
 					default:
 						break;
@@ -66,11 +105,11 @@ AST::StatementBlock *Parser::ParseStatementBlock(
 				break;
 			case TokenType::OIC:
 				switch( bodyType ) {
-					case AST::StatementBlock::Type::ORLY_YA:
-					case AST::StatementBlock::Type::ORLY_MEBBE:
-					case AST::StatementBlock::Type::ORLY_NO:
-					case AST::StatementBlock::Type::WTF_OMG:
-					case AST::StatementBlock::Type::WTF_OMGWTF:
+					case Type::ORLY_YA:
+					case Type::ORLY_MEBBE:
+					case Type::ORLY_NO:
+					case Type::WTF_OMG:
+					case Type::WTF_OMGWTF:
 						return stmtBlock;
 					default:
 						break;
@@ -78,15 +117,15 @@ AST::StatementBlock *Parser::ParseStatementBlock(
 				break;
 			case TokenType::OMG:
 			case TokenType::OMGWTF:
-				if( bodyType == AST::StatementBlock::Type::WTF_OMG ) {
+				if( bodyType == Type::WTF_OMG ) {
 					return stmtBlock;
 				}
 				break;
 			case TokenType::KTHX:
 				switch( bodyType ) {
-					case AST::StatementBlock::Type::PLZ_BODY:
-					case AST::StatementBlock::Type::PLZ_ONOES:
-					case AST::StatementBlock::Type::PLZ_OWEL:
+					case Type::PLZ_BODY:
+					case Type::PLZ_ONOES:
+					case Type::PLZ_OWEL:
 						return stmtBlock;
 					default:
 						break;
@@ -100,8 +139,8 @@ AST::StatementBlock *Parser::ParseStatementBlock(
 					case TokenType::NOES:
 					case TokenType::WEL:
 						switch( bodyType ) {
-							case AST::StatementBlock::Type::PLZ_BODY:
-							case AST::StatementBlock::Type::PLZ_ONOES:
+							case Type::PLZ_BODY:
+							case Type::PLZ_ONOES:
 								return stmtBlock;
 							default:
 								break;
@@ -120,7 +159,7 @@ AST::StatementBlock *Parser::ParseStatementBlock(
 						stmt = ParseLoopBlock();
 						break;
 					case TokenType::OUTTA:
-						if( bodyType == AST::StatementBlock::Type::LOOP_BODY ) {
+						if( bodyType == Type::LOOP_BODY ) {
 							return stmtBlock;
 						}
 						break;
@@ -129,7 +168,7 @@ AST::StatementBlock *Parser::ParseStatementBlock(
 				}
 				break;
 			case TokenType::HOW:
-				if( bodyType == AST::StatementBlock::Type::PROGRAM_BODY ) {
+				if( bodyType == Type::PROGRAM_BODY ) {
 					stmt = ParseFunkshunBlock();
 				}
 				break;
@@ -164,12 +203,11 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 		return nullptr;
 	}
 	
-	AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-		AST::StatementBlock::Type::ORLY_YA );
-	if( stmtBlock == nullptr ) {
+	AST::ORlyYaBody *yaBody = ParseORlyYaBody();
+	if( yaBody == nullptr ) {
 		return nullptr;
 	}
-	AST::ORlyBlock *oRlyBlock = new AST::ORlyBlock( stmtBlock );
+	AST::ORlyBlock *oRlyBlock = new AST::ORlyBlock( yaBody );
 
 	while( tokens_->GetNextToken().type == TokenType::MEBBE ) {
 		tokens_->AdvanceToNextToken();
@@ -186,14 +224,13 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 			return nullptr;
 		}
 		
-		stmtBlock = ParseStatementBlock( AST::StatementBlock::Type::ORLY_MEBBE );
-		if( stmtBlock == nullptr ) {
+		AST::ORlyMebbeBody *mebbeBody = ParseORlyMebbeBody();
+		if( mebbeBody == nullptr ) {
 			delete cond;
 			delete oRlyBlock;
 			return nullptr;
 		}
-		
-		oRlyBlock->AddMebbeBlock( cond, stmtBlock );
+		oRlyBlock->AddMebbeBlock( cond, mebbeBody );
 	}
 
 	if( tokens_->GetNextToken().type == TokenType::NO ) {
@@ -206,13 +243,12 @@ AST::ORlyBlock *Parser::ParseORlyBlock() {
 			return nullptr;
 		}
 
-		stmtBlock = ParseStatementBlock( AST::StatementBlock::Type::ORLY_NO );
-		if( stmtBlock == nullptr ) {
+		AST::ORlyNoBody *noBody = ParseORlyNoBody();
+		if( noBody == nullptr ) {
 			delete oRlyBlock;
 			return nullptr;
 		}
-		
-		oRlyBlock->SetNoWaiBlock( stmtBlock );
+		oRlyBlock->SetNoWaiBody( noBody );
 	}
 
 	CheckTokenAndAdvance( TokenType::OIC );
@@ -253,15 +289,14 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 			return nullptr;
 		}
 
-		AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-			AST::StatementBlock::Type::WTF_OMG );
-		if( stmtBlock == nullptr ) {
+		AST::WtfOmgBody *omgBody = ParseWtfOmgBody();
+		if( omgBody == nullptr ) {
 			delete literal;
 			delete wtfBlock;
 			return nullptr;
 		}
 
-		wtfBlock->AddOmgBlock( literal, stmtBlock );
+		wtfBlock->AddOmgBlock( literal, omgBody );
 	} while( tokens_->GetNextToken().type == TokenType::OMG );
 
 	if( tokens_->GetNextToken().type == TokenType::OMGWTF ) {
@@ -272,13 +307,12 @@ AST::WtfBlock *Parser::ParseWtfBlock() {
 			return nullptr;
 		}
 		
-		AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-			AST::StatementBlock::Type::WTF_OMGWTF );
-		if( stmtBlock == nullptr ) {
+		AST::WtfOmgwtfBody *omgwtfBody = ParseWtfOmgwtfBody();
+		if( omgwtfBody == nullptr ) {
 			delete wtfBlock;
 			return nullptr;
 		}
-		wtfBlock->SetOmgwtfBlock( stmtBlock );
+		wtfBlock->SetOmgwtfBody( omgwtfBody );
 	}
 	
 	CheckTokenAndAdvance( TokenType::OIC );
@@ -439,13 +473,12 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 		return nullptr;
 	}
 	
-	AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-		AST::StatementBlock::Type::LOOP_BODY );
-	if( stmtBlock == nullptr ) {
+	AST::LoopBody *body = ParseLoopBody();
+	if( body == nullptr ) {
 		delete loopBlock;
 		return nullptr;
 	}
-	loopBlock->SetBody( stmtBlock );
+	loopBlock->SetBody( body );
 	
 	CheckTokenAndAdvance( TokenType::IM );
 	CheckTokenAndAdvance( TokenType::OUTTA );
@@ -535,13 +568,12 @@ AST::FunkshunBlock *Parser::ParseFunkshunBlock() {
 		return nullptr;
 	}
 
-	AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-		AST::StatementBlock::Type::FUNKSHUN_BODY );
-	if( stmtBlock == nullptr ) {
+	AST::FunkshunBody *body = ParseFunkshunBody();
+	if( body == nullptr ) {
 		delete funkshun;
 		return nullptr;
 	}
-	funkshun->SetBody( stmtBlock );
+	funkshun->SetBody( body );
 
 	CheckTokenAndAdvance( TokenType::IF );
 	CheckTokenAndAdvance( TokenType::U );
@@ -566,12 +598,11 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 	// TODO: Implement support for PLZ construct.
 	return nullptr;
 
-	AST::StatementBlock *stmtBlock = ParseStatementBlock( 
-		AST::StatementBlock::Type::PLZ_BODY );
-	if( stmtBlock == nullptr ) {
+	AST::PlzBody *tryBody = ParsePlzBody();
+	if( tryBody == nullptr ) {
 		return nullptr;
 	}
-	AST::PlzBlock *plzBlock = new AST::PlzBlock( stmtBlock );
+	AST::PlzBlock *plzBlock = new AST::PlzBlock( tryBody );
 
 	while( tokens_->GetNextToken().type == TokenType::O && 
 		   tokens_->GetNextToken( 1 ).type == TokenType::NOES ) {
@@ -590,14 +621,13 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 			return nullptr;
 		}
 
-		stmtBlock = ParseStatementBlock( AST::StatementBlock::Type::PLZ_ONOES );
-		if( stmtBlock == nullptr ) {
+		AST::PlzONoesBody *oNoesBody = ParsePlzONoesBody();
+		if( oNoesBody == nullptr ) {
 			delete expr;
 			delete plzBlock;
 			return nullptr;
 		}
-		
-		plzBlock->AddNoesBlock( expr, stmtBlock );
+		plzBlock->AddONoesBlock( expr, oNoesBody );
 	}
 
 	if( tokens_->GetNextToken().type == TokenType::O ) {
@@ -608,12 +638,12 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 			return nullptr;
 		}
 
-		stmtBlock = ParseStatementBlock( AST::StatementBlock::Type::PLZ_OWEL );
-		if( stmtBlock == nullptr ) {
+		AST::PlzOWelBody *oWelBody = ParsePlzOWelBody();
+		if( oWelBody == nullptr ) {
 			delete plzBlock;
 			return nullptr;
 		}
-		plzBlock->SetWelBlock( stmtBlock );
+		plzBlock->SetOWelBody( oWelBody );
 	}
 
 	CheckTokenAndAdvance( TokenType::KTHX );
