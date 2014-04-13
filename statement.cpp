@@ -249,7 +249,7 @@ namespace AST {
 		loopVarInitExpr_->SetParent( this );
 	}
 	
-	void ForLoopBlock::SetLoopGuard( UnaryBooleanExpression *guardExpr ) {
+	void ForLoopBlock::SetLoopGuard( UnaryExpression *guardExpr ) {
 		assert( guardExpr != nullptr );
 		loopGuard_ = guardExpr;
 		loopGuard_->SetParent( this );
@@ -459,7 +459,8 @@ namespace AST {
 		assignVal_ = assignVal;
 		assignVal_->SetParent( this );
 	}
-	
+
+#if 0
 	VarCast::VarCast( Identifier *varId ) :
 			varId_( varId ), targetType_( nullptr ) {
 		assert( varId_ != nullptr );
@@ -486,6 +487,7 @@ namespace AST {
 		targetType_ = typeId;
 		targetType_->SetParent( this );
 	}
+#endif
 	
 	FunkshunReturn::FunkshunReturn( Expression *retVal ) :
 			retVal_( retVal ) {

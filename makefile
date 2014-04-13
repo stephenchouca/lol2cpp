@@ -2,6 +2,7 @@ CC=g++
 CFLAGS=-c -std=c++11
 
 OBJS=lol2cpp.o \
+	 codegen.o \
 	 globalshoister.o \
 	 programvisitor.o \
 	 parser.o \

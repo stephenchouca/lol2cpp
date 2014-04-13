@@ -88,7 +88,7 @@ class Parser {
 
 		AST::VarDeclare *ParseVarDeclare();
 		AST::VarAssign *ParseVarAssign( AST::Identifier * );
-		AST::VarCast *ParseVarCast( AST::Identifier * );
+		AST::VarAssign *ParseVarCast( AST::Identifier * );
 		AST::VisibleStatement *ParseVisibleStatement();
 		AST::GimmehStatement *ParseGimmehStatement();
 		AST::FunkshunReturn *ParseFunkshunReturn();

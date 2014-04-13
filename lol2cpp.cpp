@@ -8,14 +8,15 @@
 #include "statement.h"
 #include "expression.h"
 #include "globalshoister.h"
+#include "codegen.h"
 
 int main() {
 	Tokenizer tokenizer;
 	Parser parser;
 	
 	//std::string srcPath( "test/randtokens.lols" );
-	std::string srcPath( "test/large.lols" );
-	//std::string srcPath( "test/99beers.lols" );
+	//std::string srcPath( "test/large.lols" );
+	std::string srcPath( "test/99beers.lols" );
 	//std::string srcPath( "test/empty.lols" );
 
 	tokenizer.Tokenize( srcPath );
@@ -31,7 +32,10 @@ int main() {
 		tokenizer.GetTokens().AdvanceToNextToken();
 	}
 #else
+	std::cout << "here" << std::endl;
 	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
+	std::cout << "here2" << std::endl;
+	
 	if( program != nullptr ) {
 		std::cout << *program << std::endl;
 	} else {
@@ -41,6 +45,10 @@ int main() {
 	GlobalsHoister globalsHoister;
 	globalsHoister.Visit( program );
 	std::cout << *program << std::endl;
+	
+	CodeGenerator codeGen;
+	codeGen.Visit( program );
+	std::cout << codeGen.GetEmittedCode() << std::endl;
 #endif
 	return 0;
 }

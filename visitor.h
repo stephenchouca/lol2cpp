@@ -25,7 +25,7 @@ namespace AST {
 	class PlzBlock;
 	class VarDeclare;
 	class VarAssign;
-	class VarCast;
+	//class VarCast;
 	class FunkshunReturn;
 	class GtfoStatement;
 	class VisibleStatement;
@@ -110,8 +110,8 @@ namespace AST {
 			virtual void ProcessEnd( VarDeclare *node ) {}
 			virtual void ProcessBegin( VarAssign *node ) {}
 			virtual void ProcessEnd( VarAssign *node ) {}
-			virtual void ProcessBegin( VarCast *node ) {}
-			virtual void ProcessEnd( VarCast *node ) {}
+			//virtual void ProcessBegin( VarCast *node ) {}
+			//virtual void ProcessEnd( VarCast *node ) {}
 			virtual void ProcessBegin( FunkshunReturn *node ) {}
 			virtual void ProcessEnd( FunkshunReturn *node ) {}
 			virtual void Process( GtfoStatement *node ) {}
@@ -204,7 +204,7 @@ namespace AST {
 			virtual void Visit( PlzBlock * ) = 0;
 			virtual void Visit( VarDeclare * ) = 0;
 			virtual void Visit( VarAssign * ) = 0;
-			virtual void Visit( VarCast * ) = 0;
+			//virtual void Visit( VarCast * ) = 0;
 			virtual void Visit( FunkshunReturn * ) = 0;
 			virtual void Visit( GtfoStatement *node ) { Process( node ); }
 			virtual void Visit( VisibleStatement * ) = 0;

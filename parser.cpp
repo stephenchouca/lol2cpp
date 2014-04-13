@@ -437,7 +437,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 				forLoopBlock->SetLoopVariableInitExpr( initExpr );
 			}
 			
-			AST::UnaryBooleanExpression *testExpr = nullptr;
+			AST::UnaryExpression *testExpr = nullptr;
 			switch( tokens_->GetNextToken().type ) {
 				case TokenType::TIL:
 					testExpr = new AST::TilExpression();
@@ -769,13 +769,14 @@ AST::VarAssign *Parser::ParseVarAssign( AST::Identifier *id ) {
 		delete varAssign;
 		return nullptr;
 	}
+	
 	varAssign->SetAssignValue( expr );
 	
 	return varAssign;
 }
 
-AST::VarCast *Parser::ParseVarCast( AST::Identifier *id ) {
-	AST::VarCast *varCast = new AST::VarCast( id );
+AST::VarAssign *Parser::ParseVarCast( AST::Identifier *id ) {
+	AST::VarAssign *varCast = new AST::VarAssign( id );
 	
 	CheckTokenAndAdvance( TokenType::IS );
 	CheckTokenAndAdvance( TokenType::NOW );
@@ -790,7 +791,10 @@ AST::VarCast *Parser::ParseVarCast( AST::Identifier *id ) {
 		delete varCast;
 		return nullptr;
 	}
-	varCast->SetCastTargetType( type );
+	
+	AST::CastExpression *castExpr = new AST::CastExpression( id->Clone() );
+	castExpr->SetCastTargetType( type );
+	varCast->SetAssignValue( castExpr );
 	
 	return varCast;
 }

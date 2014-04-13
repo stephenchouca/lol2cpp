@@ -226,6 +226,7 @@ namespace AST {
 		ProcessEnd( node );
 	}
 	
+#if 0
 	void ASTProgramOrderVisitor::Visit( VarCast *node ) {
 		assert( node != nullptr );
 		ProcessBegin( node );
@@ -235,6 +236,7 @@ namespace AST {
 		
 		ProcessEnd( node );
 	}
+#endif
 	
 	void ASTProgramOrderVisitor::Visit( FunkshunReturn *node ) {
 		assert( node != nullptr );

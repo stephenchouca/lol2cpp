@@ -15,7 +15,6 @@ namespace AST {
 	class Statement;
 	class Expression;
 	class UnaryExpression;
-	class UnaryBooleanExpression;
 	class FunkshunCall;
 	class Identifier;
 	class LiteralIdentifier;
@@ -184,6 +183,7 @@ namespace AST {
 			LiteralIdentifier *GetLabel() { return label_; }
 			LoopBody *GetBody() { return body_; }
 			Identifier *GetLoopVariable() { return loopVar_; }
+			bool GetLoopVariableIsLocal() { return loopVarIsLocal_; }
 			
 			void SetBody( LoopBody * );
 			virtual void SetLoopVariable( Identifier *, bool );
@@ -208,17 +208,17 @@ namespace AST {
 			
 			Expression *GetLoopVariableIncExpr() { return loopVarIncExpr_; }
 			Expression *GetLoopVariableInitExpr() { return loopVarInitExpr_; }
-			UnaryBooleanExpression *GetLoopGuard() { return loopGuard_; }
+			UnaryExpression *GetLoopGuard() { return loopGuard_; }
 			
 			void SetLoopVariable( Identifier *, bool );
 			void SetLoopVariableIncExpr( Expression * );
 			void SetLoopVariableInitExpr( Expression * );
-			void SetLoopGuard( UnaryBooleanExpression * );
+			void SetLoopGuard( UnaryExpression * );
 		
 		private:
 			Expression *loopVarIncExpr_;
 			Expression *loopVarInitExpr_;
-			UnaryBooleanExpression *loopGuard_;
+			UnaryExpression *loopGuard_;
 	};
 	
 	class RangeLoopBlock : public LoopBlock {
@@ -337,6 +337,7 @@ namespace AST {
 			Expression *assignVal_;
 	};
 
+#if 0
 	class VarCast : public Statement {
 		public:
 			VarCast( Identifier * );
@@ -355,6 +356,7 @@ namespace AST {
 			Identifier *varId_;
 			TypeIdentifier *targetType_;
 	};
+#endif
 
 	class FunkshunReturn : public Statement {
 		public:
@@ -390,6 +392,7 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			ExpressionList &GetExpressions() { return exprs_; }
+			bool GetSuppressNewLine() { return suppressNewline_; }
 			
 			void AddExpression( Expression * );
 			void SetSuppressNewline() { suppressNewline_ = true; }
@@ -409,6 +412,7 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			Identifier *GetTargetVariable() { return targetVar_; }
+			bool IsLong() { return isLong_; }
 			
 		private:
 			Identifier *targetVar_;

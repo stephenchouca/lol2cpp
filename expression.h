@@ -28,6 +28,8 @@ namespace AST {
 			
 			TroofLiteral *Clone() { return new TroofLiteral( val_ ); }
 			
+			troof_t GetValue() { return val_; }
+			
 		private:
 			troof_t val_;
 	};
@@ -43,6 +45,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			NumbrLiteral *Clone() { return new NumbrLiteral( val_ ); }
+			
+			numbr_t GetValue() { return val_; }
 		
 		private:
 			NumbrLiteral( numbr_t val ) : val_( val ) {}
@@ -62,6 +66,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			NumbarLiteral *Clone() { return new NumbarLiteral( val_ ); }
+			
+			numbar_t GetValue() { return val_; }
 		
 		private:
 			NumbarLiteral( numbar_t val ) : val_( val ) {}
@@ -81,6 +87,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			YarnLiteral *Clone() { return new YarnLiteral( val_ ); }
+			
+			yarn_t GetValue() { return val_; }
 			
 		private:
 			yarn_t val_;
@@ -116,6 +124,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			TypeIdentifier *Clone() { return new TypeIdentifier( type_ ); }
+			
+			Type GetType() { return type_; }
 			
 		private:
 			Type type_;
@@ -214,14 +224,8 @@ namespace AST {
 		protected:
 			Expression *operand_;
 	};
-	
-	class UnaryBooleanExpression : public UnaryExpression {
-	};
-	
-	class UnaryMathExpression : public UnaryExpression {
-	};
 
-	class NotExpression : public UnaryBooleanExpression {
+	class NotExpression : public UnaryExpression {
 		public:
 			std::string GetOperatorName() { return "NOT"; }
 			
@@ -230,7 +234,7 @@ namespace AST {
 			NotExpression *Clone();
 	};
 	
-	class UppinExpression : public UnaryMathExpression {
+	class UppinExpression : public UnaryExpression {
 		public:
 			std::string GetOperatorName() { return "UPPIN"; }
 			
@@ -239,7 +243,7 @@ namespace AST {
 			UppinExpression *Clone();
 	};
 	
-	class NerfinExpression : public UnaryMathExpression {
+	class NerfinExpression : public UnaryExpression {
 		public:
 			std::string GetOperatorName() { return "NERFIN"; }
 			
@@ -248,7 +252,7 @@ namespace AST {
 			NerfinExpression *Clone();
 	};
 	
-	class TilExpression : public UnaryBooleanExpression {
+	class TilExpression : public UnaryExpression {
 		public:
 			std::string GetOperatorName() { return "TIL"; }
 			
@@ -257,7 +261,7 @@ namespace AST {
 			TilExpression *Clone();
 	};
 	
-	class WileExpression : public UnaryBooleanExpression {
+	class WileExpression : public UnaryExpression {
 		public:
 			std::string GetOperatorName() { return "WILE"; }
 			
@@ -289,17 +293,8 @@ namespace AST {
 			Expression *leftOperand_;
 			Expression *rightOperand_;
 	};
-	
-	class BinaryMathExpression : public BinaryExpression {
-	};
-	
-	class BinaryBooleanExpression : public BinaryExpression {
-	};
-	
-	class BinaryCompareExpression : public BinaryExpression {
-	};
 
-	class SumExpression : public BinaryMathExpression {
+	class SumExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "SUM"; }
 			
@@ -308,7 +303,7 @@ namespace AST {
 			SumExpression *Clone();
 	};
 
-	class DiffExpression : public BinaryMathExpression {
+	class DiffExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "DIFF"; }
 			
@@ -317,7 +312,7 @@ namespace AST {
 			DiffExpression *Clone();
 	};
 
-	class ProduktExpression : public BinaryMathExpression {
+	class ProduktExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "PRODUKT"; }
 			
@@ -326,7 +321,7 @@ namespace AST {
 			ProduktExpression *Clone();
 	};
 
-	class QuoshuntExpression : public BinaryMathExpression {
+	class QuoshuntExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "QUOSHUNT"; }
 			
@@ -335,7 +330,7 @@ namespace AST {
 			QuoshuntExpression *Clone();
 	};
 
-	class ModExpression : public BinaryMathExpression {
+	class ModExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "MOD"; }
 			
@@ -344,7 +339,7 @@ namespace AST {
 			ModExpression *Clone();
 	};
 
-	class BiggrExpression : public BinaryMathExpression {
+	class BiggrExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "BIGGR"; }
 			
@@ -353,7 +348,7 @@ namespace AST {
 			BiggrExpression *Clone();
 	};
 
-	class SmallrExpression : public BinaryMathExpression {
+	class SmallrExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "SMALLR"; }
 			
@@ -362,7 +357,7 @@ namespace AST {
 			SmallrExpression *Clone();
 	};
 
-	class BothExpression : public BinaryBooleanExpression {
+	class BothExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "BOTH"; }
 			
@@ -371,7 +366,7 @@ namespace AST {
 			BothExpression *Clone();
 	};
 
-	class EitherExpression : public BinaryBooleanExpression {
+	class EitherExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "EITHER"; }
 			
@@ -380,7 +375,7 @@ namespace AST {
 			EitherExpression *Clone();
 	};
 
-	class WonExpression : public BinaryBooleanExpression {
+	class WonExpression : public BinaryExpression {
 		public:
 			std::string GetOperatorName() { return "WON"; }
 			
@@ -423,11 +418,8 @@ namespace AST {
 		protected:
 			ExpressionList operands_;
 	};
-	
-	class NaryBooleanExpression : public NaryExpression {
-	};
 
-	class AllExpression : public NaryBooleanExpression {
+	class AllExpression : public NaryExpression {
 		public:
 			std::string GetOperatorName() { return "ALL"; }
 			
@@ -436,7 +428,7 @@ namespace AST {
 			AllExpression *Clone();
 	};
 
-	class AnyExpression : public NaryBooleanExpression {
+	class AnyExpression : public NaryExpression {
 		public:
 			std::string GetOperatorName() { return "ANY"; }
 			

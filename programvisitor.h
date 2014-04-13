@@ -8,7 +8,6 @@
 namespace AST {
 	class ASTProgramOrderVisitor : public ASTVisitor {
 		public:
-			void VisitStatementBlock( StatementBlock * );
 			void Visit( ProgramBody * );
 			void Visit( ProgramGlobals * );
 			void Visit( FunkshunBody * );
@@ -31,7 +30,7 @@ namespace AST {
 			void Visit( PlzBlock * );
 			void Visit( VarDeclare * );
 			void Visit( VarAssign * );
-			void Visit( VarCast * );
+			//void Visit( VarCast * );
 			void Visit( FunkshunReturn * );
 			void Visit( VisibleStatement * );
 			void Visit( GimmehStatement * );
@@ -41,14 +40,12 @@ namespace AST {
 			void Visit( SlotIdentifier * );
 			void Visit( CastExpression * );
 			
-			void VisitUnaryExpression( UnaryExpression * );
 			void Visit( NotExpression * );
 			void Visit( UppinExpression * );
 			void Visit( NerfinExpression * );
 			void Visit( TilExpression * );
 			void Visit( WileExpression * );
 			
-			void VisitBinaryExpression( BinaryExpression * );
 			void Visit( SumExpression * );
 			void Visit( DiffExpression * );
 			void Visit( ProduktExpression * );
@@ -62,11 +59,16 @@ namespace AST {
 			void Visit( SaemExpression * );
 			void Visit( DiffrintExpression * );
 			
-			void VisitNaryExpression( NaryExpression * );
 			void Visit( AllExpression * );
 			void Visit( AnyExpression * );
 			void Visit( SmooshExpression * );
 			void Visit( FunkshunCall * );
+			
+		private:
+			void VisitStatementBlock( StatementBlock * );
+			void VisitUnaryExpression( UnaryExpression * );
+			void VisitBinaryExpression( BinaryExpression * );
+			void VisitNaryExpression( NaryExpression * );
 	};
 }
 
