@@ -2,9 +2,9 @@
 #define EXPRESSION_H
 
 #include <string>
+#include <list>
 
 #include "ast.h"
-#include "statement.h"
 #include "visitor.h"
 
 namespace AST {
@@ -13,8 +13,21 @@ namespace AST {
 	typedef double numbar_t;
 	typedef std::string yarn_t;
 	
-	class Literal : public Expression {
+	class Expression;
+	class Literal;
+	
+	typedef std::list<Expression *> ExpressionList;
+	typedef std::list<Literal *> LiteralList;
+	
+	typedef std::list<Expression *>::iterator ExpressionListIterator;
+	typedef std::list<Literal *>::iterator LiteralListIterator;
+	
+	class Expression : public ASTNode {
+		public:
+			virtual Expression *Clone() = 0;
 	};
+	
+	class Literal : public Expression {};
 
 	class TroofLiteral : public Literal {
 		public:
@@ -197,12 +210,15 @@ namespace AST {
 			
 			Expression *GetKey() { return key_; }
 			Expression *GetBukkitRef() { return bukkitRef_; }
+			bool GetSafety() { return isSafe_; }
 			
 			void SetBukkitRef( Expression * );
+			void SetSafety( bool isSafe ) { isSafe_ = isSafe; }
 			
 		private:
 			Expression *key_;
 			Expression *bukkitRef_;
+			bool isSafe_;
 	};
 
 	class UnaryExpression : public Expression {

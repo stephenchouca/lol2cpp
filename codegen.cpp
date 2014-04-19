@@ -9,13 +9,14 @@
 #if 0
 const std::string CodeGenerator::SOURCE_PREFIX = "Source_";
 const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = "Defined_";
-const std::string CodeGenerator::CAST_TO_PREFIX = "CastTo";
-const std::string CodeGenerator::CAST_TO_TROOF = CAST_TO_PREFIX + TROOF_TYPE;
-const std::string CodeGenerator::CAST_TO_NUMBR = CAST_TO_PREFIX + NUMBR_TYPE;
-const std::string CodeGenerator::CAST_TO_NUMBAR = CAST_TO_PREFIX + NUMBAR_TYPE;
-const std::string CodeGenerator::CAST_TO_YARN = CAST_TO_PREFIX + YARN_TYPE;
-const std::string CodeGenerator::CAST_TO_BUKKIT = CAST_TO_PREFIX + BUKKIT_TYPE;
-const std::string CodeGenerator::CAST_TO_NOOB = CAST_TO_PREFIX + NOOB_TYPE;
+const std::string CodeGenerator::EXTRACT_PREFIX = "Extract";
+const std::string CodeGenerator::EXTRACT_TROOF = EXTRACT_PREFIX + TROOF_TYPE;
+const std::string CodeGenerator::EXTRACT_NUMBR = EXTRACT_PREFIX + NUMBR_TYPE;
+const std::string CodeGenerator::EXTRACT_NUMBAR = EXTRACT_PREFIX + NUMBAR_TYPE;
+const std::string CodeGenerator::EXTRACT_YARN = EXTRACT_PREFIX + YARN_TYPE;
+const std::string CodeGenerator::EXTRACT_BUKKIT = EXTRACT_PREFIX + BUKKIT_TYPE;
+const std::string CodeGenerator::EXTRACT_NOOB = EXTRACT_PREFIX + NOOB_TYPE;
+const std::string CodeGenerator::CAST_TO = "CastTo";
 const std::string CodeGenerator::VARIABLE_STORAGE = "Variable";
 const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = "Variable::Type::";
 const std::string CodeGenerator::TROOF_TYPE = "TROOF";
@@ -27,21 +28,17 @@ const std::string CodeGenerator::NOOB_TYPE = "NOOB";
 const std::string CodeGenerator::IT_VARIABLE = "ItVariable";
 #endif
 
-void CodeGenerator::ProcessStatementBlockEnd( 
-		AST::StatementBlock *node, bool emitBraces ) {
+void CodeGenerator::ProcessStatementBlockEnd( AST::StatementBlock *node ) {
 	std::ostringstream code;
 	const std::list<std::string> &stmts = codeSegments_.top();
 	
-	if( emitBraces ) {
-		code << "{" << std::endl;
-	}
+	code << "{" << std::endl 
+		 << VARIABLE_STORAGE << " " << IT_VARIABLE << ";" << std::endl;
 	for( std::list<std::string>::const_iterator it = stmts.cbegin(); 
 		 it != stmts.cend(); ++it ) {
 		code << *it << std::endl;
 	}
-	if( emitBraces ) {
-		code << "}" << std::endl;
-	}
+	code << "}";
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -51,11 +48,11 @@ void CodeGenerator::ProcessEnd( AST::ORlyBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	code << "if(" << CAST_TO_TROOF << "(" << IT_VARIABLE << "))" << std::endl << *it;
+	code << "if(" << IT_VARIABLE << "." << EXTRACT_TROOF << "())" << std::endl << *it;
 	++it;
 	
 	for( unsigned int i = 0; i < node->GetMebbeBlocks().size(); ++i ) {
-		code << "else if(" << CAST_TO_TROOF << "(" << *it << "))";
+		code << "else if(" << *it << "." << EXTRACT_TROOF << "())";
 		++it;
 		code << *it;
 		++it;
@@ -73,7 +70,7 @@ void CodeGenerator::ProcessEnd( AST::WtfBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-
+	// TODO: Implement.
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -82,18 +79,21 @@ void CodeGenerator::ProcessEnd( AST::WtfBlock *node ) {
 void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
+	std::string loopVar;
 	
 	code << "for(";
 	if( node->GetLoopVariable() != nullptr ) {
 		if( !node->GetLoopVariableIsLocal() && 
 			node->GetLoopVariableInitExpr() == nullptr ) {
+			loopVar = *it;
 			++it;
 		} else {
 			if( node->GetLoopVariableIsLocal() ) {
 				code << VARIABLE_STORAGE << " ";
 			}
 			
-			code << *it;
+			loopVar = *it;
+			code << loopVar;
 			++it;
 			
 			if( node->GetLoopVariableInitExpr() != nullptr ) {
@@ -103,12 +103,12 @@ void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 	}
 	code << "; ";
 	if( node->GetLoopGuard() != nullptr ) {
-		code << CAST_TO_TROOF << "(" << *it << ")";
+		code << *it << "." << EXTRACT_TROOF << "()";
 		++it;
 	}
 	code << "; ";
 	if( node->GetLoopVariableIncExpr() != nullptr ) {
-		code << *it;
+		code << loopVar << " = " << *it;
 		++it;
 	}
 	code << ")" << std::endl << *it;
@@ -121,34 +121,44 @@ void CodeGenerator::ProcessEnd( AST::RangeLoopBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-
+	// TODO: Implement.
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::ProcessEnd( AST::FunkshunBlock *node ) {
-	std::ostringstream code;
+	std::ostringstream funkshunDecl, funkshunDef;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	code << "bool " << SOURCE_DEFINED_PREFIX << *it << " = false;" << std::endl;
+	funkshunDecl << "bool " << SOURCE_DEFINED_PREFIX << *it 
+				 << " = false;" << std::endl;
 	
-	code << VARIABLE_STORAGE << " " << *it << "(";
+	funkshunDecl << VARIABLE_STORAGE << " " << *it;
+	funkshunDef << VARIABLE_STORAGE << " " << *it;
 	++it;
-	
+
+	funkshunDecl << "(";
+	funkshunDef << "(";
 	for( AST::FunkshunParamListIterator paramIt = node->GetParameters().begin();
 		 paramIt != node->GetParameters().end(); ++paramIt ) {
 		if( paramIt != node->GetParameters().cbegin() ) {
-			code << ", ";
+			funkshunDecl << ", ";
+			funkshunDef << ", ";
 		}
-		code << VARIABLE_STORAGE << ( paramIt->second ? "&" : "" ) << " " << *it;
+		funkshunDecl << VARIABLE_STORAGE << ( paramIt->second ? "&" : "" );
+		funkshunDef << VARIABLE_STORAGE << ( paramIt->second ? "&" : "" ) 
+					<< " " << *it;
 		++it;
 	}
+	funkshunDecl << ");";
+	funkshunDef << ")";
 	
-	code << std::endl << *it;
+	funkshunDef << std::endl << *it;
 	
 	codeSegments_.pop();
-	codeSegments_.top().push_back( code.str() );
+	codeSegments_.top().push_back( funkshunDecl.str() );
+	codeSegments_.top().push_back( funkshunDef.str() );
 }
 
 void CodeGenerator::ProcessEnd( AST::FunkshunDeclare *node ) {
@@ -160,7 +170,7 @@ void CodeGenerator::ProcessEnd( AST::FunkshunDeclare *node ) {
 	codeSegments_.top().push_back( code );
 }
 
-void CodeGenerator::ProcessEnd( AST::VarDeclare *node ) {
+void CodeGenerator::ProcessEnd( AST::LiteralVarDeclare *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
@@ -170,7 +180,7 @@ void CodeGenerator::ProcessEnd( AST::VarDeclare *node ) {
 	if( node->GetInitValue() != nullptr ) {
 		code << " = " << *it;
 	} else if( node->GetInitType() != nullptr ) {
-		code << "(" << *it << ")";
+		code << "(" << VARIABLE_TYPE_PREFIX << *it << ")";
 	}
 	code << ";";
 	
@@ -237,76 +247,81 @@ void CodeGenerator::ProcessEnd( AST::GimmehStatement *node ) {
 }
 
 void CodeGenerator::ProcessEnd( AST::Program *node ) {
-	std::ostringstream code;
+	std::ostringstream code, funkshuns;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
 	// Dump globals.
-	code << *it << std::endl;
-	++it;
+	for( unsigned int i = 0; i < node->GetFunkshuns().size(); ++i ) {
+		code << *it << std::endl;
+		++it;
+		
+		funkshuns << *it << std::endl;
+		++it;
+	}
+	code << std::endl << funkshuns.str() << std::endl;
 	
 	// Dump program body.
 	code << "int main()" << std::endl;
 	code << *it << std::endl;
 	
 	codeSegments_.pop();
-	codeOutput_ = code.str();
+	emittedCode_ = code.str();
 }
 
 void CodeGenerator::Process( AST::TroofLiteral *node ) {
 	std::ostringstream code;
-	code << VARIABLE_STORAGE << "(";
-	code << ( node->GetValue() ? "true" : "false" ) << ")";
+	code << CREATE_TROOF_LITERAL << "(" 
+		 << ( node->GetValue() ? "true" : "false" ) << ")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::NumbrLiteral *node ) {
 	std::ostringstream code;
-	code << VARIABLE_STORAGE << "((numbr_t)" << node->GetValue() << ")";
+	code << CREATE_NUMBR_LITERAL << "(" << node->GetValue() << ")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::NumbarLiteral *node ) {
 	std::ostringstream code;
-	code << VARIABLE_STORAGE << "((numbar_t)" << node->GetValue() << ")";
+	code << CREATE_NUMBAR_LITERAL << "(" << node->GetValue() << ")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::YarnLiteral *node ) {
 	std::ostringstream code;
-	code << VARIABLE_STORAGE << "(\"" << node->GetValue() << "\")";
+	code << CREATE_YARN_LITERAL << "(\"" << node->GetValue() << "\")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::NoobLiteral *node ) {
-	codeSegments_.top().push_back( VARIABLE_STORAGE + "()" );
+	codeSegments_.top().push_back( CREATE_NOOB_LITERAL );
 }
 
 void CodeGenerator::Process( AST::TypeIdentifier *node ) {
-	std::ostringstream code;
-	code << VARIABLE_TYPE_PREFIX;
+	std::string code = "";
 	switch( node->GetType() ) {
 		case AST::TypeIdentifier::Type::NUMBR:
-			code << NUMBR_TYPE;
+			code = NUMBR_TYPE;
 			break;
 		case AST::TypeIdentifier::Type::NUMBAR:
-			code << NUMBAR_TYPE;
+			code = NUMBAR_TYPE;
 			break;
 		case AST::TypeIdentifier::Type::TROOF:
-			code << TROOF_TYPE;
+			code = TROOF_TYPE;
 			break;
 		case AST::TypeIdentifier::Type::YARN:
-			code << YARN_TYPE;
+			code = YARN_TYPE;
 			break;
 		case AST::TypeIdentifier::Type::BUKKIT:
-			code << BUKKIT_TYPE;
+			code = BUKKIT_TYPE;
 			break;
 		case AST::TypeIdentifier::Type::NOOB:
-			code << NOOB_TYPE;
+			code = NOOB_TYPE;
 			break;
 		default:
 			break;
 	}
-	codeSegments_.top().push_back( code.str() );
+	codeSegments_.top().push_back( code );
 }
 
 void CodeGenerator::Process( AST::LiteralIdentifier *node ) {
@@ -315,6 +330,31 @@ void CodeGenerator::Process( AST::LiteralIdentifier *node ) {
 
 void CodeGenerator::Process( AST::ItIdentifier *node ) {
 	codeSegments_.top().push_back( IT_VARIABLE );
+}
+
+void CodeGenerator::ProcessEnd( AST::SlotIdentifier *node ) {
+	std::ostringstream code;
+	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
+	
+	code << *it << "." 
+		 << ( node->GetSafety() ? EXTRACT_FROM_BUKKIT : EXTRACT_FROM_BUKKIT_UNSAFE );
+	++it;
+	code << "(" << *it << ")";
+	
+	codeSegments_.pop();
+	codeSegments_.top().push_back( code.str() );
+}
+
+void CodeGenerator::ProcessEnd( AST::CastExpression *node ) {
+	std::ostringstream code;
+	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
+	
+	code << *it << "." << CAST_TO;
+	++it;
+	code << "(" << VARIABLE_TYPE_PREFIX << *it << ")";
+	
+	codeSegments_.pop();
+	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::ProcessUnaryExpressionEnd( AST::UnaryExpression *node ) {

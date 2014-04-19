@@ -56,13 +56,13 @@ namespace AST {
 	}
 	
 	SlotIdentifier::SlotIdentifier( Expression *key ) : 
-			key_( key ), bukkitRef_( nullptr ) {
+			key_( key ), bukkitRef_( nullptr ), isSafe_( true ) {
 		assert( key_ != nullptr );
 		key_->SetParent( this );
 	}
 	
 	void SlotIdentifier::Print( std::ostream &out ) {
-		out << DebugIndent() << "SLOT:";
+		out << DebugIndent() << "SLOT (" << ( isSafe_ ? "safe" : "unsafe" ) << "):" ;
 		if( key_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "Key:" << std::endl << *key_;
 		}

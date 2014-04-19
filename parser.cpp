@@ -7,12 +7,9 @@
 #include "statement.h"
 #include "expression.h"
 
-Parser::Parser() : 
-	tokens_( nullptr ),
-	lineGood_( true ) {}
-
 AST::Program *Parser::Parse( TokenList *tokens ) {
 	tokens_ = tokens;
+	funkshuns_.clear();
 	lineGood_ = true;
 	tokens_->StartIterating();
 
@@ -21,9 +18,13 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 
 	AST::ProgramBody *body = ParseProgramBody();
 	if( body == nullptr ) {
+		while( !funkshuns_.empty() ) {
+			delete funkshuns_.back();
+			funkshuns_.pop_back();
+		}
 		return nullptr;
 	}
-	AST::Program *program = new AST::Program( body );
+	AST::Program *program = new AST::Program( funkshuns_, body );
 
 	CheckTokenAndAdvance( TokenType::KTHXBYE );
 	if( !CheckTokenAndAdvance( TokenType::LINE_DELIMITER ) ||
@@ -36,44 +37,44 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 	return program;
 }
 
-AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
+AST::StatementBlock *Parser::ParseStatementBlock( const StatementBlockType bodyType ) {
 	AST::StatementBlock *stmtBlock;
 	
 	switch( bodyType ) {
-		case Type::PROGRAM_BODY:
+		case StatementBlockType::PROGRAM_BODY:
 			stmtBlock = new AST::ProgramBody();
 			break;
-		case Type::PROGRAM_GLOBALS:
+		case StatementBlockType::PROGRAM_GLOBALS:
 			stmtBlock = new AST::ProgramGlobals();
 			break;
-		case Type::FUNKSHUN_BODY:
+		case StatementBlockType::FUNKSHUN_BODY:
 			stmtBlock = new AST::FunkshunBody();
 			break;
-		case Type::ORLY_YA:
+		case StatementBlockType::ORLY_YA:
 			stmtBlock = new AST::ORlyYaBody();
 			break;
-		case Type::ORLY_MEBBE:
+		case StatementBlockType::ORLY_MEBBE:
 			stmtBlock = new AST::ORlyMebbeBody();
 			break;
-		case Type::ORLY_NO:
+		case StatementBlockType::ORLY_NO:
 			stmtBlock = new AST::ORlyNoBody();
 			break;
-		case Type::WTF_OMG:
+		case StatementBlockType::WTF_OMG:
 			stmtBlock = new AST::WtfOmgBody();
 			break;
-		case Type::WTF_OMGWTF:
+		case StatementBlockType::WTF_OMGWTF:
 			stmtBlock = new AST::WtfOmgwtfBody();
 			break;
-		case Type::LOOP_BODY:
+		case StatementBlockType::LOOP_BODY:
 			stmtBlock = new AST::LoopBody();
 			break;
-		case Type::PLZ_BODY:
+		case StatementBlockType::PLZ_BODY:
 			stmtBlock = new AST::PlzBody();
 			break;
-		case Type::PLZ_ONOES:
+		case StatementBlockType::PLZ_ONOES:
 			stmtBlock = new AST::PlzONoesBody();
 			break;
-		case Type::PLZ_OWEL:
+		case StatementBlockType::PLZ_OWEL:
 			stmtBlock = new AST::PlzOWelBody();
 			break;
 		default:
@@ -84,20 +85,20 @@ AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
 		AST::Statement *stmt = nullptr;
 		switch( tokens_->GetNextToken().type ) {
 			case TokenType::KTHXBYE:
-				if( bodyType == Type::PROGRAM_BODY ) {
+				if( bodyType == StatementBlockType::PROGRAM_BODY ) {
 					return stmtBlock;
 				}
 				break;
 			case TokenType::IF:
-				if( bodyType == Type::FUNKSHUN_BODY ) {
+				if( bodyType == StatementBlockType::FUNKSHUN_BODY ) {
 					return stmtBlock;
 				}
 				break;
 			case TokenType::MEBBE:
 			case TokenType::NO:
 				switch( bodyType ) {
-					case Type::ORLY_YA:
-					case Type::ORLY_MEBBE:
+					case StatementBlockType::ORLY_YA:
+					case StatementBlockType::ORLY_MEBBE:
 						return stmtBlock;
 					default:
 						break;
@@ -105,11 +106,11 @@ AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
 				break;
 			case TokenType::OIC:
 				switch( bodyType ) {
-					case Type::ORLY_YA:
-					case Type::ORLY_MEBBE:
-					case Type::ORLY_NO:
-					case Type::WTF_OMG:
-					case Type::WTF_OMGWTF:
+					case StatementBlockType::ORLY_YA:
+					case StatementBlockType::ORLY_MEBBE:
+					case StatementBlockType::ORLY_NO:
+					case StatementBlockType::WTF_OMG:
+					case StatementBlockType::WTF_OMGWTF:
 						return stmtBlock;
 					default:
 						break;
@@ -117,15 +118,15 @@ AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
 				break;
 			case TokenType::OMG:
 			case TokenType::OMGWTF:
-				if( bodyType == Type::WTF_OMG ) {
+				if( bodyType == StatementBlockType::WTF_OMG ) {
 					return stmtBlock;
 				}
 				break;
 			case TokenType::KTHX:
 				switch( bodyType ) {
-					case Type::PLZ_BODY:
-					case Type::PLZ_ONOES:
-					case Type::PLZ_OWEL:
+					case StatementBlockType::PLZ_BODY:
+					case StatementBlockType::PLZ_ONOES:
+					case StatementBlockType::PLZ_OWEL:
 						return stmtBlock;
 					default:
 						break;
@@ -139,8 +140,8 @@ AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
 					case TokenType::NOES:
 					case TokenType::WEL:
 						switch( bodyType ) {
-							case Type::PLZ_BODY:
-							case Type::PLZ_ONOES:
+							case StatementBlockType::PLZ_BODY:
+							case StatementBlockType::PLZ_ONOES:
 								return stmtBlock;
 							default:
 								break;
@@ -159,7 +160,7 @@ AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
 						stmt = ParseLoopBlock();
 						break;
 					case TokenType::OUTTA:
-						if( bodyType == Type::LOOP_BODY ) {
+						if( bodyType == StatementBlockType::LOOP_BODY ) {
 							return stmtBlock;
 						}
 						break;
@@ -168,8 +169,13 @@ AST::StatementBlock *Parser::ParseStatementBlock( const Type bodyType ) {
 				}
 				break;
 			case TokenType::HOW:
-				if( bodyType == Type::PROGRAM_BODY ) {
-					stmt = ParseFunkshunBlock();
+				if( bodyType == StatementBlockType::PROGRAM_BODY ) {
+					AST::FunkshunBlock *funkshun = ParseFunkshunBlock();
+					if( funkshun != nullptr ) {
+						funkshuns_.push_back( funkshun );
+						stmt = new AST::FunkshunDeclare( 
+							funkshun->GetName()->Clone() );
+					}
 				}
 				break;
 			case TokenType::PLZ:
@@ -379,9 +385,13 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 		default:
 		{
 			AST::ForLoopBlock *forLoopBlock = new AST::ForLoopBlock( id );
+			AST::UnaryExpression *unaryIncExpr = nullptr;
+			AST::FunkshunCall *funkshunIncExpr = nullptr;
 			
-			AST::UnaryExpression *unaryIncExpr;
 			switch( tokens_->GetNextToken().type ) {
+				case TokenType::WITH:
+					tokens_->AdvanceToNextToken();
+					break;
 				case TokenType::UPPIN:
 					unaryIncExpr = new AST::UppinExpression();
 					forLoopBlock->SetLoopVariableIncExpr( unaryIncExpr );
@@ -400,31 +410,36 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 						break;
 					}
 					
+					// TODO: Expand to support indirect function calls via SRS.
 					AST::LiteralIdentifier *funkshunId = ParseLiteralIdentifier();
-					if( funkshunId != nullptr ) {
-						AST::FunkshunCall *funkshunIncExpr = 
-							new AST::FunkshunCall( funkshunId );
-						forLoopBlock->SetLoopVariableIncExpr( funkshunIncExpr );
-						break;
+					if( funkshunId == nullptr ) {
+						delete forLoopBlock;
+						return nullptr;
 					}
 					
-					delete forLoopBlock;
-					return nullptr;
+					funkshunIncExpr = new AST::FunkshunCall( funkshunId );
+					forLoopBlock->SetLoopVariableIncExpr( funkshunIncExpr );
+					break;
 				}
 			}
 			
-			bool counterIsLocal = false;
+			bool loopVarIsLocal = false;
 			if( tokens_->GetNextToken().type == TokenType::YR ) {
 				tokens_->AdvanceToNextToken();
-				counterIsLocal = true;
+				loopVarIsLocal = true;
 			}
 			
-			AST::Identifier *counter = ParseLoopVarIdentifier();
-			if( counter == nullptr ) {
+			AST::Identifier *loopVar = ParseLoopVarIdentifier();
+			if( loopVar == nullptr ) {
 				delete forLoopBlock;
 				return nullptr;
 			}
-			forLoopBlock->SetLoopVariable( counter, counterIsLocal );
+			forLoopBlock->SetLoopVariable( loopVar, loopVarIsLocal );
+			if( unaryIncExpr != nullptr ) {
+				unaryIncExpr->SetOperand( loopVar->Clone() );
+			} else if( funkshunIncExpr != nullptr ) {
+				funkshunIncExpr->AddOperand( loopVar->Clone() );
+			}
 			
 			if( tokens_->GetNextToken().type == TokenType::FROM ) {
 				tokens_->AdvanceToNextToken();
@@ -658,6 +673,7 @@ AST::PlzBlock *Parser::ParsePlzBlock() {
 
 AST::Statement *Parser::ParseStatement() {
 	AST::Statement *stmt = nullptr;
+	bool isSlotIdentifier = true;
 
 	switch( tokens_->GetNextToken().type ) {
 		case TokenType::I:
@@ -678,7 +694,7 @@ AST::Statement *Parser::ParseStatement() {
 			break;
 		case TokenType::IDENTIFIER:
 		case TokenType::SRS:
-		case TokenType::IT:
+			isSlotIdentifier = false;
 		case TokenType::SLOT:
 		{
 			AST::Identifier *id = ParseExplicitIdentifier();
@@ -688,19 +704,37 @@ AST::Statement *Parser::ParseStatement() {
 			
 			switch( tokens_->GetNextToken().type ) {
 				case TokenType::R:
+					if( isSlotIdentifier ) {
+						assert( dynamic_cast<AST::SlotIdentifier *>( id ) != nullptr );
+						static_cast<AST::SlotIdentifier *>( id )->SetSafety( false );
+					}
 					stmt = ParseVarAssign( id );
 					break;
 				case TokenType::IS:
 					stmt = ParseVarCast( id );
 					break;
 				default:
-					stmt = id;
-					break;
+					{
+						AST::VarAssign *varAssign = 
+							AST::VarAssign::CreateImplicitAssign();
+						varAssign->SetAssignValue( id );
+						stmt = varAssign;
+						break;
+					}
 			}
 			break;
 		}
 		default:
-			stmt = ParseExpression();
+			{
+				AST::Expression *expr = ParseExpression();
+				if( expr == nullptr ) {
+					break;
+				}
+				
+				AST::VarAssign *varAssign = AST::VarAssign::CreateImplicitAssign();
+				varAssign->SetAssignValue( expr );
+				stmt = varAssign;
+			}
 			break;
 	}
 	if( stmt == nullptr ) {
@@ -724,11 +758,33 @@ AST::VarDeclare *Parser::ParseVarDeclare() {
 		return nullptr;
 	}
 	
+	AST::VarDeclare *varDecl;
+	bool isSlotIdentifier = false;
+	switch( tokens_->GetNextToken().type ) {
+		case TokenType::IDENTIFIER:
+			varDecl = new AST::LiteralVarDeclare();
+			break;
+		case TokenType::SRS:
+			varDecl = new AST::SrsVarDeclare();
+			break;
+		case TokenType::SLOT:
+			varDecl = new AST::SlotVarDeclare();
+			isSlotIdentifier = true;
+			break;
+		default:
+			return nullptr;
+	}
+	
 	AST::Identifier *id = ParseExplicitIdentifier();
 	if( id == nullptr ) {
+		delete varDecl;
 		return nullptr;
 	}
-	AST::VarDeclare *varDecl = new AST::VarDeclare( id );
+	varDecl->SetVariable( id );
+	if( isSlotIdentifier ) {
+		assert( dynamic_cast<AST::SlotIdentifier *>( id ) != nullptr );
+		static_cast<AST::SlotIdentifier *>( id )->SetSafety( false );
+	}
 
 	if( tokens_->GetNextToken().type == TokenType::ITZ ) {
 		tokens_->AdvanceToNextToken();

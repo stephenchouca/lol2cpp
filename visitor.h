@@ -5,7 +5,6 @@
 
 namespace AST {
 	class ProgramBody;
-	class ProgramGlobals;
 	class FunkshunBody;
 	class ORlyYaBody;
 	class ORlyMebbeBody;
@@ -23,9 +22,10 @@ namespace AST {
 	class FunkshunBlock;
 	class FunkshunDeclare;
 	class PlzBlock;
-	class VarDeclare;
+	class LiteralVarDeclare;
+	class SrsVarDeclare;
+	class SlotVarDeclare;
 	class VarAssign;
-	//class VarCast;
 	class FunkshunReturn;
 	class GtfoStatement;
 	class VisibleStatement;
@@ -69,8 +69,6 @@ namespace AST {
 		public:
 			virtual void ProcessBegin( ProgramBody *node ) {}
 			virtual void ProcessEnd( ProgramBody *node ) {}
-			virtual void ProcessBegin( ProgramGlobals *node ) {}
-			virtual void ProcessEnd( ProgramGlobals *node ) {}
 			virtual void ProcessBegin( FunkshunBody *node ) {}
 			virtual void ProcessEnd( FunkshunBody *node ) {}
 			virtual void ProcessBegin( ORlyYaBody *node ) {}
@@ -106,12 +104,14 @@ namespace AST {
 			virtual void ProcessEnd( FunkshunDeclare *node ) {}
 			virtual void ProcessBegin( PlzBlock *node ) {}
 			virtual void ProcessEnd( PlzBlock *node ) {}
-			virtual void ProcessBegin( VarDeclare *node ) {}
-			virtual void ProcessEnd( VarDeclare *node ) {}
+			virtual void ProcessBegin( LiteralVarDeclare *node ) {}
+			virtual void ProcessEnd( LiteralVarDeclare *node ) {}
+			virtual void ProcessBegin( SrsVarDeclare *node ) {}
+			virtual void ProcessEnd( SrsVarDeclare *node ) {}
+			virtual void ProcessBegin( SlotVarDeclare *node ) {}
+			virtual void ProcessEnd( SlotVarDeclare *node ) {}
 			virtual void ProcessBegin( VarAssign *node ) {}
 			virtual void ProcessEnd( VarAssign *node ) {}
-			//virtual void ProcessBegin( VarCast *node ) {}
-			//virtual void ProcessEnd( VarCast *node ) {}
 			virtual void ProcessBegin( FunkshunReturn *node ) {}
 			virtual void ProcessEnd( FunkshunReturn *node ) {}
 			virtual void Process( GtfoStatement *node ) {}
@@ -183,7 +183,6 @@ namespace AST {
 			virtual void ProcessEnd( FunkshunCall *node ) {}
 			
 			virtual void Visit( ProgramBody * ) = 0;
-			virtual void Visit( ProgramGlobals * ) = 0;
 			virtual void Visit( FunkshunBody * ) = 0;
 			virtual void Visit( ORlyYaBody * ) = 0;
 			virtual void Visit( ORlyMebbeBody * ) = 0;
@@ -202,9 +201,10 @@ namespace AST {
 			virtual void Visit( FunkshunBlock * ) = 0;
 			virtual void Visit( FunkshunDeclare * ) = 0;
 			virtual void Visit( PlzBlock * ) = 0;
-			virtual void Visit( VarDeclare * ) = 0;
+			virtual void Visit( LiteralVarDeclare * ) = 0;
+			virtual void Visit( SrsVarDeclare * ) = 0;
+			virtual void Visit( SlotVarDeclare * ) = 0;
 			virtual void Visit( VarAssign * ) = 0;
-			//virtual void Visit( VarCast * ) = 0;
 			virtual void Visit( FunkshunReturn * ) = 0;
 			virtual void Visit( GtfoStatement *node ) { Process( node ); }
 			virtual void Visit( VisibleStatement * ) = 0;

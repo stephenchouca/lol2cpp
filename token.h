@@ -76,6 +76,7 @@ enum class TokenType {
 	WILE,
 	UPPIN,
 	NERFIN,
+	WITH,
 	WATCHIN,
 	HOW,
 	IZ,

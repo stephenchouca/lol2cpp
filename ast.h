@@ -16,7 +16,10 @@ namespace AST {
 			inline std::string DebugIndent( unsigned int tabs = 0 ) {
 				return std::string( ( GetLevel() + tabs ) * 3, ' ' );
 			}
-			friend std::ostream &operator <<( std::ostream &, ASTNode & );
+			friend std::ostream & operator<<( std::ostream &out, ASTNode &node ) {
+				node.Print( out );
+				return out;
+			}
 			
 			virtual void Accept( ASTVisitor * ) = 0;
 			

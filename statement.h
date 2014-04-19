@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "ast.h"
+#include "expression.h"
 #include "visitor.h"
 
 namespace AST {
@@ -13,13 +14,7 @@ namespace AST {
 	class WtfOmgBody;
 	class PlzONoesBody;
 	class Statement;
-	class Expression;
-	class UnaryExpression;
-	class FunkshunCall;
-	class Identifier;
-	class LiteralIdentifier;
-	class TypeIdentifier;
-	class Literal;
+	class FunkshunBlock;
 	
 	typedef std::pair<Expression *, ORlyMebbeBody *> MebbeBlock;
 	typedef std::pair<Literal *, WtfOmgBody *> OmgBlock;
@@ -27,23 +22,20 @@ namespace AST {
 	typedef std::pair<LiteralIdentifier *, bool> FunkshunParam;
 	
 	typedef std::list<Statement *> StatementList;
-	typedef std::list<Expression *> ExpressionList;
-	typedef std::list<Literal *> LiteralList;
+	typedef std::list<FunkshunBlock *> FunkshunList;
 	typedef std::list<MebbeBlock> MebbeBlockList;
 	typedef std::list<OmgBlock> OmgBlockList;
 	typedef std::list<NoesBlock> NoesBlockList;
 	typedef std::list<FunkshunParam> FunkshunParamList;
 	
 	typedef std::list<Statement *>::iterator StatementListIterator;
-	typedef std::list<Expression *>::iterator ExpressionListIterator;
-	typedef std::list<Literal *>::iterator LiteralListIterator;
+	typedef std::list<FunkshunBlock *>::iterator FunkshunListIterator;
 	typedef std::list<MebbeBlock>::iterator MebbeBlockListIterator;
 	typedef std::list<OmgBlock>::iterator OmgBlockListIterator;
 	typedef std::list<NoesBlock>::iterator NoesBlockListIterator;
 	typedef std::list<FunkshunParam>::iterator FunkshunParamListIterator;
 	
-	class Statement : public ASTNode {
-	};
+	class Statement : public ASTNode {};
 	
 	class StatementBlock : public ASTNode {
 		public:
@@ -68,7 +60,7 @@ namespace AST {
 	
 	class ProgramGlobals : public StatementBlock {
 		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( (ProgramBody *)this ); }
 	};
 	
 	class FunkshunBody : public StatementBlock {
@@ -119,11 +111,6 @@ namespace AST {
 	class PlzOWelBody : public StatementBlock {
 		public:
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-
-	class Expression : public Statement {
-		public:
-			virtual Expression *Clone() = 0;
 	};
 
 	class ORlyBlock : public Statement {
@@ -210,7 +197,6 @@ namespace AST {
 			Expression *GetLoopVariableInitExpr() { return loopVarInitExpr_; }
 			UnaryExpression *GetLoopGuard() { return loopGuard_; }
 			
-			void SetLoopVariable( Identifier *, bool );
 			void SetLoopVariableIncExpr( Expression * );
 			void SetLoopVariableInitExpr( Expression * );
 			void SetLoopGuard( UnaryExpression * );
@@ -298,24 +284,41 @@ namespace AST {
 
 	class VarDeclare : public Statement {
 		public:
-			VarDeclare( Identifier * );
+			VarDeclare() : 
+				varId_( nullptr ), 
+				initVal_( nullptr ), 
+				initType_( nullptr ) {}
 			~VarDeclare();
 			
 			void Print( std::ostream & );
-			
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			Identifier *GetVariable() { return varId_; }
 			Expression *GetInitValue() { return initVal_; }
 			TypeIdentifier *GetInitType() { return initType_; }
 			
+			void SetVariable( Identifier * );
 			void SetInitValue( Expression * );
 			void SetInitType( TypeIdentifier * );
 			
-		private:
+		protected:
 			Identifier *varId_;
 			Expression *initVal_;
 			TypeIdentifier *initType_;
+	};
+	
+	class LiteralVarDeclare : public VarDeclare {
+		public:
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+	};
+	
+	class SrsVarDeclare : public VarDeclare {
+		public:
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+	};
+	
+	class SlotVarDeclare : public VarDeclare {
+		public:
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 	};
 
 	class VarAssign : public Statement {
@@ -327,6 +330,10 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			static VarAssign *CreateImplicitAssign() {
+				return new VarAssign( new ItIdentifier() );
+			}
+			
 			Identifier *GetVariable() { return varId_; }
 			Expression *GetAssignValue() { return assignVal_; }
 			
@@ -336,27 +343,6 @@ namespace AST {
 			Identifier *varId_;
 			Expression *assignVal_;
 	};
-
-#if 0
-	class VarCast : public Statement {
-		public:
-			VarCast( Identifier * );
-			~VarCast();
-			
-			void Print( std::ostream & );
-			
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-			
-			Identifier *GetVariable() { return varId_; }
-			TypeIdentifier *GetCastTargetType() { return targetType_; }
-			
-			void SetCastTargetType( TypeIdentifier * );
-			
-		private:
-			Identifier *varId_;
-			TypeIdentifier *targetType_;
-	};
-#endif
 
 	class FunkshunReturn : public Statement {
 		public:
@@ -421,22 +407,19 @@ namespace AST {
 
 	class Program : public ASTNode {
 		public:
-			Program( ProgramBody * );
-			~Program() {
-				delete globals_;
-				delete body_;
-			}
+			Program( FunkshunList &, ProgramBody * );
+			~Program();
 			
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 2; }
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
-			ProgramGlobals *GetGlobals() { return globals_; }
+			FunkshunList &GetFunkshuns() { return funkshuns_; }
 			ProgramBody *GetBody() { return body_; }
 		
 		private:
-			ProgramGlobals *globals_;
+			FunkshunList funkshuns_;
 			ProgramBody *body_;
 	};
 }

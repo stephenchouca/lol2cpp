@@ -5,25 +5,34 @@
 #include <list>
 #include <string>
 
-#include "programvisitor.h"
+#include "program_visitor.h"
 
-#define SOURCE_PREFIX std::string("Source_")
-#define SOURCE_DEFINED_PREFIX std::string("Defined_")
-#define CAST_TO_PREFIX std::string("CastTo")
-#define CAST_TO_TROOF (CAST_TO_PREFIX + TROOF_TYPE)
-#define CAST_TO_NUMBR (CAST_TO_PREFIX + NUMBR_TYPE)
-#define CAST_TO_NUMBAR (CAST_TO_PREFIX + NUMBAR_TYPE)
-#define CAST_TO_YARN (CAST_TO_PREFIX + YARN_TYPE)
-#define CAST_TO_BUKKIT (CAST_TO_PREFIX + BUKKIT_TYPE)
-#define CAST_TO_NOOB (CAST_TO_PREFIX + NOOB_TYPE)
-#define VARIABLE_STORAGE std::string("Variable")
-#define VARIABLE_TYPE_PREFIX std::string("Variable::Type::")
 #define TROOF_TYPE std::string("TROOF")
 #define NUMBR_TYPE std::string("NUMBR")
 #define NUMBAR_TYPE std::string("NUMBAR")
 #define YARN_TYPE std::string("YARN")
 #define BUKKIT_TYPE std::string("BUKKIT")
 #define NOOB_TYPE std::string("NOOB")
+#define SOURCE_PREFIX std::string("Source_")
+#define SOURCE_DEFINED_PREFIX std::string("Defined_")
+#define EXTRACT_PREFIX std::string("Extract")
+#define EXTRACT_TROOF (EXTRACT_PREFIX + TROOF_TYPE)
+#define EXTRACT_NUMBR (EXTRACT_PREFIX + NUMBR_TYPE)
+#define EXTRACT_NUMBAR (EXTRACT_PREFIX + NUMBAR_TYPE)
+#define EXTRACT_YARN (EXTRACT_PREFIX + YARN_TYPE)
+#define EXTRACT_BUKKIT (EXTRACT_PREFIX + BUKKIT_TYPE)
+#define EXTRACT_NOOB (EXTRACT_PREFIX + NOOB_TYPE)
+#define EXTRACT_FROM_BUKKIT (EXTRACT_PREFIX + std::string("FromBukkit"))
+#define EXTRACT_FROM_BUKKIT_UNSAFE (EXTRACT_FROM_BUKKIT + std::string("Unsafe"))
+#define CAST_TO std::string("CastTo")
+#define VARIABLE_STORAGE std::string("Variable")
+#define VARIABLE_TYPE_PREFIX (VARIABLE_STORAGE + std::string("::Type::"))
+#define CREATE_LITERAL_PREFIX (VARIABLE_STORAGE + std::string("::Create"))
+#define CREATE_TROOF_LITERAL (CREATE_LITERAL_PREFIX + TROOF_TYPE)
+#define CREATE_NUMBR_LITERAL (CREATE_LITERAL_PREFIX + NUMBR_TYPE)
+#define CREATE_NUMBAR_LITERAL (CREATE_LITERAL_PREFIX + NUMBAR_TYPE)
+#define CREATE_YARN_LITERAL (CREATE_LITERAL_PREFIX + YARN_TYPE)
+#define CREATE_NOOB_LITERAL (CREATE_LITERAL_PREFIX + NOOB_TYPE + std::string("()"))
 #define IT_VARIABLE std::string("ItVariable")
 
 class CodeGenerator : public AST::ASTProgramOrderVisitor {
@@ -32,13 +41,13 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string USER_FUNKSHUN_PREFIX;
 		static const std::string USER_FUNKSHUN_DEFINED_PREFIX;
 		static const std::string USER_VARIABLE_PREFIX;
-		static const std::string CAST_TO_PREFIX;
-		static const std::string CAST_TO_TROOF;
-		static const std::string CAST_TO_NUMBR;
-		static const std::string CAST_TO_NUMBAR;
-		static const std::string CAST_TO_YARN;
-		static const std::string CAST_TO_BUKKIT;
-		static const std::string CAST_TO_NOOB;
+		static const std::string EXTRACT_PREFIX;
+		static const std::string EXTRACT_TROOF;
+		static const std::string EXTRACT_NUMBR;
+		static const std::string EXTRACT_NUMBAR;
+		static const std::string EXTRACT_YARN;
+		static const std::string EXTRACT_BUKKIT;
+		static const std::string EXTRACT_NOOB;
 		static const std::string VARIABLE_STORAGE;
 		static const std::string VARIABLE_TYPE_PREFIX;
 		static const std::string TROOF_TYPE;
@@ -51,19 +60,13 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 #endif
 		
 	public:
-		std::string &GetEmittedCode() { return codeOutput_; }
+		std::string &GetEmittedCode() { return emittedCode_; }
 		
-		void ProcessBegin( AST::ProgramBody *node ) { 
+		void ProcessBegin( AST::ProgramBody *node ) {
 			ProcessStatementBlockBegin( node ); 
 		}
 		void ProcessEnd( AST::ProgramBody *node ) { 
 			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::ProgramGlobals *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::ProgramGlobals *node ) { 
-			ProcessStatementBlockEnd( node, false ); 
 		}
 		void ProcessBegin( AST::FunkshunBody *node ) { 
 			ProcessStatementBlockBegin( node ); 
@@ -107,7 +110,6 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessEnd( AST::LoopBody *node ) { 
 			ProcessStatementBlockEnd( node ); 
 		}
-#if 0
 		void ProcessBegin( AST::PlzBody *node ) { 
 			ProcessStatementBlockBegin( node ); 
 		}
@@ -126,7 +128,6 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessEnd( AST::PlzOWelBody *node ) { 
 			ProcessStatementBlockEnd( node ); 
 		}
-#endif
 			
 		void ProcessBegin( AST::ORlyBlock *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::ORlyBlock * );
@@ -142,12 +143,14 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessEnd( AST::FunkshunDeclare * );
 		//void ProcessBegin( AST::PlzBlock * );
 		//void ProcessEnd( AST::PlzBlock * );
-		void ProcessBegin( AST::VarDeclare *node ) { ProcessBegin(); }
-		void ProcessEnd( AST::VarDeclare * );
+		void ProcessBegin( AST::LiteralVarDeclare *node ) { ProcessBegin(); }
+		void ProcessEnd( AST::LiteralVarDeclare * );
+		void ProcessBegin( AST::SrsVarDeclare *node ) { ProcessBegin(); }
+		//void ProcessEnd( AST::SrsVarDeclare * );
+		void ProcessBegin( AST::SlotVarDeclare *node ) { ProcessBegin(); }
+		//void ProcessEnd( AST::SlotVarDeclare * );
 		void ProcessBegin( AST::VarAssign *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::VarAssign * );
-		//void ProcessBegin( AST::VarCast * );
-		//void ProcessEnd( AST::VarCast * );
 		void ProcessBegin( AST::FunkshunReturn *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::FunkshunReturn * );
 		void Process( AST::GtfoStatement * );
@@ -168,10 +171,10 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		//void ProcessBegin( AST::SrsIdentifier * );
 		//void ProcessEnd( AST::SrsIdentifier * );
 		void Process( AST::ItIdentifier * );
-		//void ProcessBegin( AST::SlotIdentifier *node ) { ProcessBegin(); }
-		//void ProcessEnd( AST::SlotIdentifier * );
-		//void ProcessBegin( AST::CastExpression *node ) { ProcessBegin(); }
-		//void ProcessEnd( AST::CastExpression * );
+		void ProcessBegin( AST::SlotIdentifier *node ) { ProcessBegin(); }
+		void ProcessEnd( AST::SlotIdentifier * );
+		void ProcessBegin( AST::CastExpression *node ) { ProcessBegin(); }
+		void ProcessEnd( AST::CastExpression * );
 		
 		void ProcessBegin( AST::NotExpression *node ) {
 			ProcessUnaryExpressionBegin( node );
@@ -304,7 +307,7 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessStatementBlockBegin( AST::StatementBlock *node ) { 
 			ProcessBegin(); 
 		}
-		void ProcessStatementBlockEnd( AST::StatementBlock *, bool = true );
+		void ProcessStatementBlockEnd( AST::StatementBlock * );
 		void ProcessUnaryExpressionBegin( AST::UnaryExpression *node ) { 
 			ProcessBegin(); 
 		}
@@ -319,7 +322,7 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessNaryExpressionEnd( AST::NaryExpression * );
 	
 	private:
-		std::string codeOutput_;
+		std::string emittedCode_;
 		std::stack< std::list<std::string> > codeSegments_;
 };
 

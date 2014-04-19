@@ -9,12 +9,12 @@
 
 class Parser {
 	public:
-		Parser();
+		Parser() : tokens_( nullptr ), lineGood_( true ) {}
 
 		AST::Program *Parse( TokenList * );
 
 	private:
-		enum class Type { 
+		enum class StatementBlockType { 
 			PROGRAM_BODY,
 			PROGRAM_GLOBALS,
 			FUNKSHUN_BODY,
@@ -29,54 +29,54 @@ class Parser {
 			PLZ_OWEL
 		};
 			
-		AST::StatementBlock *ParseStatementBlock( const Type );
+		AST::StatementBlock *ParseStatementBlock( const StatementBlockType );
 		AST::ProgramBody *ParseProgramBody() {
 			return dynamic_cast<AST::ProgramBody *>( 
-				ParseStatementBlock( Type::PROGRAM_BODY ) );
+				ParseStatementBlock( StatementBlockType::PROGRAM_BODY ) );
 		}
 		AST::ProgramGlobals *ParseProgramGlobals(){
 			return dynamic_cast<AST::ProgramGlobals *>( 
-				ParseStatementBlock( Type::PROGRAM_GLOBALS ) );
+				ParseStatementBlock( StatementBlockType::PROGRAM_GLOBALS ) );
 		}
 		AST::FunkshunBody *ParseFunkshunBody(){
 			return dynamic_cast<AST::FunkshunBody *>( 
-				ParseStatementBlock( Type::FUNKSHUN_BODY ) );
+				ParseStatementBlock( StatementBlockType::FUNKSHUN_BODY ) );
 		}
 		AST::ORlyYaBody *ParseORlyYaBody(){
 			return dynamic_cast<AST::ORlyYaBody *>( 
-				ParseStatementBlock( Type::ORLY_YA ) );
+				ParseStatementBlock( StatementBlockType::ORLY_YA ) );
 		}
 		AST::ORlyMebbeBody *ParseORlyMebbeBody(){
 			return dynamic_cast<AST::ORlyMebbeBody *>( 
-				ParseStatementBlock( Type::ORLY_MEBBE ) );
+				ParseStatementBlock( StatementBlockType::ORLY_MEBBE ) );
 		}
 		AST::ORlyNoBody *ParseORlyNoBody(){
 			return dynamic_cast<AST::ORlyNoBody *>( 
-				ParseStatementBlock( Type::ORLY_NO ) );
+				ParseStatementBlock( StatementBlockType::ORLY_NO ) );
 		}
 		AST::WtfOmgBody *ParseWtfOmgBody(){
 			return dynamic_cast<AST::WtfOmgBody *>( 
-				ParseStatementBlock( Type::WTF_OMG ) );
+				ParseStatementBlock( StatementBlockType::WTF_OMG ) );
 		}
 		AST::WtfOmgwtfBody *ParseWtfOmgwtfBody(){
 			return dynamic_cast<AST::WtfOmgwtfBody *>( 
-				ParseStatementBlock( Type::WTF_OMGWTF ) );
+				ParseStatementBlock( StatementBlockType::WTF_OMGWTF ) );
 		}
 		AST::LoopBody *ParseLoopBody(){
 			return dynamic_cast<AST::LoopBody *>( 
-				ParseStatementBlock( Type::LOOP_BODY ) );
+				ParseStatementBlock( StatementBlockType::LOOP_BODY ) );
 		}
 		AST::PlzBody *ParsePlzBody(){
 			return dynamic_cast<AST::PlzBody *>( 
-				ParseStatementBlock( Type::PLZ_BODY ) );
+				ParseStatementBlock( StatementBlockType::PLZ_BODY ) );
 		}
 		AST::PlzONoesBody *ParsePlzONoesBody(){
 			return dynamic_cast<AST::PlzONoesBody *>( 
-				ParseStatementBlock( Type::PLZ_ONOES ) );
+				ParseStatementBlock( StatementBlockType::PLZ_ONOES ) );
 		}
 		AST::PlzOWelBody *ParsePlzOWelBody(){
 			return dynamic_cast<AST::PlzOWelBody *>( 
-				ParseStatementBlock( Type::PLZ_OWEL ) );
+				ParseStatementBlock( StatementBlockType::PLZ_OWEL ) );
 		}
 
 		AST::ORlyBlock *ParseORlyBlock();
@@ -121,6 +121,8 @@ class Parser {
 	
 	private:
 		TokenList *tokens_;
+		
+		AST::FunkshunList funkshuns_;
 
 		bool lineGood_;
 };

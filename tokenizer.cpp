@@ -178,6 +178,8 @@ TokenType Tokenizer::GetTokenType( std::string str ) {
 		return TokenType::UPPIN;
 	} else if( str == "NERFIN" ) {
 		return TokenType::NERFIN;
+	} else if( str == "WITH" ) {
+		return TokenType::WITH;
 	} else if( str == "WATCHIN" ) {
 		return TokenType::WATCHIN;
 	} else if( str == "HOW" ) {

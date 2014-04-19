@@ -146,6 +146,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "UPPIN";
 		case TokenType::NERFIN:
 			return "NERFIN";
+		case TokenType::WITH:
+			return "WITH";
 		case TokenType::WATCHIN:
 			return "WATCHIN";
 		case TokenType::HOW:

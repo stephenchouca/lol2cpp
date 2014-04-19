@@ -42,6 +42,7 @@ namespace AST {
 		}
 		
 		it = stmts_.erase( it );
+		--it;
 	}
 		
 	ORlyBlock::ORlyBlock( ORlyYaBody *yaRlyBody ) :
@@ -203,38 +204,14 @@ namespace AST {
 			out << std::endl << DebugIndent( 1 ) << "Loop Var Init:"
 				<< std::endl << *loopVarInitExpr_;
 		}
+		if( loopGuard_ != nullptr ) {
+			out << std::endl << DebugIndent( 1 ) << "Guard Cond:"
+				<< std::endl << *loopGuard_;
+		}
 		if( loopVarIncExpr_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "Loop Var Inc:"
 				<< std::endl << *loopVarIncExpr_;
 		}
-	}
-	
-	void ForLoopBlock::SetLoopVariable( Identifier *loopVar, bool isLocal ) {
-		LoopBlock::SetLoopVariable( loopVar, isLocal );
-		
-		if( loopVarIncExpr_ == nullptr ) {
-			return;
-		}
-		
-		UnaryExpression *unaryIncExpr = 
-			dynamic_cast<UnaryExpression *>( loopVarIncExpr_ );
-		if( unaryIncExpr != nullptr ) {
-			Identifier *loopVar = dynamic_cast<Identifier *>( loopVar_->Clone() );
-			unaryIncExpr->SetOperand( loopVar );
-			loopVar->SetParent( unaryIncExpr );
-			return;
-		}
-		
-		FunkshunCall *funkshunIncExpr = 
-			dynamic_cast<FunkshunCall *>( loopVarIncExpr_ );
-		if( funkshunIncExpr != nullptr ) {
-			Identifier *loopVar = dynamic_cast<Identifier *>( loopVar_->Clone() );
-			funkshunIncExpr->AddOperand( loopVar );
-			loopVar->SetParent( funkshunIncExpr );
-			return;
-		}
-		
-		assert( false );
 	}
 	
 	void ForLoopBlock::SetLoopVariableIncExpr( Expression *incExpr ) {
@@ -394,12 +371,6 @@ namespace AST {
 		oWelBody_->SetParent( this );
 	}
 	
-	VarDeclare::VarDeclare( Identifier *varId ) :
-			varId_( varId ), initVal_( nullptr ), initType_( nullptr ) {
-		assert( varId_ != nullptr );
-		varId_->SetParent( this );
-	}
-	
 	VarDeclare::~VarDeclare() {
 		delete varId_;
 		delete initVal_;
@@ -417,6 +388,12 @@ namespace AST {
 		if( initType_ != nullptr ) {
 			out << std::endl << *initType_;
 		}
+	}
+	
+	void VarDeclare::SetVariable( Identifier *varId ) {
+		assert( varId != nullptr );
+		varId_ = varId;
+		varId_->SetParent( this );
 	}
 	
 	void VarDeclare::SetInitValue( Expression *initVal ) {
@@ -460,35 +437,6 @@ namespace AST {
 		assignVal_->SetParent( this );
 	}
 
-#if 0
-	VarCast::VarCast( Identifier *varId ) :
-			varId_( varId ), targetType_( nullptr ) {
-		assert( varId_ != nullptr );
-		varId_->SetParent( this );
-	}
-	
-	VarCast::~VarCast() {
-		delete varId_;
-		delete targetType_;
-	}
-	
-	void VarCast::Print( std::ostream &out ) {
-		out << DebugIndent() << "VAR CAST:";
-		if( varId_ != nullptr ) {
-			out << std::endl << *varId_;
-		}
-		if( targetType_ != nullptr ) {
-			out << std::endl << *targetType_;
-		}
-	}
-	
-	void VarCast::SetCastTargetType( TypeIdentifier *typeId ) {
-		assert( typeId != nullptr );
-		targetType_ = typeId;
-		targetType_->SetParent( this );
-	}
-#endif
-	
 	FunkshunReturn::FunkshunReturn( Expression *retVal ) :
 			retVal_( retVal ) {
 		assert( retVal_ != nullptr );
@@ -561,18 +509,38 @@ namespace AST {
 		}
 	}
 	
-	Program::Program( ProgramBody *body ) : 
-			globals_( new ProgramGlobals() ), body_( body ) {
+	Program::Program( FunkshunList &funkshuns, ProgramBody *body ) : body_( body ) {
+		funkshuns_ = funkshuns;
+		for( FunkshunListIterator it = funkshuns_.begin();
+			 it != funkshuns_.end(); ++it ) {
+			FunkshunBlock *funkshun = *it;
+			assert( funkshun != nullptr );
+			funkshun->SetParent( this );
+		}
+		
 		assert( body_ != nullptr );
 		body_->SetParent( this );
-		globals_->SetParent( this );
+	}
+	
+	Program::~Program() {
+		while( !funkshuns_.empty() ) {
+			delete funkshuns_.back();
+			funkshuns_.pop_back();
+		}
+		
+		delete body_;
 	}
 	
 	void Program::Print( std::ostream &out ) {
 		out << DebugIndent() << "PROGRAM:";
 		
-		assert( globals_ != nullptr );
-		out << std::endl << DebugIndent( 1 ) << "Globals:" << std::endl << *globals_;
+		out << std::endl << DebugIndent( 1 ) << "Funkshuns:";
+		for( FunkshunListIterator it = funkshuns_.begin();
+			 it != funkshuns_.end(); ++it ) {
+			FunkshunBlock *funkshun = *it;
+			assert( funkshun != nullptr );
+			out << std::endl << *funkshun;
+		}
 		
 		if( body_ != nullptr ) {
 			out << std::endl << DebugIndent( 1 ) << "Body:" << std::endl << *body_;
