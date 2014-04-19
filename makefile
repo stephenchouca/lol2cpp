@@ -3,12 +3,10 @@ CFLAGS=-c -std=c++11
 
 OBJS=lol2cpp.o \
 	 codegen.o \
-	 globalshoister.o \
-	 programvisitor.o \
+	 program_visitor.o \
 	 parser.o \
-	 expression.o \
 	 statement.o \
-	 ast.o \
+	 expression.o \
 	 tokenizer.o \
 	 tokenlist.o \
 	 token.o

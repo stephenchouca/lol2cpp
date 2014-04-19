@@ -7,8 +7,6 @@
 #include "ast.h"
 #include "statement.h"
 #include "expression.h"
-#include "loopinc_operand_setter.h"
-#include "implicit_assigner.h"
 #include "codegen.h"
 
 int main() {
