@@ -1,0 +1,25 @@
+OBTW
+	Simple test program that determines, for each positive 
+	integer from 1 to 10, whether it is odd or even. Tests 
+	mutual recursion.
+TLDR
+
+HAI
+	HOW IZ I CheckOdd YR val
+		BOTH SAEM val AN 1, O RLY?
+			YA RLY, FOUND YR FAIL
+		OIC
+		FOUND YR I IZ CheckEven YR DIFF OF val AN 1
+	IF U SAY SO
+	
+	HOW IZ I CheckEven YR val
+		BOTH SAEM val AN 0, O RLY?
+			YA RLY, FOUND YR WIN
+		OIC
+		FOUND YR I IZ CheckOdd YR DIFF OF val AN 1
+	IF U SAY SO
+	
+	IM IN YR LOOP UPPIN YR count FROM 1 TIL BOTH SAEM count AN 10
+		VISIBLE I IZ CheckOdd YR count MKAY " "!
+	IM OUTTA YR LOOP
+KTHXBYE

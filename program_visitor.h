@@ -8,18 +8,7 @@
 namespace AST {
 	class ASTProgramOrderVisitor : public ASTVisitor {
 		public:
-			void Visit( ProgramBody * );
-			void Visit( FunkshunBody * );
-			void Visit( ORlyYaBody * );
-			void Visit( ORlyMebbeBody * );
-			void Visit( ORlyNoBody * );
-			void Visit( WtfOmgBody * );
-			void Visit( WtfOmgwtfBody * );
-			void Visit( LoopBody * );
-			void Visit( PlzBody * );
-			void Visit( PlzONoesBody * );
-			void Visit( PlzOWelBody * );
-			
+			void Visit( StatementBlock * );
 			void Visit( ORlyBlock * );
 			void Visit( WtfBlock * );
 			void Visit( ForLoopBlock * );
@@ -65,7 +54,6 @@ namespace AST {
 			void Visit( FunkshunCall * );
 			
 		private:
-			void VisitStatementBlock( StatementBlock * );
 			void VisitVarDeclare( VarDeclare * );
 			void VisitUnaryExpression( UnaryExpression * );
 			void VisitBinaryExpression( BinaryExpression * );

@@ -10,15 +10,12 @@
 #include "visitor.h"
 
 namespace AST {
-	class ORlyMebbeBody;
-	class WtfOmgBody;
-	class PlzONoesBody;
 	class Statement;
 	class FunkshunBlock;
 	
-	typedef std::pair<Expression *, ORlyMebbeBody *> MebbeBlock;
-	typedef std::pair<Literal *, WtfOmgBody *> OmgBlock;
-	typedef std::pair<Expression *, PlzONoesBody *> NoesBlock;
+	typedef std::pair<Expression *, StatementBlock *> MebbeBlock;
+	typedef std::pair<Literal *, StatementBlock *> OmgBlock;
+	typedef std::pair<Expression *, StatementBlock *> NoesBlock;
 	typedef std::pair<LiteralIdentifier *, bool> FunkshunParam;
 	
 	typedef std::list<Statement *> StatementList;
@@ -44,6 +41,8 @@ namespace AST {
 			void Print( std::ostream & );
 			unsigned int GetWidth() { return 0; }
 			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
 			StatementList &GetStatements() { return stmts_; }
 			
 			void AddStatement( Statement * );
@@ -52,70 +51,10 @@ namespace AST {
 		private:
 			StatementList stmts_;
 	};
-	
-	class ProgramBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class ProgramGlobals : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( (ProgramBody *)this ); }
-	};
-	
-	class FunkshunBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class ORlyYaBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class ORlyMebbeBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class ORlyNoBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class WtfOmgBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class WtfOmgwtfBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class LoopBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class PlzBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class PlzONoesBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
-	
-	class PlzOWelBody : public StatementBlock {
-		public:
-			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
-	};
 
 	class ORlyBlock : public Statement {
 		public:
-			ORlyBlock( ORlyYaBody * );
+			ORlyBlock( StatementBlock * );
 			~ORlyBlock();
 			
 			void Print( std::ostream & );
@@ -123,17 +62,17 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
-			ORlyYaBody *GetYaRlyBody() { return yaRlyBody_; }
+			StatementBlock *GetYaRlyBody() { return yaRlyBody_; }
 			MebbeBlockList &GetMebbeBlocks() { return mebbeBlocks_; }
-			ORlyNoBody *GetNoWaiBody() { return noWaiBody_; }
+			StatementBlock *GetNoWaiBody() { return noWaiBody_; }
 			
-			void AddMebbeBlock( Expression *, ORlyMebbeBody * );
-			void SetNoWaiBody( ORlyNoBody * );
+			void AddMebbeBlock( Expression *, StatementBlock * );
+			void SetNoWaiBody( StatementBlock * );
 			
 		private:
-			ORlyYaBody *yaRlyBody_;
+			StatementBlock *yaRlyBody_;
 			MebbeBlockList mebbeBlocks_;
-			ORlyNoBody *noWaiBody_;
+			StatementBlock *noWaiBody_;
 	};
 
 	class WtfBlock : public Statement {
@@ -147,14 +86,14 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			OmgBlockList &GetOmgBlocks() { return omgBlocks_; }
-			WtfOmgwtfBody *GetOmgwtfBody() { return omgwtfBody_; }
+			StatementBlock *GetOmgwtfBody() { return omgwtfBody_; }
 			
-			void AddOmgBlock( Literal *, WtfOmgBody * );
-			void SetOmgwtfBody( WtfOmgwtfBody * );
+			void AddOmgBlock( Literal *, StatementBlock * );
+			void SetOmgwtfBody( StatementBlock * );
 			
 		private:
 			OmgBlockList omgBlocks_;
-			WtfOmgwtfBody *omgwtfBody_;
+			StatementBlock *omgwtfBody_;
 	};
 
 	class LoopBlock : public Statement {
@@ -168,16 +107,16 @@ namespace AST {
 			unsigned int GetWidth() { return 2; }
 			
 			LiteralIdentifier *GetLabel() { return label_; }
-			LoopBody *GetBody() { return body_; }
+			StatementBlock *GetBody() { return body_; }
 			Identifier *GetLoopVariable() { return loopVar_; }
 			bool GetLoopVariableIsLocal() { return loopVarIsLocal_; }
 			
-			void SetBody( LoopBody * );
+			void SetBody( StatementBlock * );
 			virtual void SetLoopVariable( Identifier *, bool );
 			
 		protected:
 			LiteralIdentifier *label_;
-			LoopBody *body_;
+			StatementBlock *body_;
 			
 			Identifier *loopVar_;
 			bool loopVarIsLocal_;
@@ -237,15 +176,15 @@ namespace AST {
 			
 			LiteralIdentifier *GetName() { return name_; }
 			FunkshunParamList &GetParameters() { return params_; }
-			FunkshunBody *GetBody() { return body_; }
+			StatementBlock *GetBody() { return body_; }
 			
 			void AddParameter( LiteralIdentifier *, bool );
-			void SetBody( FunkshunBody * );
+			void SetBody( StatementBlock * );
 			
 		private:
 			LiteralIdentifier *name_;
 			FunkshunParamList params_;
-			FunkshunBody *body_;
+			StatementBlock *body_;
 	};
 	
 	class FunkshunDeclare : public Statement {
@@ -265,7 +204,7 @@ namespace AST {
 
 	class PlzBlock : public Statement {
 		public:
-			PlzBlock( PlzBody * );
+			PlzBlock( StatementBlock * );
 			~PlzBlock();
 			
 			void Print( std::ostream & );
@@ -273,13 +212,13 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
-			void AddONoesBlock( Expression *, PlzONoesBody * );
-			void SetOWelBody( PlzOWelBody * );
+			void AddONoesBlock( Expression *, StatementBlock * );
+			void SetOWelBody( StatementBlock * );
 			
 		private:
-			PlzBody *tryBody_;
+			StatementBlock *tryBody_;
 			NoesBlockList oNoesBlocks_;
-			PlzOWelBody *oWelBody_;
+			StatementBlock *oWelBody_;
 	};
 
 	class VarDeclare : public Statement {
@@ -407,7 +346,7 @@ namespace AST {
 
 	class Program : public ASTNode {
 		public:
-			Program( FunkshunList &, ProgramBody * );
+			Program( FunkshunList &, StatementBlock * );
 			~Program();
 			
 			void Print( std::ostream & );
@@ -416,11 +355,11 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			FunkshunList &GetFunkshuns() { return funkshuns_; }
-			ProgramBody *GetBody() { return body_; }
+			StatementBlock *GetBody() { return body_; }
 		
 		private:
 			FunkshunList funkshuns_;
-			ProgramBody *body_;
+			StatementBlock *body_;
 	};
 }
 

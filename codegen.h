@@ -34,6 +34,7 @@
 #define CREATE_YARN_LITERAL (CREATE_LITERAL_PREFIX + YARN_TYPE)
 #define CREATE_NOOB_LITERAL (CREATE_LITERAL_PREFIX + NOOB_TYPE + std::string("()"))
 #define IT_VARIABLE std::string("ItVariable")
+#define LOLCODE_EXCEPTION std::string("std::exception()")
 
 class CodeGenerator : public AST::ASTProgramOrderVisitor {
 #if 0
@@ -62,73 +63,8 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 	public:
 		std::string &GetEmittedCode() { return emittedCode_; }
 		
-		void ProcessBegin( AST::ProgramBody *node ) {
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::ProgramBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::FunkshunBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::FunkshunBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::ORlyYaBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::ORlyYaBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::ORlyMebbeBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::ORlyMebbeBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::ORlyNoBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::ORlyNoBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::WtfOmgBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::WtfOmgBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::WtfOmgwtfBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::WtfOmgwtfBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::LoopBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::LoopBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::PlzBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::PlzBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::PlzONoesBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::PlzONoesBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-		void ProcessBegin( AST::PlzOWelBody *node ) { 
-			ProcessStatementBlockBegin( node ); 
-		}
-		void ProcessEnd( AST::PlzOWelBody *node ) { 
-			ProcessStatementBlockEnd( node ); 
-		}
-			
+		void ProcessBegin( AST::StatementBlock *node ) { ProcessBegin(); }
+		void ProcessEnd( AST::StatementBlock *node );
 		void ProcessBegin( AST::ORlyBlock *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::ORlyBlock * );
 		void ProcessBegin( AST::WtfBlock *node ) { ProcessBegin(); }
@@ -304,10 +240,6 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 	private:
 		void ProcessBegin() { codeSegments_.emplace(); }
 	
-		void ProcessStatementBlockBegin( AST::StatementBlock *node ) { 
-			ProcessBegin(); 
-		}
-		void ProcessStatementBlockEnd( AST::StatementBlock * );
 		void ProcessUnaryExpressionBegin( AST::UnaryExpression *node ) { 
 			ProcessBegin(); 
 		}

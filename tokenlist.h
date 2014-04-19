@@ -26,8 +26,8 @@ class TokenList {
 			}
 		}
 		inline void SkipToEOL() {
-			while( GetNextToken().type != TokenType::LINE_DELIMITER && 
-				   GetNextToken().type != TokenType::END_OF_FILE ) {
+			while( PeekToken().type != TokenType::LINE_DELIMITER && 
+				   PeekToken().type != TokenType::END_OF_FILE ) {
 				AdvanceToNextToken();
 			}
 		}
@@ -35,7 +35,7 @@ class TokenList {
 			SkipToEOL();
 			AdvanceToNextToken();
 		}
-		Token GetNextToken( unsigned int = 0 );
+		Token PeekToken( unsigned int = 0 );
 
 	private:
 		std::list<Token> tokens_;

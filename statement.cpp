@@ -45,7 +45,7 @@ namespace AST {
 		--it;
 	}
 		
-	ORlyBlock::ORlyBlock( ORlyYaBody *yaRlyBody ) :
+	ORlyBlock::ORlyBlock( StatementBlock *yaRlyBody ) :
 			yaRlyBody_( yaRlyBody ), noWaiBody_( nullptr ) {
 		assert( yaRlyBody_ != nullptr );
 		yaRlyBody_->SetParent( this );
@@ -89,7 +89,7 @@ namespace AST {
 	}
 	
 	void ORlyBlock::AddMebbeBlock( Expression *mebbeCond, 
-								   ORlyMebbeBody *mebbeBody ) {
+								   StatementBlock *mebbeBody ) {
 		assert( mebbeCond != nullptr );
 		assert( mebbeBody != nullptr );
 		mebbeBlocks_.push_back( MebbeBlock( mebbeCond, mebbeBody ) );
@@ -97,7 +97,7 @@ namespace AST {
 		mebbeBody->SetParent( this );
 	}
 	
-	void ORlyBlock::SetNoWaiBody( ORlyNoBody *noWaiBody ) {
+	void ORlyBlock::SetNoWaiBody( StatementBlock *noWaiBody ) {
 		assert( noWaiBody != nullptr );
 		noWaiBody_ = noWaiBody;
 		noWaiBody_->SetParent( this );
@@ -132,7 +132,7 @@ namespace AST {
 		}
 	}
 	
-	void WtfBlock::AddOmgBlock( Literal *omgLabel, WtfOmgBody *omgBody ) {
+	void WtfBlock::AddOmgBlock( Literal *omgLabel, StatementBlock *omgBody ) {
 		assert( omgLabel != nullptr );
 		assert( omgBody != nullptr );
 		omgBlocks_.push_back( OmgBlock( omgLabel, omgBody ) );
@@ -140,7 +140,7 @@ namespace AST {
 		omgBody->SetParent( this );
 	}
 	
-	void WtfBlock::SetOmgwtfBody( WtfOmgwtfBody *omgwtfBody ) {
+	void WtfBlock::SetOmgwtfBody( StatementBlock *omgwtfBody ) {
 		assert( omgwtfBody != nullptr );
 		omgwtfBody_ = omgwtfBody;
 		omgwtfBody_->SetParent( this );
@@ -175,7 +175,7 @@ namespace AST {
 		}
 	}
 	
-	void LoopBlock::SetBody( LoopBody *body ) {
+	void LoopBlock::SetBody( StatementBlock *body ) {
 		assert( body != nullptr );
 		body_ = body;
 		body_->SetParent( this );
@@ -294,7 +294,7 @@ namespace AST {
 		param->SetParent( this );
 	}
 	
-	void FunkshunBlock::SetBody( FunkshunBody *body ) {
+	void FunkshunBlock::SetBody( StatementBlock *body ) {
 		assert( body != nullptr );
 		body_ = body;
 		body_->SetParent( this );
@@ -314,7 +314,7 @@ namespace AST {
 		out << DebugIndent() << "FUNKSHUN DECLARE: " << funkshunName_->GetIdentifier();
 	}
 	
-	PlzBlock::PlzBlock( PlzBody *tryBody ) : 
+	PlzBlock::PlzBlock( StatementBlock *tryBody ) : 
 			tryBody_( tryBody ), oWelBody_( nullptr ) {
 		assert( tryBody_ != nullptr );
 		tryBody_->SetParent( this );
@@ -357,7 +357,7 @@ namespace AST {
 		}
 	}
 	
-	void PlzBlock::AddONoesBlock( Expression *exception, PlzONoesBody *handler ) {
+	void PlzBlock::AddONoesBlock( Expression *exception, StatementBlock *handler ) {
 		assert( exception != nullptr );
 		assert( handler != nullptr );
 		oNoesBlocks_.push_back( NoesBlock( exception, handler ) );
@@ -365,7 +365,7 @@ namespace AST {
 		handler->SetParent( this );
 	}
 	
-	void PlzBlock::SetOWelBody( PlzOWelBody *oWelBody ) {
+	void PlzBlock::SetOWelBody( StatementBlock *oWelBody ) {
 		assert( oWelBody != nullptr );
 		oWelBody_ = oWelBody;
 		oWelBody_->SetParent( this );
@@ -509,7 +509,7 @@ namespace AST {
 		}
 	}
 	
-	Program::Program( FunkshunList &funkshuns, ProgramBody *body ) : body_( body ) {
+	Program::Program( FunkshunList &funkshuns, StatementBlock *body ) : body_( body ) {
 		funkshuns_ = funkshuns;
 		for( FunkshunListIterator it = funkshuns_.begin();
 			 it != funkshuns_.end(); ++it ) {

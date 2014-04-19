@@ -30,53 +30,41 @@ class Parser {
 		};
 			
 		AST::StatementBlock *ParseStatementBlock( const StatementBlockType );
-		AST::ProgramBody *ParseProgramBody() {
-			return dynamic_cast<AST::ProgramBody *>( 
-				ParseStatementBlock( StatementBlockType::PROGRAM_BODY ) );
+		AST::StatementBlock *ParseProgramBody() {
+			ParseStatementBlock( StatementBlockType::PROGRAM_BODY );
 		}
-		AST::ProgramGlobals *ParseProgramGlobals(){
-			return dynamic_cast<AST::ProgramGlobals *>( 
-				ParseStatementBlock( StatementBlockType::PROGRAM_GLOBALS ) );
+		AST::StatementBlock *ParseProgramGlobals(){
+			ParseStatementBlock( StatementBlockType::PROGRAM_GLOBALS );
 		}
-		AST::FunkshunBody *ParseFunkshunBody(){
-			return dynamic_cast<AST::FunkshunBody *>( 
-				ParseStatementBlock( StatementBlockType::FUNKSHUN_BODY ) );
+		AST::StatementBlock *ParseFunkshunBody(){
+			ParseStatementBlock( StatementBlockType::FUNKSHUN_BODY );
 		}
-		AST::ORlyYaBody *ParseORlyYaBody(){
-			return dynamic_cast<AST::ORlyYaBody *>( 
-				ParseStatementBlock( StatementBlockType::ORLY_YA ) );
+		AST::StatementBlock *ParseORlyYaBody(){
+			ParseStatementBlock( StatementBlockType::ORLY_YA );
 		}
-		AST::ORlyMebbeBody *ParseORlyMebbeBody(){
-			return dynamic_cast<AST::ORlyMebbeBody *>( 
-				ParseStatementBlock( StatementBlockType::ORLY_MEBBE ) );
+		AST::StatementBlock *ParseORlyMebbeBody(){
+			ParseStatementBlock( StatementBlockType::ORLY_MEBBE );
 		}
-		AST::ORlyNoBody *ParseORlyNoBody(){
-			return dynamic_cast<AST::ORlyNoBody *>( 
-				ParseStatementBlock( StatementBlockType::ORLY_NO ) );
+		AST::StatementBlock *ParseORlyNoBody(){
+			ParseStatementBlock( StatementBlockType::ORLY_NO );
 		}
-		AST::WtfOmgBody *ParseWtfOmgBody(){
-			return dynamic_cast<AST::WtfOmgBody *>( 
-				ParseStatementBlock( StatementBlockType::WTF_OMG ) );
+		AST::StatementBlock *ParseWtfOmgBody(){
+			ParseStatementBlock( StatementBlockType::WTF_OMG );
 		}
-		AST::WtfOmgwtfBody *ParseWtfOmgwtfBody(){
-			return dynamic_cast<AST::WtfOmgwtfBody *>( 
-				ParseStatementBlock( StatementBlockType::WTF_OMGWTF ) );
+		AST::StatementBlock *ParseWtfOmgwtfBody(){
+			ParseStatementBlock( StatementBlockType::WTF_OMGWTF );
 		}
-		AST::LoopBody *ParseLoopBody(){
-			return dynamic_cast<AST::LoopBody *>( 
-				ParseStatementBlock( StatementBlockType::LOOP_BODY ) );
+		AST::StatementBlock *ParseLoopBody(){
+			ParseStatementBlock( StatementBlockType::LOOP_BODY );
 		}
-		AST::PlzBody *ParsePlzBody(){
-			return dynamic_cast<AST::PlzBody *>( 
-				ParseStatementBlock( StatementBlockType::PLZ_BODY ) );
+		AST::StatementBlock *ParsePlzBody(){
+			ParseStatementBlock( StatementBlockType::PLZ_BODY );
 		}
-		AST::PlzONoesBody *ParsePlzONoesBody(){
-			return dynamic_cast<AST::PlzONoesBody *>( 
-				ParseStatementBlock( StatementBlockType::PLZ_ONOES ) );
+		AST::StatementBlock *ParsePlzONoesBody(){
+			ParseStatementBlock( StatementBlockType::PLZ_ONOES );
 		}
-		AST::PlzOWelBody *ParsePlzOWelBody(){
-			return dynamic_cast<AST::PlzOWelBody *>( 
-				ParseStatementBlock( StatementBlockType::PLZ_OWEL ) );
+		AST::StatementBlock *ParsePlzOWelBody(){
+			ParseStatementBlock( StatementBlockType::PLZ_OWEL );
 		}
 
 		AST::ORlyBlock *ParseORlyBlock();
@@ -117,7 +105,7 @@ class Parser {
 		AST::SlotIdentifier *ParseSlotIdentifier();
 		AST::TypeIdentifier *ParseTypeIdentifier();
 		
-		bool CheckTokenAndAdvance( TokenType, Token * = nullptr );
+		bool AcceptToken( TokenType, Token * = nullptr );
 	
 	private:
 		TokenList *tokens_;

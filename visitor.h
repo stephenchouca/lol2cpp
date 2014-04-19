@@ -4,17 +4,7 @@
 #include "ast.h"
 
 namespace AST {
-	class ProgramBody;
-	class FunkshunBody;
-	class ORlyYaBody;
-	class ORlyMebbeBody;
-	class ORlyNoBody;
-	class WtfOmgBody;
-	class WtfOmgwtfBody;
-	class LoopBody;
-	class PlzBody;
-	class PlzONoesBody;
-	class PlzOWelBody;
+	class StatementBlock;
 	class ORlyBlock;
 	class WtfBlock;
 	class ForLoopBlock;
@@ -67,29 +57,8 @@ namespace AST {
 	
 	class ASTVisitor {
 		public:
-			virtual void ProcessBegin( ProgramBody *node ) {}
-			virtual void ProcessEnd( ProgramBody *node ) {}
-			virtual void ProcessBegin( FunkshunBody *node ) {}
-			virtual void ProcessEnd( FunkshunBody *node ) {}
-			virtual void ProcessBegin( ORlyYaBody *node ) {}
-			virtual void ProcessEnd( ORlyYaBody *node ) {}
-			virtual void ProcessBegin( ORlyMebbeBody *node ) {}
-			virtual void ProcessEnd( ORlyMebbeBody *node ) {}
-			virtual void ProcessBegin( ORlyNoBody *node ) {}
-			virtual void ProcessEnd( ORlyNoBody *node ) {}
-			virtual void ProcessBegin( WtfOmgBody *node ) {}
-			virtual void ProcessEnd( WtfOmgBody *node ) {}
-			virtual void ProcessBegin( WtfOmgwtfBody *node ) {}
-			virtual void ProcessEnd( WtfOmgwtfBody *node ) {}
-			virtual void ProcessBegin( LoopBody *node ) {}
-			virtual void ProcessEnd( LoopBody *node ) {}
-			virtual void ProcessBegin( PlzBody *node ) {}
-			virtual void ProcessEnd( PlzBody *node ) {}
-			virtual void ProcessBegin( PlzONoesBody *node ) {}
-			virtual void ProcessEnd( PlzONoesBody *node ) {}
-			virtual void ProcessBegin( PlzOWelBody *node ) {}
-			virtual void ProcessEnd( PlzOWelBody *node ) {}
-			
+			virtual void ProcessBegin( StatementBlock *node ) {}
+			virtual void ProcessEnd( StatementBlock *node ) {}
 			virtual void ProcessBegin( ORlyBlock *node ) {}
 			virtual void ProcessEnd( ORlyBlock *node ) {}
 			virtual void ProcessBegin( WtfBlock *node ) {}
@@ -182,18 +151,7 @@ namespace AST {
 			virtual void ProcessBegin( FunkshunCall *node ) {}
 			virtual void ProcessEnd( FunkshunCall *node ) {}
 			
-			virtual void Visit( ProgramBody * ) = 0;
-			virtual void Visit( FunkshunBody * ) = 0;
-			virtual void Visit( ORlyYaBody * ) = 0;
-			virtual void Visit( ORlyMebbeBody * ) = 0;
-			virtual void Visit( ORlyNoBody * ) = 0;
-			virtual void Visit( WtfOmgBody * ) = 0;
-			virtual void Visit( WtfOmgwtfBody * ) = 0;
-			virtual void Visit( LoopBody * ) = 0;
-			virtual void Visit( PlzBody * ) = 0;
-			virtual void Visit( PlzONoesBody * ) = 0;
-			virtual void Visit( PlzOWelBody * ) = 0;
-			
+			virtual void Visit( StatementBlock * ) = 0;
 			virtual void Visit( ORlyBlock * ) = 0;
 			virtual void Visit( WtfBlock * ) = 0;
 			virtual void Visit( ForLoopBlock * ) = 0;

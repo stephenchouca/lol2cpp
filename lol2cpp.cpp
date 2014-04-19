@@ -14,7 +14,8 @@ int main() {
 	Parser parser;
 	
 	//std::string srcPath( "test/randtokens.lols" );
-	std::string srcPath( "test/large.lols" );
+	//std::string srcPath( "test/large.lols" );
+	std::string srcPath( "test/oddeven.lols" );
 	//std::string srcPath( "test/99beers.lols" );
 	//std::string srcPath( "test/empty.lols" );
 
@@ -39,18 +40,6 @@ int main() {
 		std::cout << "NULL" << std::endl;
 	}
 	std::cout << "----------------------------------------------" << std::endl;
-	//GlobalsHoister globalsHoister;
-	//globalsHoister.Visit( program );
-	//std::cout << *program << std::endl;
-	//std::cout << "----------------------------------------------" << std::endl;
-	/*LoopIncOperandSetter incOpSetter;
-	incOpSetter.Visit( program );
-	std::cout << *program << std::endl;
-	std::cout << "----------------------------------------------" << std::endl;
-	ImplicitAssigner assigner;
-	assigner.Visit( program );
-	std::cout << *program << std::endl;
-	std::cout << "----------------------------------------------" << std::endl;*/
 	CodeGenerator codeGen;
 	codeGen.Visit( program );
 	std::cout << codeGen.GetEmittedCode() << std::endl;

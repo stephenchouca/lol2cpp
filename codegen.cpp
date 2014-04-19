@@ -28,7 +28,7 @@ const std::string CodeGenerator::NOOB_TYPE = "NOOB";
 const std::string CodeGenerator::IT_VARIABLE = "ItVariable";
 #endif
 
-void CodeGenerator::ProcessStatementBlockEnd( AST::StatementBlock *node ) {
+void CodeGenerator::ProcessEnd( AST::StatementBlock *node ) {
 	std::ostringstream code;
 	const std::list<std::string> &stmts = codeSegments_.top();
 	
@@ -99,6 +99,7 @@ void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 			if( node->GetLoopVariableInitExpr() != nullptr ) {
 				code << " = " << *it;
 			}
+			++it;
 		}
 	}
 	code << "; ";
@@ -129,14 +130,17 @@ void CodeGenerator::ProcessEnd( AST::RangeLoopBlock *node ) {
 
 void CodeGenerator::ProcessEnd( AST::FunkshunBlock *node ) {
 	std::ostringstream funkshunDecl, funkshunDef;
+	std::string funkshunName;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	funkshunDecl << "bool " << SOURCE_DEFINED_PREFIX << *it 
+	funkshunName = *it;
+	++it;
+	
+	funkshunDecl << "bool " << SOURCE_DEFINED_PREFIX << funkshunName
 				 << " = false;" << std::endl;
 	
-	funkshunDecl << VARIABLE_STORAGE << " " << *it;
-	funkshunDef << VARIABLE_STORAGE << " " << *it;
-	++it;
+	funkshunDecl << VARIABLE_STORAGE << " " << funkshunName;
+	funkshunDef << VARIABLE_STORAGE << " " << funkshunName;
 
 	funkshunDecl << "(";
 	funkshunDef << "(";
@@ -154,7 +158,11 @@ void CodeGenerator::ProcessEnd( AST::FunkshunBlock *node ) {
 	funkshunDecl << ");";
 	funkshunDef << ")";
 	
-	funkshunDef << std::endl << *it;
+	funkshunDef << std::endl << "{" << std::endl << "if(!" 
+				<< SOURCE_DEFINED_PREFIX << funkshunName 
+				<< ") throw " << LOLCODE_EXCEPTION << ";" << std::endl;
+	funkshunDef << *it;
+	funkshunDef << std::endl << "}";
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( funkshunDecl.str() );
