@@ -7,41 +7,17 @@
 
 #include "program_visitor.h"
 
-#define TROOF_TYPE std::string("TROOF")
-#define NUMBR_TYPE std::string("NUMBR")
-#define NUMBAR_TYPE std::string("NUMBAR")
-#define YARN_TYPE std::string("YARN")
-#define BUKKIT_TYPE std::string("BUKKIT")
-#define NOOB_TYPE std::string("NOOB")
-#define SOURCE_PREFIX std::string("Source_")
-#define SOURCE_DEFINED_PREFIX std::string("Defined_")
-#define EXTRACT_PREFIX std::string("Extract")
-#define EXTRACT_TROOF (EXTRACT_PREFIX + TROOF_TYPE)
-#define EXTRACT_NUMBR (EXTRACT_PREFIX + NUMBR_TYPE)
-#define EXTRACT_NUMBAR (EXTRACT_PREFIX + NUMBAR_TYPE)
-#define EXTRACT_YARN (EXTRACT_PREFIX + YARN_TYPE)
-#define EXTRACT_BUKKIT (EXTRACT_PREFIX + BUKKIT_TYPE)
-#define EXTRACT_NOOB (EXTRACT_PREFIX + NOOB_TYPE)
-#define EXTRACT_FROM_BUKKIT (EXTRACT_PREFIX + std::string("FromBukkit"))
-#define EXTRACT_FROM_BUKKIT_UNSAFE (EXTRACT_FROM_BUKKIT + std::string("Unsafe"))
-#define CAST_TO std::string("CastTo")
-#define VARIABLE_STORAGE std::string("Variable")
-#define VARIABLE_TYPE_PREFIX (VARIABLE_STORAGE + std::string("::Type::"))
-#define CREATE_LITERAL_PREFIX (VARIABLE_STORAGE + std::string("::Create"))
-#define CREATE_TROOF_LITERAL (CREATE_LITERAL_PREFIX + TROOF_TYPE)
-#define CREATE_NUMBR_LITERAL (CREATE_LITERAL_PREFIX + NUMBR_TYPE)
-#define CREATE_NUMBAR_LITERAL (CREATE_LITERAL_PREFIX + NUMBAR_TYPE)
-#define CREATE_YARN_LITERAL (CREATE_LITERAL_PREFIX + YARN_TYPE)
-#define CREATE_NOOB_LITERAL (CREATE_LITERAL_PREFIX + NOOB_TYPE + std::string("()"))
-#define IT_VARIABLE std::string("ItVariable")
-#define LOLCODE_EXCEPTION std::string("std::exception()")
-
 class CodeGenerator : public AST::ASTProgramOrderVisitor {
-#if 0
+
 	private:
-		static const std::string USER_FUNKSHUN_PREFIX;
-		static const std::string USER_FUNKSHUN_DEFINED_PREFIX;
-		static const std::string USER_VARIABLE_PREFIX;
+		static const std::string TROOF_TYPE;
+		static const std::string NUMBR_TYPE;
+		static const std::string NUMBAR_TYPE;
+		static const std::string YARN_TYPE;
+		static const std::string BUKKIT_TYPE;
+		static const std::string NOOB_TYPE;
+		static const std::string SOURCE_PREFIX;
+		static const std::string SOURCE_DEFINED_PREFIX;
 		static const std::string EXTRACT_PREFIX;
 		static const std::string EXTRACT_TROOF;
 		static const std::string EXTRACT_NUMBR;
@@ -49,16 +25,19 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string EXTRACT_YARN;
 		static const std::string EXTRACT_BUKKIT;
 		static const std::string EXTRACT_NOOB;
+		static const std::string EXTRACT_FROM_BUKKIT;
+		static const std::string EXTRACT_FROM_BUKKIT_UNSAFE;
+		static const std::string CAST_TO;
 		static const std::string VARIABLE_STORAGE;
 		static const std::string VARIABLE_TYPE_PREFIX;
-		static const std::string TROOF_TYPE;
-		static const std::string NUMBR_TYPE;
-		static const std::string NUMBAR_TYPE;
-		static const std::string YARN_TYPE;
-		static const std::string BUKKIT_TYPE;
-		static const std::string NOOB_TYPE;
+		static const std::string CREATE_LITERAL_PREFIX;
+		static const std::string CREATE_TROOF_LITERAL;
+		static const std::string CREATE_NUMBR_LITERAL;
+		static const std::string CREATE_NUMBAR_LITERAL;
+		static const std::string CREATE_YARN_LITERAL;
+		static const std::string CREATE_NOOB_LITERAL;
 		static const std::string IT_VARIABLE;
-#endif
+		static const std::string LOLCODE_EXCEPTION;
 		
 	public:
 		std::string &GetEmittedCode() { return emittedCode_; }

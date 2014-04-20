@@ -6,27 +6,34 @@
 
 #include "codegen.h"
 
-#if 0
-const std::string CodeGenerator::SOURCE_PREFIX = "Source_";
-const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = "Defined_";
-const std::string CodeGenerator::EXTRACT_PREFIX = "Extract";
+const std::string CodeGenerator::TROOF_TYPE = std::string( "TROOF" );
+const std::string CodeGenerator::NUMBR_TYPE = std::string( "NUMBR" );
+const std::string CodeGenerator::NUMBAR_TYPE = std::string( "NUMBAR" );
+const std::string CodeGenerator::YARN_TYPE = std::string( "YARN" );
+const std::string CodeGenerator::BUKKIT_TYPE = std::string( "BUKKIT" );
+const std::string CodeGenerator::NOOB_TYPE = std::string( "NOOB" );
+const std::string CodeGenerator::SOURCE_PREFIX = std::string( "Source_" );
+const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = std::string( "Defined_" );
+const std::string CodeGenerator::EXTRACT_PREFIX = std::string( "Extract" );
 const std::string CodeGenerator::EXTRACT_TROOF = EXTRACT_PREFIX + TROOF_TYPE;
 const std::string CodeGenerator::EXTRACT_NUMBR = EXTRACT_PREFIX + NUMBR_TYPE;
 const std::string CodeGenerator::EXTRACT_NUMBAR = EXTRACT_PREFIX + NUMBAR_TYPE;
 const std::string CodeGenerator::EXTRACT_YARN = EXTRACT_PREFIX + YARN_TYPE;
 const std::string CodeGenerator::EXTRACT_BUKKIT = EXTRACT_PREFIX + BUKKIT_TYPE;
 const std::string CodeGenerator::EXTRACT_NOOB = EXTRACT_PREFIX + NOOB_TYPE;
-const std::string CodeGenerator::CAST_TO = "CastTo";
-const std::string CodeGenerator::VARIABLE_STORAGE = "Variable";
-const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = "Variable::Type::";
-const std::string CodeGenerator::TROOF_TYPE = "TROOF";
-const std::string CodeGenerator::NUMBR_TYPE = "NUMBR";
-const std::string CodeGenerator::NUMBAR_TYPE = "NUMBAR";
-const std::string CodeGenerator::YARN_TYPE = "YARN";
-const std::string CodeGenerator::BUKKIT_TYPE = "BUKKIT";
-const std::string CodeGenerator::NOOB_TYPE = "NOOB";
-const std::string CodeGenerator::IT_VARIABLE = "ItVariable";
-#endif
+const std::string CodeGenerator::EXTRACT_FROM_BUKKIT = EXTRACT_PREFIX + std::string( "FromBukkit" );
+const std::string CodeGenerator::EXTRACT_FROM_BUKKIT_UNSAFE = EXTRACT_FROM_BUKKIT + std::string( "Unsafe" );
+const std::string CodeGenerator::CAST_TO = std::string( "CastTo" );
+const std::string CodeGenerator::VARIABLE_STORAGE = std::string( "Variable" );
+const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = VARIABLE_STORAGE + std::string( "::Type::" );
+const std::string CodeGenerator::CREATE_LITERAL_PREFIX = VARIABLE_STORAGE + std::string( "::Create" );
+const std::string CodeGenerator::CREATE_TROOF_LITERAL = CREATE_LITERAL_PREFIX + TROOF_TYPE;
+const std::string CodeGenerator::CREATE_NUMBR_LITERAL = CREATE_LITERAL_PREFIX + NUMBR_TYPE;
+const std::string CodeGenerator::CREATE_NUMBAR_LITERAL = CREATE_LITERAL_PREFIX + NUMBAR_TYPE;
+const std::string CodeGenerator::CREATE_YARN_LITERAL = CREATE_LITERAL_PREFIX + YARN_TYPE;
+const std::string CodeGenerator::CREATE_NOOB_LITERAL = CREATE_LITERAL_PREFIX + NOOB_TYPE + std::string( "()" );
+const std::string CodeGenerator::IT_VARIABLE = std::string( "ItVariable" );
+const std::string CodeGenerator::LOLCODE_EXCEPTION = std::string( "std::exception()" );
 
 void CodeGenerator::ProcessEnd( AST::StatementBlock *node ) {
 	std::ostringstream code;
