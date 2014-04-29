@@ -224,40 +224,58 @@ namespace AST {
 	class VarDeclare : public Statement {
 		public:
 			VarDeclare() : 
-				varId_( nullptr ), 
 				initVal_( nullptr ), 
 				initType_( nullptr ) {}
 			~VarDeclare();
 			
 			void Print( std::ostream & );
 			
-			Identifier *GetVariable() { return varId_; }
+			virtual Identifier *GetVariable() = 0;
 			Expression *GetInitValue() { return initVal_; }
 			TypeIdentifier *GetInitType() { return initType_; }
 			
-			void SetVariable( Identifier * );
 			void SetInitValue( Expression * );
 			void SetInitType( TypeIdentifier * );
 			
 		protected:
-			Identifier *varId_;
 			Expression *initVal_;
 			TypeIdentifier *initType_;
 	};
 	
 	class LiteralVarDeclare : public VarDeclare {
 		public:
+			LiteralVarDeclare( LiteralIdentifier * );
+			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			LiteralIdentifier *GetVariable() { return varId_; }
+			
+		private:
+			LiteralIdentifier *varId_;
 	};
 	
 	class SrsVarDeclare : public VarDeclare {
 		public:
+			SrsVarDeclare( SrsIdentifier * );
+			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			SrsIdentifier *GetVariable() { return varId_; }
+		
+		private:
+			SrsIdentifier *varId_;
 	};
 	
 	class SlotVarDeclare : public VarDeclare {
 		public:
+			SlotVarDeclare( SlotIdentifier * );
+			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			SlotIdentifier *GetVariable() { return varId_; }
+			
+		private:
+			SlotIdentifier *varId_;
 	};
 
 	class VarAssign : public Statement {

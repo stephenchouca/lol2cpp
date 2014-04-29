@@ -36,7 +36,7 @@ class Tokenizer {
 		};
 
 		static CharType GetCharType( char );
-		static TokenType GetTokenType( std::string );
+		static TokenType GetTokenType( const std::string & );
 
 		void AddToken( Token );
 		void AddSimpleToken( TokenType, bool = false );

@@ -3,37 +3,53 @@
 #include <list>
 #include <stack>
 #include <sstream>
+#include <unordered_map>
 
 #include "codegen.h"
 
-const std::string CodeGenerator::TROOF_TYPE = std::string( "TROOF" );
-const std::string CodeGenerator::NUMBR_TYPE = std::string( "NUMBR" );
-const std::string CodeGenerator::NUMBAR_TYPE = std::string( "NUMBAR" );
-const std::string CodeGenerator::YARN_TYPE = std::string( "YARN" );
-const std::string CodeGenerator::BUKKIT_TYPE = std::string( "BUKKIT" );
-const std::string CodeGenerator::NOOB_TYPE = std::string( "NOOB" );
-const std::string CodeGenerator::SOURCE_PREFIX = std::string( "Source_" );
-const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = std::string( "Defined_" );
-const std::string CodeGenerator::EXTRACT_PREFIX = std::string( "Extract" );
+const std::string CodeGenerator::TROOF_TYPE = "TROOF";
+const std::string CodeGenerator::NUMBR_TYPE = "NUMBR";
+const std::string CodeGenerator::NUMBAR_TYPE = "NUMBAR";
+const std::string CodeGenerator::YARN_TYPE = "YARN";
+const std::string CodeGenerator::BUKKIT_TYPE = "BUKKIT";
+const std::string CodeGenerator::NOOB_TYPE = "NOOB";
+const std::string CodeGenerator::SOURCE_PREFIX = "Source_";
+const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = "Defined_";
+const std::string CodeGenerator::EXTRACT_PREFIX = "Extract";
 const std::string CodeGenerator::EXTRACT_TROOF = EXTRACT_PREFIX + TROOF_TYPE;
 const std::string CodeGenerator::EXTRACT_NUMBR = EXTRACT_PREFIX + NUMBR_TYPE;
 const std::string CodeGenerator::EXTRACT_NUMBAR = EXTRACT_PREFIX + NUMBAR_TYPE;
 const std::string CodeGenerator::EXTRACT_YARN = EXTRACT_PREFIX + YARN_TYPE;
 const std::string CodeGenerator::EXTRACT_BUKKIT = EXTRACT_PREFIX + BUKKIT_TYPE;
 const std::string CodeGenerator::EXTRACT_NOOB = EXTRACT_PREFIX + NOOB_TYPE;
-const std::string CodeGenerator::EXTRACT_FROM_BUKKIT = EXTRACT_PREFIX + std::string( "FromBukkit" );
-const std::string CodeGenerator::EXTRACT_FROM_BUKKIT_UNSAFE = EXTRACT_FROM_BUKKIT + std::string( "Unsafe" );
-const std::string CodeGenerator::CAST_TO = std::string( "CastTo" );
-const std::string CodeGenerator::VARIABLE_STORAGE = std::string( "Variable" );
-const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = VARIABLE_STORAGE + std::string( "::Type::" );
-const std::string CodeGenerator::CREATE_LITERAL_PREFIX = VARIABLE_STORAGE + std::string( "::Create" );
-const std::string CodeGenerator::CREATE_TROOF_LITERAL = CREATE_LITERAL_PREFIX + TROOF_TYPE;
-const std::string CodeGenerator::CREATE_NUMBR_LITERAL = CREATE_LITERAL_PREFIX + NUMBR_TYPE;
-const std::string CodeGenerator::CREATE_NUMBAR_LITERAL = CREATE_LITERAL_PREFIX + NUMBAR_TYPE;
-const std::string CodeGenerator::CREATE_YARN_LITERAL = CREATE_LITERAL_PREFIX + YARN_TYPE;
-const std::string CodeGenerator::CREATE_NOOB_LITERAL = CREATE_LITERAL_PREFIX + NOOB_TYPE + std::string( "()" );
-const std::string CodeGenerator::IT_VARIABLE = std::string( "ItVariable" );
-const std::string CodeGenerator::LOLCODE_EXCEPTION = std::string( "std::exception()" );
+const std::string CodeGenerator::EXTRACT_FROM_BUKKIT = EXTRACT_PREFIX + "FromBukkit";
+const std::string CodeGenerator::EXTRACT_FROM_BUKKIT_UNSAFE = 
+	EXTRACT_FROM_BUKKIT + "Unsafe";
+const std::string CodeGenerator::EXTRACT_NUMERIC_FROM_YARN = "ExtractNumericFromYarn";
+const std::string CodeGenerator::CAST_TO = "CastTo";
+const std::string CodeGenerator::VARIABLE_STORAGE = "Variable";
+const std::string CodeGenerator::VARIABLE_TYPE = VARIABLE_STORAGE + "::Type";
+const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = VARIABLE_TYPE + "::";
+const std::string CodeGenerator::VARIABLE_TYPEID = "type";
+const std::string CodeGenerator::TROOF_VARIABLE = "troof";
+const std::string CodeGenerator::NUMBR_VARIABLE = "numbr";
+const std::string CodeGenerator::NUMBAR_VARIABLE = "numbar";
+const std::string CodeGenerator::YARN_VARIABLE = "yarn";
+const std::string CodeGenerator::BUKKIT_VARIABLE = "bukkit";
+const std::string CodeGenerator::CREATE_LITERAL_PREFIX = 
+	VARIABLE_STORAGE + "::Create";
+const std::string CodeGenerator::CREATE_TROOF_LITERAL = 
+	CREATE_LITERAL_PREFIX + TROOF_TYPE;
+const std::string CodeGenerator::CREATE_NUMBR_LITERAL = 
+	CREATE_LITERAL_PREFIX + NUMBR_TYPE;
+const std::string CodeGenerator::CREATE_NUMBAR_LITERAL = 
+	CREATE_LITERAL_PREFIX + NUMBAR_TYPE;
+const std::string CodeGenerator::CREATE_YARN_LITERAL = 
+	CREATE_LITERAL_PREFIX + YARN_TYPE;
+const std::string CodeGenerator::CREATE_NOOB_LITERAL = 
+	CREATE_LITERAL_PREFIX + NOOB_TYPE + "()";
+const std::string CodeGenerator::IT_VARIABLE = "ItVariable";
+const std::string CodeGenerator::LOLCODE_EXCEPTION = "std::exception()";
 
 void CodeGenerator::ProcessEnd( AST::StatementBlock *node ) {
 	std::ostringstream code;
@@ -105,8 +121,8 @@ void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 			
 			if( node->GetLoopVariableInitExpr() != nullptr ) {
 				code << " = " << *it;
+				++it;
 			}
-			++it;
 		}
 	}
 	code << "; ";
@@ -265,7 +281,9 @@ void CodeGenerator::ProcessEnd( AST::Program *node ) {
 	std::ostringstream code, funkshuns;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	// Dump globals.
+	EmitBoilerplate( code );
+	
+	// Dump program functions.
 	for( unsigned int i = 0; i < node->GetFunkshuns().size(); ++i ) {
 		code << *it << std::endl;
 		++it;
@@ -379,6 +397,8 @@ void CodeGenerator::ProcessUnaryExpressionEnd( AST::UnaryExpression *node ) {
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code );
+	
+	//requiredOperators_[node->GetOperatorName()] = node->GetOperator();
 }
 
 void CodeGenerator::ProcessBinaryExpressionEnd( AST::BinaryExpression *node ) {
@@ -392,6 +412,8 @@ void CodeGenerator::ProcessBinaryExpressionEnd( AST::BinaryExpression *node ) {
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
+	
+	requiredOperators_[node->GetOperatorName()] = node->GetOperator();
 }
 
 void CodeGenerator::ProcessNaryExpressionEnd( AST::NaryExpression *node ) {
@@ -410,6 +432,8 @@ void CodeGenerator::ProcessNaryExpressionEnd( AST::NaryExpression *node ) {
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
+	
+	//requiredOperators_[node->GetOperatorName()] = node->GetOperator();
 }
 
 void CodeGenerator::ProcessEnd( AST::FunkshunCall *node ) {
@@ -429,4 +453,742 @@ void CodeGenerator::ProcessEnd( AST::FunkshunCall *node ) {
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
+}
+
+void CodeGenerator::EmitBoilerplate( std::ostringstream &code ) {
+	for( std::unordered_map<std::string, AST::OperatorType>::const_iterator it = 
+		 requiredOperators_.cbegin(); 
+		 it != requiredOperators_.cend(); ++it ) {
+		switch( it->second ) {
+			case AST::OperatorType::NOT:
+			case AST::OperatorType::UPPIN:
+			case AST::OperatorType::NERFIN:
+			case AST::OperatorType::TIL:
+			case AST::OperatorType::WILE:
+				EmitUnaryOperator( it->first, it->second, code );
+				break;
+			case AST::OperatorType::SUM:
+			case AST::OperatorType::DIFF:
+			case AST::OperatorType::PRODUKT:
+			case AST::OperatorType::QUOSHUNT:
+			case AST::OperatorType::MOD:
+			case AST::OperatorType::BIGGR:
+			case AST::OperatorType::SMALLR:
+			case AST::OperatorType::BOTH:
+			case AST::OperatorType::EITHER:
+			case AST::OperatorType::WON:
+			case AST::OperatorType::SAEM:
+			case AST::OperatorType::DIFFRINT:
+				EmitBinaryOperator( it->first, it->second, code );
+				break;
+			case AST::OperatorType::ALL:
+			case AST::OperatorType::ANY:
+			case AST::OperatorType::SMOOSH:
+				//EmitNaryOperator( it->first, it->second, code );
+				break;
+			default:
+				assert( false );
+		}
+	}
+}
+
+void CodeGenerator::EmitUnaryOperator( const std::string &operatorName, 
+									   AST::OperatorType operatorType,
+									   std::ostringstream &code ) {
+	const std::string operand = "operand";
+	const std::string ret = "ret";
+	
+	code << "inline " << VARIABLE_STORAGE << " " << operatorName << "("
+		 << "const " << VARIABLE_STORAGE << " &" << operand << ") {" << std::endl;
+	code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+	
+	std::string op = "";
+	switch( operatorType ) {
+		case AST::OperatorType::UPPIN:
+			op = "++";
+			break;
+		case AST::OperatorType::NERFIN:
+			op = "--";
+			break;
+		case AST::OperatorType::NOT:
+		case AST::OperatorType::TIL:
+			op = "!";
+			break;
+		case AST::OperatorType::WILE:
+		default:
+			break;
+	}
+	
+	switch( operatorType ) {
+		case AST::OperatorType::UPPIN:
+		case AST::OperatorType::NERFIN:
+			code << "switch(" << operand << "." << VARIABLE_TYPEID 
+				 << ") {" << std::endl;
+				code << "case " << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = " << op << operand
+						 << "." << NUMBR_VARIABLE << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "case " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = " << op << operand
+						 << "." << NUMBAR_VARIABLE << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+			code << "}" << std::endl;
+			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+			break;
+		case AST::OperatorType::NOT:
+		case AST::OperatorType::TIL:
+		case AST::OperatorType::WILE:
+			code << ret << "." << VARIABLE_TYPEID << " = " 
+				 << VARIABLE_TYPE_PREFIX << TROOF_TYPE << ";" << std::endl;
+			code << ret << "." << TROOF_VARIABLE << " = " << op << operand 
+				 << "." << EXTRACT_TROOF << "();" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+			break;
+		default:
+			assert( false );
+			break;
+	}
+	
+	code << "}" << std::endl;
+}
+
+void CodeGenerator::EmitBinaryOperator( const std::string &operatorName, 
+										AST::OperatorType operatorType,
+										std::ostringstream &code ) {
+	const std::string leftOperand = "leftOperand";
+	const std::string rightOperand = "rightOperand";
+	const std::string ret = "ret";
+	
+	code << "inline " << VARIABLE_STORAGE << " " << operatorName << "("
+		 << "const " << VARIABLE_STORAGE << " &" << leftOperand << ", "
+		 << "const " << VARIABLE_STORAGE << " &" << rightOperand 
+		 << ") {" << std::endl;
+	code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+	
+	std::string infixOp = "";
+	std::string nonInfixOp = "";
+	switch( operatorType ) {
+		case AST::OperatorType::SUM:
+			infixOp = " + ";
+			break;
+		case AST::OperatorType::DIFF:
+			infixOp = " - ";
+			break;
+		case AST::OperatorType::PRODUKT:
+			infixOp = " * ";
+			break;
+		case AST::OperatorType::QUOSHUNT:
+			infixOp = " / ";
+			break;
+		case AST::OperatorType::MOD:
+			infixOp = " % ";
+			nonInfixOp = "std::fmod";
+			break;
+		case AST::OperatorType::BIGGR:
+			nonInfixOp = "std::max";
+			break;
+		case AST::OperatorType::SMALLR:
+			nonInfixOp = "std::min";
+			break;
+		case AST::OperatorType::BOTH:
+			infixOp = " && ";
+			break;
+		case AST::OperatorType::EITHER:
+			infixOp = " || ";
+			break;
+		case AST::OperatorType::WON:
+			infixOp = " ^ ";
+			break;
+		case AST::OperatorType::SAEM:
+			infixOp = " == ";
+			break;
+		case AST::OperatorType::DIFFRINT:
+			infixOp = " != ";
+			break;
+	}
+	
+	switch( operatorType ) {
+		case AST::OperatorType::SUM:
+		case AST::OperatorType::DIFF:
+		case AST::OperatorType::PRODUKT:
+		case AST::OperatorType::QUOSHUNT:
+		case AST::OperatorType::MOD:
+		case AST::OperatorType::BIGGR:
+		case AST::OperatorType::SMALLR:
+		{
+			const std::string leftNumbr = "leftNumbr";
+			const std::string rightNumbr = "rightNumbr";
+			const std::string leftNumbar = "leftNumbar";
+			const std::string rightNumbar = "rightNumbar";
+			const std::string leftType = "leftType";
+			const std::string rightType = "rightType";
+			
+			code << "if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "("  
+							 << leftOperand << "." << NUMBR_VARIABLE << ", "
+							 << rightOperand << "." << NUMBR_VARIABLE << ")";
+					} else {
+						code << leftOperand << "." << NUMBR_VARIABLE << infixOp
+							 << rightOperand << "." << NUMBR_VARIABLE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
+							 << leftOperand << "." << NUMBR_VARIABLE << ", "
+							 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+					} else {
+						code << leftOperand << "." << NUMBR_VARIABLE << infixOp
+							 << rightOperand << "." << NUMBAR_VARIABLE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE 
+					 << ") {" << std::endl;
+					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
+					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
+					code << VARIABLE_TYPE << " " << rightType << " = "
+						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
+						 << YARN_VARIABLE << ", " << rightNumbr << ", " 
+						 << rightNumbar << ");" << std::endl;
+					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
+						 << NUMBR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBR_VARIABLE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "("  
+								 << leftOperand << "." << NUMBR_VARIABLE 
+								 << ", " << rightNumbr << ")";
+						} else {
+							code << leftOperand << "." << NUMBR_VARIABLE 
+								 << infixOp << rightNumbr;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightType << " == " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
+								 << leftOperand << "." << NUMBR_VARIABLE << ", "
+								 << rightNumbar << ")";
+						} else {
+							code << leftOperand << "." << NUMBR_VARIABLE 
+								 << infixOp << rightNumbar;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "("  
+							 << leftOperand << "." << NUMBR_VARIABLE << ", "
+							 << rightOperand << "." << TROOF_VARIABLE << " ? 1 : 0)";
+					} else {
+						code << leftOperand << "." << NUMBR_VARIABLE << infixOp << "("
+							 << rightOperand << "." << TROOF_VARIABLE << " ? 1 : 0)";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "("  
+							 << leftOperand << "." << NUMBR_VARIABLE << ", 0)";
+					} else {
+						code << leftOperand << "." << NUMBR_VARIABLE 
+							 << infixOp << "0";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ") {" << std::endl;
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "("  
+							 << leftOperand << "." << NUMBAR_VARIABLE 
+							 << ", (" << NUMBAR_TYPE << ")" << rightOperand 
+							 << "." << NUMBR_VARIABLE << ")";
+					} else {
+						code << leftOperand << "." << NUMBAR_VARIABLE << infixOp
+							 << rightOperand << "." << NUMBR_VARIABLE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "("
+							 << leftOperand << "." << NUMBAR_VARIABLE << ", "
+							 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+					} else {
+						code << leftOperand << "." << NUMBAR_VARIABLE << infixOp
+							 << rightOperand << "." << NUMBAR_VARIABLE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE << ") {" 
+					 << std::endl;
+					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
+					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
+					code << VARIABLE_TYPE << " " << rightType << " = "
+						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
+						 << YARN_VARIABLE << ", " << rightNumbr << ", " 
+						 << rightNumbar << ");" << std::endl;
+					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
+						 << NUMBR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftOperand << "." 
+								 << NUMBAR_VARIABLE << ", (" << NUMBAR_TYPE 
+								 << ")" << rightNumbr << ")";
+						} else {
+							code << leftOperand << "." << NUMBAR_VARIABLE 
+								 << infixOp << rightNumbr;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightType << " == " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftOperand << "." 
+								 << NUMBAR_VARIABLE << ", " << rightNumbar << ")";
+						} else {
+							code << leftOperand << "." << NUMBAR_VARIABLE 
+								 << infixOp << rightNumbar;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "("  
+							 << leftOperand << "." << NUMBAR_VARIABLE << ", "
+							 << rightOperand << "." << TROOF_VARIABLE 
+							 << " ? 1.0 : 0.0)";
+					} else {
+						code << leftOperand << "." << NUMBAR_VARIABLE << infixOp 
+							 << "(" << rightOperand << "." << TROOF_VARIABLE 
+							 << " ? 1.0 : 0.0)";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE << ") {" 
+					 << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "("  
+							 << leftOperand << "." << NUMBAR_VARIABLE << ", 0.0)";
+					} else {
+						code << leftOperand << "." << NUMBAR_VARIABLE 
+							 << infixOp << "0.0";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << YARN_TYPE << ") {" << std::endl;
+				code << NUMBR_TYPE << " " << leftNumbr << ";" << std::endl;
+				code << NUMBAR_TYPE << " " << leftNumbar << ";" << std::endl;
+				code << VARIABLE_TYPE << " " << leftType << " = "
+					 << EXTRACT_NUMERIC_FROM_YARN << "(" << leftOperand << "."
+					 << YARN_VARIABLE << ", " << leftNumbr << ", " << leftNumbar 
+					 << ");" << std::endl;
+				code << "if(" << leftType << " == " << VARIABLE_TYPE_PREFIX 
+					 << NUMBR_TYPE << ") {" << std::endl;
+					code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBR_VARIABLE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "(" << leftNumbr << ", "
+								 << rightOperand << "." << NUMBR_VARIABLE << ")";
+						} else {
+							code << leftNumbr << infixOp << rightOperand 
+								 << "." << NUMBR_VARIABLE;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+						 << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
+								 << leftNumbr << ", " << rightOperand << "." 
+								 << NUMBAR_VARIABLE << ")";
+						} else {
+							code << leftNumbr << infixOp << rightOperand 
+								 << "." << NUMBAR_VARIABLE;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE 
+						 << ") {" << std::endl;
+						code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
+						code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
+						code << VARIABLE_TYPE << " " << rightType << " = "
+							 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
+							 << "." << YARN_VARIABLE << ", " << rightNumbr << ", " 
+							 << rightNumbar << ");" << std::endl;
+						code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
+							 << NUMBR_TYPE << ") {" << std::endl;
+							code << ret << "." << VARIABLE_TYPEID << " = " 
+								 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+								 << ";" << std::endl;
+							code << ret << "." << NUMBR_VARIABLE << " = ";
+							if( nonInfixOp != "" && infixOp == "" ) {
+								code << nonInfixOp << "(" << leftNumbr 
+									 << ", " << rightNumbr << ")";
+							} else {
+								code << leftNumbr << infixOp << rightNumbr;
+							}
+							code << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+						code << "} else if(" << rightType << " == " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ") {" << std::endl;
+							code << ret << "." << VARIABLE_TYPEID << " = " 
+								 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+								 << ";" << std::endl;
+							code << ret << "." << NUMBAR_VARIABLE << " = ";
+							if( nonInfixOp != "" ) {
+								code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
+									 << leftNumbr << ", " << rightNumbar << ")";
+							} else {
+								code << leftNumbr << infixOp << rightNumbar;
+							}
+							code << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+						code << "}" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
+						 << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBR_VARIABLE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "(" << leftNumbr << ", " 
+								 << rightOperand << "." << TROOF_VARIABLE 
+								 << " ? 1 : 0)";
+						} else {
+							code << leftNumbr << infixOp << "(" << rightOperand 
+								 << "." << TROOF_VARIABLE << " ? 1 : 0)";
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE 
+						 << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBR_VARIABLE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "(" << leftNumbr << ", 0)";
+						} else {
+							code << leftNumbr << infixOp << "0";
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+				code << "} else if(" << leftType << " == " << VARIABLE_TYPE_PREFIX 
+					 << NUMBAR_TYPE << ") {" << std::endl;
+					code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftNumbar
+								 << ", (" << NUMBAR_TYPE << ")" << rightOperand 
+								 << "." << NUMBR_VARIABLE << ")";
+						} else {
+							code << leftNumbar << infixOp << rightOperand 
+								 << "." << NUMBR_VARIABLE;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+						 << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftNumbar << ", "
+								 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+						} else {
+							code << leftNumbar << infixOp << rightOperand 
+								 << "." << NUMBAR_VARIABLE;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE << ") {" 
+						 << std::endl;
+						code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
+						code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
+						code << VARIABLE_TYPE << " " << rightType << " = "
+							 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
+							 << "." << YARN_VARIABLE << ", " << rightNumbr << ", " 
+							 << rightNumbar << ");" << std::endl;
+						code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
+							 << NUMBR_TYPE << ") {" << std::endl;
+							code << ret << "." << VARIABLE_TYPEID << " = " 
+								 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+								 << ";" << std::endl;
+							code << ret << "." << NUMBAR_VARIABLE << " = ";
+							if( nonInfixOp != "" ) {
+								code << nonInfixOp << "(" << leftNumbar << ", (" 
+									 << NUMBAR_TYPE << ")" << rightNumbr << ")";
+							} else {
+								code << leftNumbar << infixOp << rightNumbr;
+							}
+							code << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+						code << "} else if(" << rightType << " == " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ") {" << std::endl;
+							code << ret << "." << VARIABLE_TYPEID << " = " 
+								 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+								 << ";" << std::endl;
+							code << ret << "." << NUMBAR_VARIABLE << " = ";
+							if( nonInfixOp != "" ) {
+								code << nonInfixOp << leftNumbar << ", " 
+									 << rightNumbar << ")";
+							} else {
+								code << leftNumbar << infixOp << rightNumbar;
+							}
+							code << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+						code << "}" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
+						 << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftNumbar << ", "
+								 << rightOperand << "." << TROOF_VARIABLE 
+								 << " ? 1.0 : 0.0)";
+						} else {
+							code << leftNumbar << infixOp << "(" << rightOperand 
+								 << "." << TROOF_VARIABLE << " ? 1.0 : 0.0)";
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+						 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE << ") {" 
+						 << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftOperand 
+								 << "." << NUMBAR_VARIABLE << ", 0.0)";
+						} else {
+							code << leftNumbar << infixOp << "0.0";
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;					 
+				code << "}" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << TROOF_TYPE << ") {" << std::endl;
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << TROOF_VARIABLE << " ? 1 : 0, " 
+							 << rightOperand << "." << NUMBR_VARIABLE << ")";
+					} else {
+						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+							 << " ? 1 : 0)" << infixOp << rightOperand 
+							 << "." << NUMBR_VARIABLE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << TROOF_VARIABLE << " ? 1.0 : 0.0, "
+							 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+					} else {
+						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+							 << " ? 1.0 : 0.0)" << infixOp << rightOperand 
+							 << "." << NUMBAR_VARIABLE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE 
+					 << ") {" << std::endl;
+					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
+					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
+					code << VARIABLE_TYPE << " " << rightType << " = "
+						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
+						 << YARN_VARIABLE << ", " << rightNumbr << ", " 
+						 << rightNumbar << ");" << std::endl;
+					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
+						 << NUMBR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBR_VARIABLE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "(" << leftOperand << "." 
+								 << TROOF_VARIABLE << " ? 1 : 0, " 
+								 << rightNumbr << ")";
+						} else {
+							code << "(" << leftOperand << "." << TROOF_VARIABLE 
+								 << " ? 1 : 0)" << infixOp << rightNumbr;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightType << " == " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(" << leftOperand << "." 
+								 << TROOF_VARIABLE << " ? 1.0 : 0.0, " 
+								 << rightNumbar << ")";
+						} else {
+							code << "(" << leftOperand << "." << TROOF_VARIABLE 
+								 << " ? 1.0 : 0.0)" << infixOp << rightNumbar;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << TROOF_VARIABLE << " ? 1 : 0, " << rightOperand 
+							 << "." << TROOF_VARIABLE << " ? 1 : 0)";
+					} else {
+						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+							 << " ? 1 : 0)" << infixOp << "(" << rightOperand
+							 << "." << TROOF_VARIABLE << " ? 1 : 0)";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VARIABLE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << TROOF_VARIABLE << " ? 1 : 0, 0)";
+					} else {
+						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+							 << " ? 1 : 0)" << infixOp << "0";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << NOOB_TYPE << ") {" << std::endl;
+				 
+			code << "}" << std::endl;
+			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
+			break;
+		}
+		case AST::OperatorType::BOTH:
+		case AST::OperatorType::EITHER:
+		case AST::OperatorType::WON:
+			break;
+		case AST::OperatorType::SAEM:
+		case AST::OperatorType::DIFFRINT:
+			break;
+	}
+	
+	code << "}" << std::endl;
 }

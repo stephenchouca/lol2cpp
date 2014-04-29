@@ -717,32 +717,34 @@ AST::VarDeclare *Parser::ParseVarDeclare() {
 		return nullptr;
 	}
 	
-	AST::VarDeclare *varDecl;
-	bool isSlotIdentifier = false;
-	switch( tokens_->PeekToken().type ) {
-		case TokenType::IDENTIFIER:
-			varDecl = new AST::LiteralVarDeclare();
-			break;
-		case TokenType::SRS:
-			varDecl = new AST::SrsVarDeclare();
-			break;
-		case TokenType::SLOT:
-			varDecl = new AST::SlotVarDeclare();
-			isSlotIdentifier = true;
-			break;
-		default:
-			return nullptr;
-	}
-	
+	TokenType varDeclType = tokens_->PeekToken().type;
 	AST::Identifier *id = ParseExplicitIdentifier();
 	if( id == nullptr ) {
-		delete varDecl;
 		return nullptr;
 	}
-	varDecl->SetVariable( id );
-	if( isSlotIdentifier ) {
-		assert( dynamic_cast<AST::SlotIdentifier *>( id ) != nullptr );
-		static_cast<AST::SlotIdentifier *>( id )->SetSafety( false );
+	
+	AST::VarDeclare *varDecl;
+	switch( varDeclType ) {
+		case TokenType::IDENTIFIER:
+			assert( dynamic_cast<AST::LiteralIdentifier *>( id ) != nullptr );
+			varDecl = new AST::LiteralVarDeclare( 
+				static_cast<AST::LiteralIdentifier *>( id ) );
+			break;
+		case TokenType::SRS:
+			assert( dynamic_cast<AST::SrsIdentifier *>( id ) != nullptr );
+			varDecl = new AST::SrsVarDeclare( 
+				static_cast<AST::SrsIdentifier *>( id ) );
+			break;
+		case TokenType::SLOT:
+		{
+			assert( dynamic_cast<AST::SlotIdentifier *>( id ) != nullptr );
+			AST::SlotIdentifier *slotId = static_cast<AST::SlotIdentifier *>( id );
+			varDecl = new AST::SlotVarDeclare( slotId );
+			slotId->SetSafety( false );
+			break;
+		}
+		default:
+			return nullptr;
 	}
 
 	if( tokens_->PeekToken().type == TokenType::ITZ ) {

@@ -9,7 +9,7 @@
 
 namespace AST {
 	typedef bool troof_t;
-	typedef long int numbr_t;
+	typedef long long int numbr_t;
 	typedef double numbar_t;
 	typedef std::string yarn_t;
 	
@@ -21,6 +21,30 @@ namespace AST {
 	
 	typedef std::list<Expression *>::iterator ExpressionListIterator;
 	typedef std::list<Literal *>::iterator LiteralListIterator;
+	
+	enum class OperatorType {
+		INVALID,
+		NOT,
+		UPPIN,
+		NERFIN,
+		TIL,
+		WILE,
+		SUM,
+		DIFF,
+		PRODUKT,
+		QUOSHUNT,
+		MOD,
+		BIGGR,
+		SMALLR,
+		BOTH,
+		EITHER,
+		WON,
+		SAEM,
+		DIFFRINT,
+		ALL,
+		ANY,
+		SMOOSH
+	};
 	
 	class Expression : public ASTNode {
 		public:
@@ -144,8 +168,7 @@ namespace AST {
 			Type type_;
 	};
 
-	class Identifier : public Expression {
-	};
+	class Identifier : public Expression {};
 
 	class LiteralIdentifier : public Identifier {
 		public:
@@ -233,6 +256,7 @@ namespace AST {
 			
 			void CloneOperand( UnaryExpression * );
 			
+			virtual OperatorType GetOperator() { return OperatorType::INVALID; }
 			Expression *GetOperand() { return operand_; }
 			
 			void SetOperand( Expression * );
@@ -248,6 +272,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			NotExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::NOT; }
 	};
 	
 	class UppinExpression : public UnaryExpression {
@@ -257,6 +283,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			UppinExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::UPPIN; }
 	};
 	
 	class NerfinExpression : public UnaryExpression {
@@ -266,6 +294,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			NerfinExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::NERFIN; }
 	};
 	
 	class TilExpression : public UnaryExpression {
@@ -275,6 +305,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			TilExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::TIL; }
 	};
 	
 	class WileExpression : public UnaryExpression {
@@ -284,6 +316,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			WileExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::WILE; }
 	};
 
 	class BinaryExpression : public Expression {
@@ -299,6 +333,7 @@ namespace AST {
 			
 			void CloneOperands( BinaryExpression * );
 			
+			virtual OperatorType GetOperator() { return OperatorType::INVALID; }
 			Expression *GetLeftOperand() { return leftOperand_; }
 			Expression *GetRightOperand() { return rightOperand_; }
 			
@@ -317,6 +352,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			SumExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::SUM; }
 	};
 
 	class DiffExpression : public BinaryExpression {
@@ -326,6 +363,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			DiffExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::DIFF; }
 	};
 
 	class ProduktExpression : public BinaryExpression {
@@ -335,6 +374,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			ProduktExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::PRODUKT; }
 	};
 
 	class QuoshuntExpression : public BinaryExpression {
@@ -344,6 +385,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			QuoshuntExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::QUOSHUNT; }
 	};
 
 	class ModExpression : public BinaryExpression {
@@ -353,6 +396,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			ModExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::MOD; }
 	};
 
 	class BiggrExpression : public BinaryExpression {
@@ -362,6 +407,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			BiggrExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::BIGGR; }
 	};
 
 	class SmallrExpression : public BinaryExpression {
@@ -371,6 +418,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			SmallrExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::SMALLR; }
 	};
 
 	class BothExpression : public BinaryExpression {
@@ -380,6 +429,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			BothExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::BOTH; }
 	};
 
 	class EitherExpression : public BinaryExpression {
@@ -389,6 +440,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			EitherExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::EITHER; }
 	};
 
 	class WonExpression : public BinaryExpression {
@@ -398,6 +451,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			WonExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::WON; }
 	};
 
 	class SaemExpression : public BinaryExpression {
@@ -407,6 +462,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			SaemExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::SAEM; }
 	};
 
 	class DiffrintExpression : public BinaryExpression {
@@ -416,6 +473,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			DiffrintExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::DIFFRINT; }
 	};
 
 	class NaryExpression : public Expression {
@@ -427,6 +486,7 @@ namespace AST {
 			
 			void CloneOperands( NaryExpression * );
 			
+			virtual OperatorType GetOperator() { return OperatorType::INVALID; }
 			ExpressionList &GetOperands() { return operands_; }
 			
 			void AddOperand( Expression * );
@@ -442,6 +502,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			AllExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::ALL; }
 	};
 
 	class AnyExpression : public NaryExpression {
@@ -451,6 +513,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			AnyExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::ANY; }
 	};
 	
 	class SmooshExpression : public NaryExpression {
@@ -460,6 +524,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			SmooshExpression *Clone();
+			
+			OperatorType GetOperator() { return OperatorType::SMOOSH; }
 	};
 
 	class FunkshunCall : public NaryExpression {

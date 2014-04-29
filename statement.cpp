@@ -372,15 +372,14 @@ namespace AST {
 	}
 	
 	VarDeclare::~VarDeclare() {
-		delete varId_;
 		delete initVal_;
 		delete initType_;
 	}
 	
 	void VarDeclare::Print( std::ostream &out ) {
 		out << DebugIndent() << "VAR DECLARE:";
-		if( varId_ != nullptr ) {
-			out << std::endl << *varId_;
+		if( GetVariable() != nullptr ) {
+			out << std::endl << *GetVariable();
 		}
 		if( initVal_ != nullptr ) {
 			out << std::endl << *initVal_;
@@ -388,12 +387,6 @@ namespace AST {
 		if( initType_ != nullptr ) {
 			out << std::endl << *initType_;
 		}
-	}
-	
-	void VarDeclare::SetVariable( Identifier *varId ) {
-		assert( varId != nullptr );
-		varId_ = varId;
-		varId_->SetParent( this );
 	}
 	
 	void VarDeclare::SetInitValue( Expression *initVal ) {
@@ -408,6 +401,24 @@ namespace AST {
 		assert( initType != nullptr );
 		initType_ = initType;
 		initType_->SetParent( this );
+	}
+	
+	LiteralVarDeclare::LiteralVarDeclare( LiteralIdentifier *varId ) : 
+			VarDeclare(), varId_( varId ) {
+		assert( varId_ != nullptr );
+		varId_->SetParent( this );
+	}
+	
+	SrsVarDeclare::SrsVarDeclare( SrsIdentifier *varId ) : 
+			VarDeclare(), varId_( varId ) {
+		assert( varId_ != nullptr );
+		varId_->SetParent( this );
+	}
+	
+	SlotVarDeclare::SlotVarDeclare( SlotIdentifier *varId ) : 
+			VarDeclare(), varId_( varId ) {
+		assert( varId_ != nullptr );
+		varId_->SetParent( this );
 	}
 	
 	VarAssign::VarAssign( Identifier *varId ) :

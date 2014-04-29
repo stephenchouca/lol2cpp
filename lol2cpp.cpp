@@ -9,13 +9,13 @@
 #include "expression.h"
 #include "codegen.h"
 
-int main() {
+int main( int argc, char *argv[] ) {
 	Tokenizer tokenizer;
 	Parser parser;
 	
 	//std::string srcPath( "test/randtokens.lols" );
-	//std::string srcPath( "test/large.lols" );
-	std::string srcPath( "test/oddeven.lols" );
+	std::string srcPath( "test/large.lols" );
+	//std::string srcPath( "test/oddeven.lols" );
 	//std::string srcPath( "test/99beers.lols" );
 	//std::string srcPath( "test/empty.lols" );
 

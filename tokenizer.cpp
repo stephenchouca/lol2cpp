@@ -49,7 +49,7 @@ Tokenizer::CharType Tokenizer::GetCharType( char ch ) {
 	return CharType::UNKNOWN;
 }
 
-TokenType Tokenizer::GetTokenType( std::string str ) {
+TokenType Tokenizer::GetTokenType( const std::string &str ) {
 	if( str == "YARN" ) {
 		return TokenType::YARN;
 	} else if( str == "NUMBR" ) {

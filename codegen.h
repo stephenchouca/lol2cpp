@@ -4,11 +4,11 @@
 #include <stack>
 #include <list>
 #include <string>
+#include <unordered_map>
 
 #include "program_visitor.h"
 
 class CodeGenerator : public AST::ASTProgramOrderVisitor {
-
 	private:
 		static const std::string TROOF_TYPE;
 		static const std::string NUMBR_TYPE;
@@ -27,9 +27,17 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string EXTRACT_NOOB;
 		static const std::string EXTRACT_FROM_BUKKIT;
 		static const std::string EXTRACT_FROM_BUKKIT_UNSAFE;
+		static const std::string EXTRACT_NUMERIC_FROM_YARN;
 		static const std::string CAST_TO;
 		static const std::string VARIABLE_STORAGE;
+		static const std::string VARIABLE_TYPE;
 		static const std::string VARIABLE_TYPE_PREFIX;
+		static const std::string VARIABLE_TYPEID;
+		static const std::string TROOF_VARIABLE;
+		static const std::string NUMBR_VARIABLE;
+		static const std::string NUMBAR_VARIABLE;
+		static const std::string YARN_VARIABLE;
+		static const std::string BUKKIT_VARIABLE;
 		static const std::string CREATE_LITERAL_PREFIX;
 		static const std::string CREATE_TROOF_LITERAL;
 		static const std::string CREATE_NUMBR_LITERAL;
@@ -60,9 +68,9 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		//void ProcessEnd( AST::PlzBlock * );
 		void ProcessBegin( AST::LiteralVarDeclare *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::LiteralVarDeclare * );
-		void ProcessBegin( AST::SrsVarDeclare *node ) { ProcessBegin(); }
+		//void ProcessBegin( AST::SrsVarDeclare *node ) { ProcessBegin(); }
 		//void ProcessEnd( AST::SrsVarDeclare * );
-		void ProcessBegin( AST::SlotVarDeclare *node ) { ProcessBegin(); }
+		//void ProcessBegin( AST::SlotVarDeclare *node ) { ProcessBegin(); }
 		//void ProcessEnd( AST::SlotVarDeclare * );
 		void ProcessBegin( AST::VarAssign *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::VarAssign * );
@@ -220,7 +228,7 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessBegin() { codeSegments_.emplace(); }
 	
 		void ProcessUnaryExpressionBegin( AST::UnaryExpression *node ) { 
-			ProcessBegin(); 
+			ProcessBegin();
 		}
 		void ProcessUnaryExpressionEnd( AST::UnaryExpression * );
 		void ProcessBinaryExpressionBegin( AST::BinaryExpression *node ) { 
@@ -232,9 +240,22 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		}
 		void ProcessNaryExpressionEnd( AST::NaryExpression * );
 	
+		void EmitBoilerplate( std::ostringstream & );
+		void EmitUnaryOperator( const std::string &, 
+								AST::OperatorType, 
+								std::ostringstream & );
+		void EmitBinaryOperator( const std::string &, 
+								 AST::OperatorType, 
+								 std::ostringstream & );
+		void EmitNaryOperator( const std::string &, 
+							   AST::OperatorType, 
+							   std::ostringstream & );
+									   
 	private:
 		std::string emittedCode_;
 		std::stack< std::list<std::string> > codeSegments_;
+		
+		std::unordered_map<std::string, AST::OperatorType> requiredOperators_;
 };
 
 #endif
