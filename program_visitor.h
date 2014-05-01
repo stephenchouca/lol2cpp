@@ -27,7 +27,7 @@ namespace AST {
 			
 			void Visit( SrsIdentifier * );
 			void Visit( SlotIdentifier * );
-			void Visit( CastExpression * );
+			void Visit( MaekExpression * );
 			
 			void Visit( NotExpression * );
 			void Visit( UppinExpression * );

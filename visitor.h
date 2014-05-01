@@ -53,7 +53,7 @@ namespace AST {
 	class AnyExpression;
 	class SmooshExpression;
 	class FunkshunCall;
-	class CastExpression;
+	class MaekExpression;
 	
 	class ASTVisitor {
 		public:
@@ -103,8 +103,8 @@ namespace AST {
 			virtual void Process( ItIdentifier *node ) {}
 			virtual void ProcessBegin( SlotIdentifier *node ) {}
 			virtual void ProcessEnd( SlotIdentifier *node ) {}
-			virtual void ProcessBegin( CastExpression *node ) {}
-			virtual void ProcessEnd( CastExpression *node ) {}
+			virtual void ProcessBegin( MaekExpression *node ) {}
+			virtual void ProcessEnd( MaekExpression *node ) {}
 			
 			virtual void ProcessBegin( NotExpression *node ) {}
 			virtual void ProcessEnd( NotExpression *node ) {}
@@ -179,7 +179,7 @@ namespace AST {
 			virtual void Visit( SrsIdentifier * ) = 0;
 			virtual void Visit( ItIdentifier *node ) { Process( node ); }
 			virtual void Visit( SlotIdentifier * ) = 0;
-			virtual void Visit( CastExpression * ) = 0;
+			virtual void Visit( MaekExpression * ) = 0;
 			
 			virtual void Visit( NotExpression * ) = 0;
 			virtual void Visit( UppinExpression * ) = 0;

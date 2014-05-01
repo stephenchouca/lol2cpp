@@ -28,16 +28,15 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string EXTRACT_FROM_BUKKIT;
 		static const std::string EXTRACT_FROM_BUKKIT_UNSAFE;
 		static const std::string EXTRACT_NUMERIC_FROM_YARN;
-		static const std::string CAST_TO;
 		static const std::string VARIABLE_STORAGE;
 		static const std::string VARIABLE_TYPE;
 		static const std::string VARIABLE_TYPE_PREFIX;
 		static const std::string VARIABLE_TYPEID;
-		static const std::string TROOF_VARIABLE;
-		static const std::string NUMBR_VARIABLE;
-		static const std::string NUMBAR_VARIABLE;
-		static const std::string YARN_VARIABLE;
-		static const std::string BUKKIT_VARIABLE;
+		static const std::string TROOF_VALUE;
+		static const std::string NUMBR_VALUE;
+		static const std::string NUMBAR_VALUE;
+		static const std::string YARN_VALUE;
+		static const std::string BUKKIT_VALUE;
 		static const std::string CREATE_LITERAL_PREFIX;
 		static const std::string CREATE_TROOF_LITERAL;
 		static const std::string CREATE_NUMBR_LITERAL;
@@ -96,8 +95,8 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void Process( AST::ItIdentifier * );
 		void ProcessBegin( AST::SlotIdentifier *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::SlotIdentifier * );
-		void ProcessBegin( AST::CastExpression *node ) { ProcessBegin(); }
-		void ProcessEnd( AST::CastExpression * );
+		void ProcessBegin( AST::MaekExpression *node ) { ProcessBegin(); }
+		void ProcessEnd( AST::MaekExpression * );
 		
 		void ProcessBegin( AST::NotExpression *node ) {
 			ProcessUnaryExpressionBegin( node );

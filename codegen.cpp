@@ -16,26 +16,25 @@ const std::string CodeGenerator::NOOB_TYPE = "NOOB";
 const std::string CodeGenerator::SOURCE_PREFIX = "Source_";
 const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = "Defined_";
 const std::string CodeGenerator::EXTRACT_PREFIX = "Extract";
-const std::string CodeGenerator::EXTRACT_TROOF = EXTRACT_PREFIX + TROOF_TYPE;
-const std::string CodeGenerator::EXTRACT_NUMBR = EXTRACT_PREFIX + NUMBR_TYPE;
-const std::string CodeGenerator::EXTRACT_NUMBAR = EXTRACT_PREFIX + NUMBAR_TYPE;
-const std::string CodeGenerator::EXTRACT_YARN = EXTRACT_PREFIX + YARN_TYPE;
-const std::string CodeGenerator::EXTRACT_BUKKIT = EXTRACT_PREFIX + BUKKIT_TYPE;
-const std::string CodeGenerator::EXTRACT_NOOB = EXTRACT_PREFIX + NOOB_TYPE;
+const std::string CodeGenerator::EXTRACT_TROOF = EXTRACT_PREFIX + TROOF_TYPE + "()";
+const std::string CodeGenerator::EXTRACT_NUMBR = EXTRACT_PREFIX + NUMBR_TYPE + "()";
+const std::string CodeGenerator::EXTRACT_NUMBAR = EXTRACT_PREFIX + NUMBAR_TYPE + "()";
+const std::string CodeGenerator::EXTRACT_YARN = EXTRACT_PREFIX + YARN_TYPE + "()";
+const std::string CodeGenerator::EXTRACT_BUKKIT = EXTRACT_PREFIX + BUKKIT_TYPE + "()";
+const std::string CodeGenerator::EXTRACT_NOOB = EXTRACT_PREFIX + NOOB_TYPE + "()";
 const std::string CodeGenerator::EXTRACT_FROM_BUKKIT = EXTRACT_PREFIX + "FromBukkit";
 const std::string CodeGenerator::EXTRACT_FROM_BUKKIT_UNSAFE = 
 	EXTRACT_FROM_BUKKIT + "Unsafe";
 const std::string CodeGenerator::EXTRACT_NUMERIC_FROM_YARN = "ExtractNumericFromYarn";
-const std::string CodeGenerator::CAST_TO = "CastTo";
 const std::string CodeGenerator::VARIABLE_STORAGE = "Variable";
 const std::string CodeGenerator::VARIABLE_TYPE = VARIABLE_STORAGE + "::Type";
 const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = VARIABLE_TYPE + "::";
 const std::string CodeGenerator::VARIABLE_TYPEID = "type";
-const std::string CodeGenerator::TROOF_VARIABLE = "troof";
-const std::string CodeGenerator::NUMBR_VARIABLE = "numbr";
-const std::string CodeGenerator::NUMBAR_VARIABLE = "numbar";
-const std::string CodeGenerator::YARN_VARIABLE = "yarn";
-const std::string CodeGenerator::BUKKIT_VARIABLE = "bukkit";
+const std::string CodeGenerator::TROOF_VALUE = "troof";
+const std::string CodeGenerator::NUMBR_VALUE = "numbr";
+const std::string CodeGenerator::NUMBAR_VALUE = "numbar";
+const std::string CodeGenerator::YARN_VALUE = "yarn";
+const std::string CodeGenerator::BUKKIT_VALUE = "bukkit";
 const std::string CodeGenerator::CREATE_LITERAL_PREFIX = 
 	VARIABLE_STORAGE + "::Create";
 const std::string CodeGenerator::CREATE_TROOF_LITERAL = 
@@ -71,11 +70,11 @@ void CodeGenerator::ProcessEnd( AST::ORlyBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	code << "if(" << IT_VARIABLE << "." << EXTRACT_TROOF << "())" << std::endl << *it;
+	code << "if(" << IT_VARIABLE << "." << EXTRACT_TROOF << ")" << *it;
 	++it;
 	
 	for( unsigned int i = 0; i < node->GetMebbeBlocks().size(); ++i ) {
-		code << "else if(" << *it << "." << EXTRACT_TROOF << "())";
+		code << "else if(" << *it << "." << EXTRACT_TROOF << ")";
 		++it;
 		code << *it;
 		++it;
@@ -127,7 +126,7 @@ void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 	}
 	code << "; ";
 	if( node->GetLoopGuard() != nullptr ) {
-		code << *it << "." << EXTRACT_TROOF << "()";
+		code << *it << "." << EXTRACT_TROOF;
 		++it;
 	}
 	code << "; ";
@@ -135,7 +134,7 @@ void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 		code << loopVar << " = " << *it;
 		++it;
 	}
-	code << ")" << std::endl << *it;
+	code << ")" << *it;
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -294,8 +293,7 @@ void CodeGenerator::ProcessEnd( AST::Program *node ) {
 	code << std::endl << funkshuns.str() << std::endl;
 	
 	// Dump program body.
-	code << "int main()" << std::endl;
-	code << *it << std::endl;
+	code << "int main()" << *it << std::endl;
 	
 	codeSegments_.pop();
 	emittedCode_ = code.str();
@@ -378,13 +376,13 @@ void CodeGenerator::ProcessEnd( AST::SlotIdentifier *node ) {
 	codeSegments_.top().push_back( code.str() );
 }
 
-void CodeGenerator::ProcessEnd( AST::CastExpression *node ) {
+void CodeGenerator::ProcessEnd( AST::MaekExpression *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	code << *it << "." << CAST_TO;
+	code << *it;
 	++it;
-	code << "(" << VARIABLE_TYPE_PREFIX << *it << ")";
+	code << "." << EXTRACT_PREFIX << *it << "()";
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -398,7 +396,7 @@ void CodeGenerator::ProcessUnaryExpressionEnd( AST::UnaryExpression *node ) {
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code );
 	
-	//requiredOperators_[node->GetOperatorName()] = node->GetOperator();
+	requiredOperators_[node->GetOperatorName()] = node->GetOperator();
 }
 
 void CodeGenerator::ProcessBinaryExpressionEnd( AST::BinaryExpression *node ) {
@@ -433,7 +431,7 @@ void CodeGenerator::ProcessNaryExpressionEnd( AST::NaryExpression *node ) {
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
 	
-	//requiredOperators_[node->GetOperatorName()] = node->GetOperator();
+	requiredOperators_[node->GetOperatorName()] = node->GetOperator();
 }
 
 void CodeGenerator::ProcessEnd( AST::FunkshunCall *node ) {
@@ -484,7 +482,7 @@ void CodeGenerator::EmitBoilerplate( std::ostringstream &code ) {
 			case AST::OperatorType::ALL:
 			case AST::OperatorType::ANY:
 			case AST::OperatorType::SMOOSH:
-				//EmitNaryOperator( it->first, it->second, code );
+				EmitNaryOperator( it->first, it->second, code );
 				break;
 			default:
 				assert( false );
@@ -528,15 +526,15 @@ void CodeGenerator::EmitUnaryOperator( const std::string &operatorName,
 					 << ":" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = " << op << operand
-						 << "." << NUMBR_VARIABLE << ";" << std::endl;
+					code << ret << "." << NUMBR_VALUE << " = " << op << operand
+						 << "." << NUMBR_VALUE << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
 				code << "case " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 					 << ":" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = " << op << operand
-						 << "." << NUMBAR_VARIABLE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VALUE << " = " << op << operand
+						 << "." << NUMBAR_VALUE << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
 			code << "}" << std::endl;
 			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
@@ -547,8 +545,8 @@ void CodeGenerator::EmitUnaryOperator( const std::string &operatorName,
 		case AST::OperatorType::WILE:
 			code << ret << "." << VARIABLE_TYPEID << " = " 
 				 << VARIABLE_TYPE_PREFIX << TROOF_TYPE << ";" << std::endl;
-			code << ret << "." << TROOF_VARIABLE << " = " << op << operand 
-				 << "." << EXTRACT_TROOF << "();" << std::endl;
+			code << ret << "." << TROOF_VALUE << " = " << op << operand 
+				 << "." << EXTRACT_TROOF << ";" << std::endl;
 			code << "return " << ret << ";" << std::endl;
 			break;
 		default:
@@ -636,14 +634,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = ";
+					code << ret << "." << NUMBR_VALUE << " = ";
 					if( nonInfixOp != "" && infixOp == "" ) {
-						code << nonInfixOp << "("  
-							 << leftOperand << "." << NUMBR_VARIABLE << ", "
-							 << rightOperand << "." << NUMBR_VARIABLE << ")";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBR_VALUE << ", " << rightOperand << "." 
+							 << NUMBR_VALUE << ")";
 					} else {
-						code << leftOperand << "." << NUMBR_VARIABLE << infixOp
-							 << rightOperand << "." << NUMBR_VARIABLE;
+						code << leftOperand << "." << NUMBR_VALUE << infixOp
+							 << rightOperand << "." << NUMBR_VALUE;
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -652,14 +650,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					code << ret << "." << NUMBAR_VALUE << " = ";
 					if( nonInfixOp != "" ) {
 						code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
-							 << leftOperand << "." << NUMBR_VARIABLE << ", "
-							 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+							 << leftOperand << "." << NUMBR_VALUE << ", "
+							 << rightOperand << "." << NUMBAR_VALUE << ")";
 					} else {
-						code << leftOperand << "." << NUMBR_VARIABLE << infixOp
-							 << rightOperand << "." << NUMBAR_VARIABLE;
+						code << leftOperand << "." << NUMBR_VALUE << infixOp
+							 << rightOperand << "." << NUMBAR_VALUE;
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -670,20 +668,19 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
 						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VARIABLE << ", " << rightNumbr << ", " 
+						 << YARN_VALUE << ", " << rightNumbr << ", " 
 						 << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBR_VARIABLE << " = ";
+						code << ret << "." << NUMBR_VALUE << " = ";
 						if( nonInfixOp != "" && infixOp == "" ) {
-							code << nonInfixOp << "("  
-								 << leftOperand << "." << NUMBR_VARIABLE 
-								 << ", " << rightNumbr << ")";
+							code << nonInfixOp << "(" << leftOperand << "." 
+								 << NUMBR_VALUE << ", " << rightNumbr << ")";
 						} else {
-							code << leftOperand << "." << NUMBR_VARIABLE 
+							code << leftOperand << "." << NUMBR_VALUE 
 								 << infixOp << rightNumbr;
 						}
 						code << ";" << std::endl;
@@ -693,13 +690,13 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" && infixOp == "" ) {
 							code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
-								 << leftOperand << "." << NUMBR_VARIABLE << ", "
+								 << leftOperand << "." << NUMBR_VALUE << ", "
 								 << rightNumbar << ")";
 						} else {
-							code << leftOperand << "." << NUMBR_VARIABLE 
+							code << leftOperand << "." << NUMBR_VALUE 
 								 << infixOp << rightNumbar;
 						}
 						code << ";" << std::endl;
@@ -710,14 +707,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = ";
+					code << ret << "." << NUMBR_VALUE << " = ";
 					if( nonInfixOp != "" && infixOp == "" ) {
-						code << nonInfixOp << "("  
-							 << leftOperand << "." << NUMBR_VARIABLE << ", "
-							 << rightOperand << "." << TROOF_VARIABLE << " ? 1 : 0)";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBR_VALUE << ", " << rightOperand << "." 
+							 << TROOF_VALUE << " ? 1 : 0)";
 					} else {
-						code << leftOperand << "." << NUMBR_VARIABLE << infixOp << "("
-							 << rightOperand << "." << TROOF_VARIABLE << " ? 1 : 0)";
+						code << leftOperand << "." << NUMBR_VALUE << infixOp << "("
+							 << rightOperand << "." << TROOF_VALUE << " ? 1 : 0)";
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -726,12 +723,12 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = ";
+					code << ret << "." << NUMBR_VALUE << " = ";
 					if( nonInfixOp != "" && infixOp == "" ) {
-						code << nonInfixOp << "("  
-							 << leftOperand << "." << NUMBR_VARIABLE << ", 0)";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBR_VALUE << ", 0)";
 					} else {
-						code << leftOperand << "." << NUMBR_VARIABLE 
+						code << leftOperand << "." << NUMBR_VALUE 
 							 << infixOp << "0";
 					}
 					code << ";" << std::endl;
@@ -743,15 +740,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					code << ret << "." << NUMBAR_VALUE << " = ";
 					if( nonInfixOp != "" ) {
-						code << nonInfixOp << "("  
-							 << leftOperand << "." << NUMBAR_VARIABLE 
-							 << ", (" << NUMBAR_TYPE << ")" << rightOperand 
-							 << "." << NUMBR_VARIABLE << ")";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBAR_VALUE << ", (" << NUMBAR_TYPE << ")" 
+							 << rightOperand << "." << NUMBR_VALUE << ")";
 					} else {
-						code << leftOperand << "." << NUMBAR_VARIABLE << infixOp
-							 << rightOperand << "." << NUMBR_VARIABLE;
+						code << leftOperand << "." << NUMBAR_VALUE << infixOp
+							 << rightOperand << "." << NUMBR_VALUE;
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -760,14 +756,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					code << ret << "." << NUMBAR_VALUE << " = ";
 					if( nonInfixOp != "" ) {
-						code << nonInfixOp << "("
-							 << leftOperand << "." << NUMBAR_VARIABLE << ", "
-							 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBAR_VALUE << ", " << rightOperand << "." 
+							 << NUMBAR_VALUE << ")";
 					} else {
-						code << leftOperand << "." << NUMBAR_VARIABLE << infixOp
-							 << rightOperand << "." << NUMBAR_VARIABLE;
+						code << leftOperand << "." << NUMBAR_VALUE << infixOp
+							 << rightOperand << "." << NUMBAR_VALUE;
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -778,20 +774,20 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
 						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VARIABLE << ", " << rightNumbr << ", " 
+						 << YARN_VALUE << ", " << rightNumbr << ", " 
 						 << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftOperand << "." 
-								 << NUMBAR_VARIABLE << ", (" << NUMBAR_TYPE 
+								 << NUMBAR_VALUE << ", (" << NUMBAR_TYPE 
 								 << ")" << rightNumbr << ")";
 						} else {
-							code << leftOperand << "." << NUMBAR_VARIABLE 
+							code << leftOperand << "." << NUMBAR_VALUE 
 								 << infixOp << rightNumbr;
 						}
 						code << ";" << std::endl;
@@ -801,12 +797,12 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftOperand << "." 
-								 << NUMBAR_VARIABLE << ", " << rightNumbar << ")";
+								 << NUMBAR_VALUE << ", " << rightNumbar << ")";
 						} else {
-							code << leftOperand << "." << NUMBAR_VARIABLE 
+							code << leftOperand << "." << NUMBAR_VALUE 
 								 << infixOp << rightNumbar;
 						}
 						code << ";" << std::endl;
@@ -817,15 +813,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					code << ret << "." << NUMBAR_VALUE << " = ";
 					if( nonInfixOp != "" ) {
-						code << nonInfixOp << "("  
-							 << leftOperand << "." << NUMBAR_VARIABLE << ", "
-							 << rightOperand << "." << TROOF_VARIABLE 
-							 << " ? 1.0 : 0.0)";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBAR_VALUE << ", " << rightOperand << "." 
+							 << TROOF_VALUE << " ? 1.0 : 0.0)";
 					} else {
-						code << leftOperand << "." << NUMBAR_VARIABLE << infixOp 
-							 << "(" << rightOperand << "." << TROOF_VARIABLE 
+						code << leftOperand << "." << NUMBAR_VALUE << infixOp 
+							 << "(" << rightOperand << "." << TROOF_VALUE 
 							 << " ? 1.0 : 0.0)";
 					}
 					code << ";" << std::endl;
@@ -835,12 +830,12 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					code << ret << "." << NUMBAR_VALUE << " = ";
 					if( nonInfixOp != "" ) {
-						code << nonInfixOp << "("  
-							 << leftOperand << "." << NUMBAR_VARIABLE << ", 0.0)";
+						code << nonInfixOp << "(" << leftOperand << "." 
+							 << NUMBAR_VALUE << ", 0.0)";
 					} else {
-						code << leftOperand << "." << NUMBAR_VARIABLE 
+						code << leftOperand << "." << NUMBAR_VALUE 
 							 << infixOp << "0.0";
 					}
 					code << ";" << std::endl;
@@ -852,7 +847,7 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 				code << NUMBAR_TYPE << " " << leftNumbar << ";" << std::endl;
 				code << VARIABLE_TYPE << " " << leftType << " = "
 					 << EXTRACT_NUMERIC_FROM_YARN << "(" << leftOperand << "."
-					 << YARN_VARIABLE << ", " << leftNumbr << ", " << leftNumbar 
+					 << YARN_VALUE << ", " << leftNumbr << ", " << leftNumbar 
 					 << ");" << std::endl;
 				code << "if(" << leftType << " == " << VARIABLE_TYPE_PREFIX 
 					 << NUMBR_TYPE << ") {" << std::endl;
@@ -861,13 +856,13 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBR_VARIABLE << " = ";
+						code << ret << "." << NUMBR_VALUE << " = ";
 						if( nonInfixOp != "" && infixOp == "" ) {
 							code << nonInfixOp << "(" << leftNumbr << ", "
-								 << rightOperand << "." << NUMBR_VARIABLE << ")";
+								 << rightOperand << "." << NUMBR_VALUE << ")";
 						} else {
 							code << leftNumbr << infixOp << rightOperand 
-								 << "." << NUMBR_VARIABLE;
+								 << "." << NUMBR_VALUE;
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
@@ -877,14 +872,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
 								 << leftNumbr << ", " << rightOperand << "." 
-								 << NUMBAR_VARIABLE << ")";
+								 << NUMBAR_VALUE << ")";
 						} else {
 							code << leftNumbr << infixOp << rightOperand 
-								 << "." << NUMBAR_VARIABLE;
+								 << "." << NUMBAR_VALUE;
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
@@ -895,14 +890,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 						code << VARIABLE_TYPE << " " << rightType << " = "
 							 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
-							 << "." << YARN_VARIABLE << ", " << rightNumbr << ", " 
+							 << "." << YARN_VALUE << ", " << rightNumbr << ", " 
 							 << rightNumbar << ");" << std::endl;
 						code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 							 << NUMBR_TYPE << ") {" << std::endl;
 							code << ret << "." << VARIABLE_TYPEID << " = " 
 								 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
 								 << ";" << std::endl;
-							code << ret << "." << NUMBR_VARIABLE << " = ";
+							code << ret << "." << NUMBR_VALUE << " = ";
 							if( nonInfixOp != "" && infixOp == "" ) {
 								code << nonInfixOp << "(" << leftNumbr 
 									 << ", " << rightNumbr << ")";
@@ -917,7 +912,7 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 							code << ret << "." << VARIABLE_TYPEID << " = " 
 								 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 								 << ";" << std::endl;
-							code << ret << "." << NUMBAR_VARIABLE << " = ";
+							code << ret << "." << NUMBAR_VALUE << " = ";
 							if( nonInfixOp != "" ) {
 								code << nonInfixOp << "((" << NUMBAR_TYPE << ")"
 									 << leftNumbr << ", " << rightNumbar << ")";
@@ -933,14 +928,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBR_VARIABLE << " = ";
+						code << ret << "." << NUMBR_VALUE << " = ";
 						if( nonInfixOp != "" && infixOp == "" ) {
 							code << nonInfixOp << "(" << leftNumbr << ", " 
-								 << rightOperand << "." << TROOF_VARIABLE 
+								 << rightOperand << "." << TROOF_VALUE 
 								 << " ? 1 : 0)";
 						} else {
 							code << leftNumbr << infixOp << "(" << rightOperand 
-								 << "." << TROOF_VARIABLE << " ? 1 : 0)";
+								 << "." << TROOF_VALUE << " ? 1 : 0)";
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
@@ -950,7 +945,7 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBR_VARIABLE << " = ";
+						code << ret << "." << NUMBR_VALUE << " = ";
 						if( nonInfixOp != "" && infixOp == "" ) {
 							code << nonInfixOp << "(" << leftNumbr << ", 0)";
 						} else {
@@ -966,14 +961,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftNumbar
 								 << ", (" << NUMBAR_TYPE << ")" << rightOperand 
-								 << "." << NUMBR_VARIABLE << ")";
+								 << "." << NUMBR_VALUE << ")";
 						} else {
 							code << leftNumbar << infixOp << rightOperand 
-								 << "." << NUMBR_VARIABLE;
+								 << "." << NUMBR_VALUE;
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
@@ -983,13 +978,13 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftNumbar << ", "
-								 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+								 << rightOperand << "." << NUMBAR_VALUE << ")";
 						} else {
 							code << leftNumbar << infixOp << rightOperand 
-								 << "." << NUMBAR_VARIABLE;
+								 << "." << NUMBAR_VALUE;
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
@@ -1000,14 +995,14 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 						code << VARIABLE_TYPE << " " << rightType << " = "
 							 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
-							 << "." << YARN_VARIABLE << ", " << rightNumbr << ", " 
+							 << "." << YARN_VALUE << ", " << rightNumbr << ", " 
 							 << rightNumbar << ");" << std::endl;
 						code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 							 << NUMBR_TYPE << ") {" << std::endl;
 							code << ret << "." << VARIABLE_TYPEID << " = " 
 								 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 								 << ";" << std::endl;
-							code << ret << "." << NUMBAR_VARIABLE << " = ";
+							code << ret << "." << NUMBAR_VALUE << " = ";
 							if( nonInfixOp != "" ) {
 								code << nonInfixOp << "(" << leftNumbar << ", (" 
 									 << NUMBAR_TYPE << ")" << rightNumbr << ")";
@@ -1022,7 +1017,7 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 							code << ret << "." << VARIABLE_TYPEID << " = " 
 								 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 								 << ";" << std::endl;
-							code << ret << "." << NUMBAR_VARIABLE << " = ";
+							code << ret << "." << NUMBAR_VALUE << " = ";
 							if( nonInfixOp != "" ) {
 								code << nonInfixOp << leftNumbar << ", " 
 									 << rightNumbar << ")";
@@ -1036,15 +1031,16 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
 						 << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
-							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftNumbar << ", "
-								 << rightOperand << "." << TROOF_VARIABLE 
+								 << rightOperand << "." << TROOF_VALUE 
 								 << " ? 1.0 : 0.0)";
 						} else {
 							code << leftNumbar << infixOp << "(" << rightOperand 
-								 << "." << TROOF_VARIABLE << " ? 1.0 : 0.0)";
+								 << "." << TROOF_VALUE << " ? 1.0 : 0.0)";
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
@@ -1052,11 +1048,12 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE << ") {" 
 						 << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
-							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftOperand 
-								 << "." << NUMBAR_VARIABLE << ", 0.0)";
+								 << "." << NUMBAR_VALUE << ", 0.0)";
 						} else {
 							code << leftNumbar << infixOp << "0.0";
 						}
@@ -1070,15 +1067,15 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = ";
+					code << ret << "." << NUMBR_VALUE << " = ";
 					if( nonInfixOp != "" && infixOp == "" ) {
 						code << nonInfixOp << "(" << leftOperand << "." 
-							 << TROOF_VARIABLE << " ? 1 : 0, " 
-							 << rightOperand << "." << NUMBR_VARIABLE << ")";
+							 << TROOF_VALUE << " ? 1 : 0, " 
+							 << rightOperand << "." << NUMBR_VALUE << ")";
 					} else {
-						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+						code << "(" << leftOperand << "." << TROOF_VALUE 
 							 << " ? 1 : 0)" << infixOp << rightOperand 
-							 << "." << NUMBR_VARIABLE;
+							 << "." << NUMBR_VALUE;
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -1087,15 +1084,15 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VARIABLE << " = ";
+					code << ret << "." << NUMBAR_VALUE << " = ";
 					if( nonInfixOp != "" ) {
 						code << nonInfixOp << "(" << leftOperand << "." 
-							 << TROOF_VARIABLE << " ? 1.0 : 0.0, "
-							 << rightOperand << "." << NUMBAR_VARIABLE << ")";
+							 << TROOF_VALUE << " ? 1.0 : 0.0, "
+							 << rightOperand << "." << NUMBAR_VALUE << ")";
 					} else {
-						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+						code << "(" << leftOperand << "." << TROOF_VALUE 
 							 << " ? 1.0 : 0.0)" << infixOp << rightOperand 
-							 << "." << NUMBAR_VARIABLE;
+							 << "." << NUMBAR_VALUE;
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -1106,36 +1103,37 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
 						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VARIABLE << ", " << rightNumbr << ", " 
+						 << YARN_VALUE << ", " << rightNumbr << ", " 
 						 << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBR_VARIABLE << " = ";
+						code << ret << "." << NUMBR_VALUE << " = ";
 						if( nonInfixOp != "" && infixOp == "" ) {
 							code << nonInfixOp << "(" << leftOperand << "." 
-								 << TROOF_VARIABLE << " ? 1 : 0, " 
+								 << TROOF_VALUE << " ? 1 : 0, " 
 								 << rightNumbr << ")";
 						} else {
-							code << "(" << leftOperand << "." << TROOF_VARIABLE 
+							code << "(" << leftOperand << "." << TROOF_VALUE 
 								 << " ? 1 : 0)" << infixOp << rightNumbr;
 						}
 						code << ";" << std::endl;
 						code << "return " << ret << ";" << std::endl;
 					code << "} else if(" << rightType << " == " 
-						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ") {" << std::endl;
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+						 << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
 							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 							 << ";" << std::endl;
-						code << ret << "." << NUMBAR_VARIABLE << " = ";
+						code << ret << "." << NUMBAR_VALUE << " = ";
 						if( nonInfixOp != "" ) {
 							code << nonInfixOp << "(" << leftOperand << "." 
-								 << TROOF_VARIABLE << " ? 1.0 : 0.0, " 
+								 << TROOF_VALUE << " ? 1.0 : 0.0, " 
 								 << rightNumbar << ")";
 						} else {
-							code << "(" << leftOperand << "." << TROOF_VARIABLE 
+							code << "(" << leftOperand << "." << TROOF_VALUE 
 								 << " ? 1.0 : 0.0)" << infixOp << rightNumbar;
 						}
 						code << ";" << std::endl;
@@ -1146,15 +1144,15 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = ";
+					code << ret << "." << NUMBR_VALUE << " = ";
 					if( nonInfixOp != "" && infixOp == "" ) {
 						code << nonInfixOp << "(" << leftOperand << "." 
-							 << TROOF_VARIABLE << " ? 1 : 0, " << rightOperand 
-							 << "." << TROOF_VARIABLE << " ? 1 : 0)";
+							 << TROOF_VALUE << " ? 1 : 0, " << rightOperand 
+							 << "." << TROOF_VALUE << " ? 1 : 0)";
 					} else {
-						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+						code << "(" << leftOperand << "." << TROOF_VALUE 
 							 << " ? 1 : 0)" << infixOp << "(" << rightOperand
-							 << "." << TROOF_VARIABLE << " ? 1 : 0)";
+							 << "." << TROOF_VALUE << " ? 1 : 0)";
 					}
 					code << ";" << std::endl;
 					code << "return " << ret << ";" << std::endl;
@@ -1163,12 +1161,12 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					 << ") {" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VARIABLE << " = ";
+					code << ret << "." << NUMBR_VALUE << " = ";
 					if( nonInfixOp != "" && infixOp == "" ) {
 						code << nonInfixOp << "(" << leftOperand << "." 
-							 << TROOF_VARIABLE << " ? 1 : 0, 0)";
+							 << TROOF_VALUE << " ? 1 : 0, 0)";
 					} else {
-						code << "(" << leftOperand << "." << TROOF_VARIABLE 
+						code << "(" << leftOperand << "." << TROOF_VALUE 
 							 << " ? 1 : 0)" << infixOp << "0";
 					}
 					code << ";" << std::endl;
@@ -1176,7 +1174,101 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 				code << "}" << std::endl;
 			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
 				 << VARIABLE_TYPE_PREFIX << NOOB_TYPE << ") {" << std::endl;
-				 
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VALUE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "(0, " << rightOperand << "." 
+							 << NUMBR_VALUE << ")";
+					} else {
+						code << "0" << infixOp << rightOperand << "." 
+							 << NUMBR_VALUE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VALUE << " = ";
+					if( nonInfixOp != "" ) {
+						code << nonInfixOp << "(" << "0.0, " << rightOperand 
+							 << "." << NUMBAR_VALUE << ")";
+					} else {
+						code << "0.0" << infixOp << rightOperand << "." 
+							 << NUMBAR_VALUE;
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE 
+					 << ") {" << std::endl;
+					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
+					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
+					code << VARIABLE_TYPE << " " << rightType << " = "
+						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
+						 << YARN_VALUE << ", " << rightNumbr << ", " 
+						 << rightNumbar << ");" << std::endl;
+					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
+						 << NUMBR_TYPE << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBR_VALUE << " = ";
+						if( nonInfixOp != "" && infixOp == "" ) {
+							code << nonInfixOp << "(0, " << rightNumbr << ")";
+						} else {
+							code << "0" << infixOp << rightNumbr;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "} else if(" << rightType << " == " 
+						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+						 << ") {" << std::endl;
+						code << ret << "." << VARIABLE_TYPEID << " = " 
+							 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ";" << std::endl;
+						code << ret << "." << NUMBAR_VALUE << " = ";
+						if( nonInfixOp != "" ) {
+							code << nonInfixOp << "(0.0, " << rightNumbar << ")";
+						} else {
+							code << "0.0" << infixOp << rightNumbar;
+						}
+						code << ";" << std::endl;
+						code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VALUE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "(0, " << rightOperand 
+							 << "." << TROOF_VALUE << " ? 1 : 0)";
+					} else {
+						code << "0" << infixOp << "(" << rightOperand
+							 << "." << TROOF_VALUE << " ? 1 : 0)";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "} else if(" << rightOperand << "." << VARIABLE_TYPEID 
+					 << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE 
+					 << ") {" << std::endl;
+					code << ret << "." << VARIABLE_TYPEID << " = " 
+						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
+					code << ret << "." << NUMBR_VALUE << " = ";
+					if( nonInfixOp != "" && infixOp == "" ) {
+						code << nonInfixOp << "(0, 0)";
+					} else {
+						code << "0" << infixOp << "0";
+					}
+					code << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
 			code << "}" << std::endl;
 			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
 			break;
@@ -1184,11 +1276,162 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 		case AST::OperatorType::BOTH:
 		case AST::OperatorType::EITHER:
 		case AST::OperatorType::WON:
+			code << ret << "." << VARIABLE_TYPEID << " = " << VARIABLE_TYPE_PREFIX 
+				 << TROOF_TYPE << ";" << std::endl;
+			code << ret << "." << TROOF_VALUE << " = " << leftOperand << "."
+				 << EXTRACT_TROOF << infixOp << rightOperand << "." << EXTRACT_TROOF
+				 << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
 			break;
 		case AST::OperatorType::SAEM:
 		case AST::OperatorType::DIFFRINT:
+			code << ret << "." << VARIABLE_TYPEID << " = " << VARIABLE_TYPE_PREFIX 
+				 << TROOF_TYPE << ";" << std::endl;
+			code << "switch(" << leftOperand << "." << VARIABLE_TYPEID
+				 << ") {" << std::endl;
+				code << "case " << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << "switch(" << rightOperand << "." << VARIABLE_TYPEID
+					 << ") {" << std::endl;
+						code << "case " << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ":" << std::endl;
+							code << ret << "." << TROOF_VALUE << " = "
+								 << leftOperand << "." << NUMBR_VALUE << infixOp
+								 << rightOperand << "." << NUMBR_VALUE 
+								 << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+						code << "case " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ":" << std::endl;
+							code << ret << "." << TROOF_VALUE << " = "
+								 << leftOperand << "." << NUMBR_VALUE << infixOp
+								 << rightOperand << "." << NUMBAR_VALUE 
+								 << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+					code << ret << "." << TROOF_VALUE << " = " 
+						 << ( operatorType == AST::OperatorType::SAEM ? 
+							  "false" : "true" ) << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "case " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << "switch(" << rightOperand << "." << VARIABLE_TYPEID
+					 << ") {" << std::endl;
+						code << "case " << VARIABLE_TYPE_PREFIX << NUMBR_TYPE 
+							 << ":" << std::endl;
+							code << ret << "." << TROOF_VALUE << " = "
+								 << leftOperand << "." << NUMBAR_VALUE << infixOp
+								 << rightOperand << "." << NUMBR_VALUE 
+								 << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+						code << "case " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
+							 << ":" << std::endl;
+							code << ret << "." << TROOF_VALUE << " = "
+								 << leftOperand << "." << NUMBAR_VALUE << infixOp
+								 << rightOperand << "." << NUMBAR_VALUE 
+								 << ";" << std::endl;
+							code << "return " << ret << ";" << std::endl;
+					code << "}" << std::endl;
+					code << ret << "." << TROOF_VALUE << " = " 
+						 << ( operatorType == AST::OperatorType::SAEM ? 
+							  "false" : "true" ) << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+			code << "}" << std::endl;
+			code << "if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << TROOF_TYPE << ") {" << std::endl;
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << TROOF_TYPE << ") {" << std::endl;
+					code << ret << "." << TROOF_VALUE << " = " << leftOperand 
+						 << "." << TROOF_VALUE << infixOp << rightOperand 
+						 << "." << TROOF_VALUE << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << YARN_TYPE << ") {" << std::endl;
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << TROOF_TYPE << ") {" << std::endl;
+					code << ret << "." << TROOF_VALUE << " = " << leftOperand 
+						 << "." << YARN_VALUE << infixOp << rightOperand 
+						 << "." << YARN_VALUE << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << NOOB_TYPE << ") {" << std::endl;
+				code << ret << "." << TROOF_VALUE << " = " << rightOperand << "."
+					 << VARIABLE_TYPEID << infixOp << VARIABLE_TYPE_PREFIX
+					 << TROOF_TYPE << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << leftOperand << "." << VARIABLE_TYPEID << " == " 
+				 << VARIABLE_TYPE_PREFIX << BUKKIT_TYPE << ") {" << std::endl;
+				code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
+					 << VARIABLE_TYPE_PREFIX << BUKKIT_TYPE << ") {" << std::endl;
+					code << ret << "." << TROOF_VALUE << " = " << leftOperand 
+						 << "." << BUKKIT_VALUE << infixOp << rightOperand 
+						 << "." << BUKKIT_VALUE << ";" << std::endl;
+					code << "return " << ret << ";" << std::endl;
+				code << "}" << std::endl;
+			code << "}" << std::endl;
+			code << ret << "." << TROOF_VALUE << " = " 
+				 << ( operatorType == AST::OperatorType::SAEM ? "false" : "true" ) 
+				 << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
 			break;
 	}
 	
+	code << "}" << std::endl;
+}
+
+void CodeGenerator::EmitNaryOperator( const std::string &operatorName, 
+									  AST::OperatorType operatorType,
+									  std::ostringstream &code ) {
+	const std::string implFunction = "Impl" + operatorName;
+	const std::string operand = "operand";
+	const std::string operands = operand + "s";
+	const std::string ret = "ret";
+	std::string retType = "";
+	std::string retValue = "";
+	std::string operandType = "";
+	std::string op = "";
+	
+	switch( operatorType ) {
+		case AST::OperatorType::ANY:
+			retType = TROOF_TYPE;
+			operandType = EXTRACT_TROOF;
+			op = " || ";
+		case AST::OperatorType::ALL:
+			retType = TROOF_TYPE;
+			operandType = EXTRACT_TROOF;
+			op = " && ";
+			break;
+		case AST::OperatorType::SMOOSH:
+			retType = YARN_TYPE;
+			operandType = EXTRACT_YARN;
+			op = " + ";
+			break;
+		default:
+			assert( false );
+			break;
+	}
+	
+	code << retType << " " << implFunction << "(const " << VARIABLE_STORAGE 
+		 << " &" << operand << ") {" << std::endl;
+	code << "return " << operand << "." << operandType << ";" << std::endl;
+	code << "}" << std::endl;
+	
+	code << "template<typename... Operands>" << std::endl;
+	code << retType << " " << implFunction << "(const " << VARIABLE_STORAGE << " &"
+		 << operand << ", const Operands&... " << operands << ") {" << std::endl;
+	code << "return " << operand << "." << operandType << op << implFunction 
+		 << "(" << operands << "...);" << std::endl;
+	code << "}" << std::endl;
+	
+	code << "template<typename... Operands>" << std::endl;
+	code << retType << " " << operatorName << "(const Operands&... " 
+		 << operands << ") {" << std::endl;
+	code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+	code << ret << "." << VARIABLE_TYPEID << " = " << VARIABLE_TYPE_PREFIX 
+		 << retType << ";" << std::endl;
+	code << ret << "." << TROOF_VALUE << " = " << implFunction << "(" << operands
+		 << "...);" << std::endl;
+	code << "return " << ret << ";" << std::endl;
 	code << "}" << std::endl;
 }

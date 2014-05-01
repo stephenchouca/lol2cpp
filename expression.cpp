@@ -301,13 +301,13 @@ namespace AST {
 		funkshunName_->SetParent( this );
 	}
 	
-	CastExpression::CastExpression( Expression *srcExpr ) :
+	MaekExpression::MaekExpression( Expression *srcExpr ) :
 			srcExpr_( srcExpr ), targetType_( nullptr ) {
 		assert( srcExpr_ != nullptr );
 		srcExpr_->SetParent( this );
 	}
 	
-	void CastExpression::Print( std::ostream &out ) {
+	void MaekExpression::Print( std::ostream &out ) {
 		out << DebugIndent() << "CAST:";
 		if( srcExpr_ != nullptr ) {
 			out << *srcExpr_ << std::endl;
@@ -317,13 +317,13 @@ namespace AST {
 		}
 	}
 	
-	CastExpression *CastExpression::Clone() {
-		CastExpression *ret = new CastExpression( srcExpr_->Clone() );
+	MaekExpression *MaekExpression::Clone() {
+		MaekExpression *ret = new MaekExpression( srcExpr_->Clone() );
 		ret->targetType_ = this->targetType_->Clone();
 		return ret;
 	}
 	
-	void CastExpression::SetCastTargetType( TypeIdentifier *targetType ) {
+	void MaekExpression::SetCastTargetType( TypeIdentifier *targetType ) {
 		assert( targetType != nullptr );
 		targetType_ = targetType;
 		targetType_->SetParent( this );

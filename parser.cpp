@@ -809,7 +809,7 @@ AST::VarAssign *Parser::ParseVarCast( AST::Identifier *id ) {
 		return nullptr;
 	}
 	
-	AST::CastExpression *castExpr = new AST::CastExpression( id->Clone() );
+	AST::MaekExpression *castExpr = new AST::MaekExpression( id->Clone() );
 	castExpr->SetCastTargetType( type );
 	varCast->SetAssignValue( castExpr );
 	
@@ -904,9 +904,7 @@ AST::Expression *Parser::ParseExpression() {
 		case TokenType::I:
 			return ParseFunkshunCall();
 		case TokenType::MAEK:
-			return ParseCastExpression();
-		case TokenType::SMOOSH:
-			return ParseSmooshExpression();
+			return ParseMaekExpression();
 		default:
 			break;
 	}
@@ -932,10 +930,8 @@ AST::Expression *Parser::ParseExpression() {
 		}
 		binaryExpr->SetLeftOperand( operand );
 		
-		if( !AcceptToken( TokenType::AN ) ) {
+		if( tokens_->PeekToken().type == TokenType::AN ) {
 			tokens_->AdvanceToNextToken();
-			delete binaryExpr;
-			return nullptr;
 		}
 		
 		operand = ParseExpression();
@@ -965,10 +961,8 @@ AST::Expression *Parser::ParseExpression() {
 				break;
 			}
 			
-			if( !AcceptToken( TokenType::AN ) ) {
+			if( tokens_->PeekToken().type == TokenType::AN ) {
 				tokens_->AdvanceToNextToken();
-				delete naryExpr;
-				return nullptr;
 			}
 			
 			operand = ParseExpression();
@@ -1103,6 +1097,9 @@ AST::NaryExpression *Parser::ParseNaryOperator() {
 			}
 			tokens_->SkipToNextLine();
 			break;
+		case TokenType::SMOOSH:
+			tokens_->AdvanceToNextToken();
+			return new AST::SmooshExpression();
 		default:
 			break;
 	}
@@ -1162,7 +1159,7 @@ AST::FunkshunCall *Parser::ParseFunkshunCall() {
 	}
 }
 
-AST::CastExpression *Parser::ParseCastExpression() {
+AST::MaekExpression *Parser::ParseMaekExpression() {
 	if( !AcceptToken( TokenType::MAEK ) ) {
 		tokens_->AdvanceToNextToken();
 		return nullptr;
@@ -1172,7 +1169,7 @@ AST::CastExpression *Parser::ParseCastExpression() {
 	if( expr == nullptr ) {
 		return nullptr;
 	}
-	AST::CastExpression *castExpr = new AST::CastExpression( expr );
+	AST::MaekExpression *castExpr = new AST::MaekExpression( expr );
 	
 	if( !AcceptToken( TokenType::A ) ) {
 		tokens_->AdvanceToNextToken();
@@ -1190,61 +1187,12 @@ AST::CastExpression *Parser::ParseCastExpression() {
 	return castExpr;
 }
 
-AST::SmooshExpression *Parser::ParseSmooshExpression() {
-	if( !AcceptToken( TokenType::SMOOSH ) ) {
-		tokens_->AdvanceToNextToken();
-		return nullptr;
-	}
-	
-	AST::SmooshExpression *smooshExpr = new AST::SmooshExpression();
-	
-	switch( tokens_->PeekToken().type ) {
-		case TokenType::MKAY:
-			tokens_->AdvanceToNextToken();
-		case TokenType::LINE_DELIMITER:
-			return smooshExpr;
-		default:
-			break;
-	}
-	
-	AST::Expression *operand = ParseExpression();
-	if( operand == nullptr ) {
-		delete smooshExpr;
-		return nullptr;
-	}
-	smooshExpr->AddOperand( operand );
-	
-	while( true ) {
-		if( tokens_->PeekToken().type == TokenType::MKAY ) {
-			tokens_->AdvanceToNextToken();
-			break;
-		} else if( tokens_->PeekToken().type == TokenType::LINE_DELIMITER ) {
-			break;
-		}
-		
-		if( !AcceptToken( TokenType::AN ) ) {
-			tokens_->AdvanceToNextToken();
-			delete smooshExpr;
-			return nullptr;
-		}
-		
-		operand = ParseExpression();
-		if( operand == nullptr ) {
-			delete smooshExpr;
-			return nullptr;
-		}
-		smooshExpr->AddOperand( operand );
-	}
-	
-	return smooshExpr;
-}
-
 AST::Expression *Parser::ParseBukkitReference() {
 	switch( tokens_->PeekToken().type ) {
 		case TokenType::I:
 			return ParseFunkshunCall();
 		case TokenType::MAEK:
-			return ParseCastExpression();
+			return ParseMaekExpression();
 		default:
 			return ParseIdentifier();
 	}

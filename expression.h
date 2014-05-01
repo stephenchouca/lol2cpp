@@ -549,10 +549,10 @@ namespace AST {
 			LiteralIdentifier *funkshunName_;
 	};
 	
-	class CastExpression : public Expression {
+	class MaekExpression : public Expression {
 		public:
-			CastExpression( Expression * );
-			~CastExpression() {
+			MaekExpression( Expression * );
+			~MaekExpression() {
 				delete srcExpr_;
 				delete targetType_;
 			}
@@ -561,7 +561,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
-			CastExpression *Clone();
+			MaekExpression *Clone();
 			
 			Expression *GetSourceExpr() { return srcExpr_; }
 			TypeIdentifier *GetCastTargetType() { return targetType_; }

@@ -207,7 +207,7 @@ namespace AST {
 		ProcessEnd( node );
 	}
 	
-	void ASTProgramOrderVisitor::Visit( CastExpression *node ) {
+	void ASTProgramOrderVisitor::Visit( MaekExpression *node ) {
 		assert( node != nullptr );
 		ProcessBegin( node );
 		

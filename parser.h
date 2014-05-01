@@ -83,8 +83,7 @@ class Parser {
 		
 		AST::Expression *ParseExpression();
 		AST::FunkshunCall *ParseFunkshunCall();
-		AST::CastExpression *ParseCastExpression();
-		AST::SmooshExpression *ParseSmooshExpression();
+		AST::MaekExpression *ParseMaekExpression();
 		AST::UnaryExpression *ParseUnaryOperator();
 		AST::BinaryExpression *ParseBinaryOperator();
 		AST::NaryExpression *ParseNaryOperator();
