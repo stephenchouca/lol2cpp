@@ -31,9 +31,10 @@ const std::string CodeGenerator::EXTRACT_FROM_BUKKIT_UNSAFE =
 	EXTRACT_FROM_BUKKIT + "Unsafe";
 const std::string CodeGenerator::EXTRACT_NUMERIC_FROM_YARN = "ExtractNumericFromYarn";
 const std::string CodeGenerator::VARIABLE_STORAGE = "Variable";
+const std::string CodeGenerator::VARIABLE_STORAGE_PREFIX = VARIABLE_STORAGE + "::";
 const std::string CodeGenerator::VARIABLE_TYPE_ENUM = "Type";
 const std::string CodeGenerator::VARIABLE_TYPE = 
-	VARIABLE_STORAGE + "::" + VARIABLE_TYPE_ENUM;
+	VARIABLE_STORAGE_PREFIX + VARIABLE_TYPE_ENUM;
 const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = VARIABLE_TYPE + "::";
 const std::string CodeGenerator::VARIABLE_TYPEID = "type";
 const std::string CodeGenerator::TROOF_VALUE = "troof";
@@ -41,8 +42,7 @@ const std::string CodeGenerator::NUMBR_VALUE = "numbr";
 const std::string CodeGenerator::NUMBAR_VALUE = "numbar";
 const std::string CodeGenerator::YARN_VALUE = "yarn";
 const std::string CodeGenerator::BUKKIT_VALUE = "bukkit";
-const std::string CodeGenerator::CREATE_LITERAL_PREFIX = 
-	VARIABLE_STORAGE + "::Create";
+const std::string CodeGenerator::CREATE_LITERAL_PREFIX = "Create";
 const std::string CodeGenerator::CREATE_TROOF_LITERAL = 
 	CREATE_LITERAL_PREFIX + TROOF_TYPE;
 const std::string CodeGenerator::CREATE_NUMBR_LITERAL = 
@@ -186,8 +186,8 @@ void CodeGenerator::ProcessEnd( AST::FunkshunBlock *node ) {
 	funkshunDecl << ");";
 	funkshunDef << ")";
 	
-	funkshunDef << std::endl << "{" << std::endl << "if(!" 
-				<< SOURCE_DEFINED_PREFIX << funkshunName 
+	funkshunDef << "{" << std::endl;
+	funkshunDef << "if(!" << SOURCE_DEFINED_PREFIX << funkshunName 
 				<< ") throw " << LOLCODE_EXCEPTION << ";" << std::endl;
 	funkshunDef << *it;
 	funkshunDef << std::endl << "}";
@@ -307,31 +307,34 @@ void CodeGenerator::ProcessEnd( AST::Program *node ) {
 
 void CodeGenerator::Process( AST::TroofLiteral *node ) {
 	std::ostringstream code;
-	code << CREATE_TROOF_LITERAL << "(" 
+	code << VARIABLE_STORAGE_PREFIX << CREATE_TROOF_LITERAL << "(" 
 		 << ( node->GetValue() ? "true" : "false" ) << ")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::NumbrLiteral *node ) {
 	std::ostringstream code;
-	code << CREATE_NUMBR_LITERAL << "(" << node->GetValue() << ")";
+	code << VARIABLE_STORAGE_PREFIX << CREATE_NUMBR_LITERAL << "(" 
+		 << node->GetValue() << ")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::NumbarLiteral *node ) {
 	std::ostringstream code;
-	code << CREATE_NUMBAR_LITERAL << "(" << node->GetValue() << ")";
+	code << VARIABLE_STORAGE_PREFIX << CREATE_NUMBAR_LITERAL << "(" 
+		 << node->GetValue() << ")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::YarnLiteral *node ) {
 	std::ostringstream code;
-	code << CREATE_YARN_LITERAL << "(\"" << node->GetValue() << "\")";
+	code << VARIABLE_STORAGE_PREFIX << CREATE_YARN_LITERAL << "(\"" 
+		 << node->GetValue() << "\")";
 	codeSegments_.top().push_back( code.str() );
 }
 
 void CodeGenerator::Process( AST::NoobLiteral *node ) {
-	codeSegments_.top().push_back( CREATE_NOOB_LITERAL );
+	codeSegments_.top().push_back( VARIABLE_STORAGE_PREFIX + CREATE_NOOB_LITERAL );
 }
 
 void CodeGenerator::Process( AST::TypeIdentifier *node ) {
@@ -503,6 +506,8 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 	const std::string srcVar = "src";
 	const std::string srcType = "src";
 	const std::string val = "val";
+	const std::string numbrRet = "numbr";
+	const std::string numbarRet = "numbar";
 	const std::string ret = "ret";
 	const std::string out = "out";
 	const std::string end = "end";
@@ -614,7 +619,8 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "}" << std::endl;
 		code << "}" << std::endl;
 		
-		code << "inline " << TROOF_TYPE << " " << EXTRACT_TROOF << " {" << std::endl;
+		code << "inline " << TROOF_TYPE << " " << EXTRACT_TROOF 
+			 << " const {" << std::endl;
 			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
 				 << TROOF_TYPE << ") return " << TROOF_VALUE << ";" << std::endl;
 			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
@@ -636,16 +642,47 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "}" << std::endl;
 			code << "return false;" << std::endl;
 		code << "}" << std::endl;
-		code << "inline " << TROOF_TYPE << " " << EXTRACT_YARN << " {" << std::endl;
+		code << "inline " << YARN_TYPE << " " << EXTRACT_YARN 
+			 << " const {" << std::endl;
 			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
 				 << YARN_TYPE << ") return " << YARN_VALUE << ";" << std::endl;
 			code << "std::ostringstream " << out << ";" << std::endl;
 			code << out << " << *this;" << std::endl;
 			code << "return " << out << ".str();" << std::endl;
 		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " &" << EXTRACT_FROM_BUKKIT 
+			 << "(const " << VARIABLE_STORAGE << " &" << val << ") {" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " != " << variableTypePrefix
+				 << BUKKIT_TYPE << ") throw " << LOLCODE_EXCEPTION 
+				 << ";" << std::endl;
+			code << "return (*" << BUKKIT_VALUE << ").at(" << val 
+				 << ");" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " &" << EXTRACT_FROM_BUKKIT_UNSAFE 
+			 << "(const " << VARIABLE_STORAGE << " &" << val << ") {" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " != " << variableTypePrefix
+				 << BUKKIT_TYPE << ") throw " << LOLCODE_EXCEPTION 
+				 << ";" << std::endl;
+			code << "return (*" << BUKKIT_VALUE << ")[" << val << "];" << std::endl;
+		code << "}" << std::endl;
+		code << "static inline " << VARIABLE_TYPE_ENUM << " " 
+			 << EXTRACT_NUMERIC_FROM_YARN << "(const " << YARN_TYPE << " &" << val
+			 << ", " << NUMBR_TYPE << " &" << numbrRet << ", " << NUMBAR_TYPE 
+			 << " &" << numbarRet << ") {" << std::endl;
+			code << "char *" << end << ";" << std::endl;
+			code << numbrRet << " = std::strtol(" << val << ".c_str(), &" << end 
+				 << ", 10);" << std::endl;
+			code << "if(*" << end << " == '\\0') return " << variableTypePrefix
+				 << NUMBR_TYPE << ";" << std::endl;
+			code << numbarRet << " = std::strtod(" << val << ".c_str(), &" << end 
+				 << ");" << std::endl;
+			code << "if(*" << end << " == '\\0') return " << variableTypePrefix
+				 << NUMBAR_TYPE << ";" << std::endl;
+			code << "return " << variableTypePrefix << NOOB_TYPE << ";" << std::endl;
+		code << "}" << std::endl;
 		
 		code << "inline " << VARIABLE_STORAGE << " " << MAEK_NUMBR 
-			 << " {" << std::endl;
+			 << " const {" << std::endl;
 			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
 				 << NUMBR_TYPE << ");" << std::endl;
 			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
@@ -680,7 +717,7 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "inline " << VARIABLE_STORAGE << " " << MAEK_NUMBAR 
-			 << " {" << std::endl;
+			 << " const {" << std::endl;
 			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
 				 << NUMBAR_TYPE << ");" << std::endl;
 			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
@@ -715,7 +752,7 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "inline " << VARIABLE_STORAGE << " " << MAEK_YARN
-			 << " {" << std::endl;
+			 << " const {" << std::endl;
 			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
 				 << YARN_TYPE << ");" << std::endl;
 			code << ret << "." << YARN_VALUE << " = " << EXTRACT_YARN 
@@ -723,7 +760,7 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "inline " << VARIABLE_STORAGE << " " << MAEK_TROOF
-			 << " {" << std::endl;
+			 << " const {" << std::endl;
 			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
 				 << TROOF_TYPE << ");" << std::endl;
 			code << ret << "." << TROOF_VALUE << " = " << EXTRACT_TROOF 
@@ -731,12 +768,12 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "inline " << VARIABLE_STORAGE << " " << MAEK_NOOB
-			 << " {" << std::endl;
+			 << " const {" << std::endl;
 			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "inline " << VARIABLE_STORAGE << " " << MAEK_BUKKIT
-			 << " {" << std::endl;
+			 << " const {" << std::endl;
 			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
 			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
 				 << BUKKIT_TYPE << ";" << std::endl;
@@ -758,33 +795,29 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 		
 		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_NUMBR_LITERAL 
 			 << "(const " << NUMBR_TYPE << " &" << val << ") {" << std::endl;
-			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
-			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
-				 << NUMBR_TYPE << ";" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix
+				 << NUMBR_TYPE << ");" << std::endl;
 			code << ret << "." << NUMBR_VALUE << " = " << val << ";" << std::endl;
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_NUMBAR_LITERAL 
 			 << "(const " << NUMBAR_TYPE << " &" << val << ") {" << std::endl;
-			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
-			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
-				 << NUMBAR_TYPE << ";" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix
+				 << NUMBAR_TYPE << ");" << std::endl;
 			code << ret << "." << NUMBAR_VALUE << " = " << val << ";" << std::endl;
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_TROOF_LITERAL 
 			 << "(const " << TROOF_TYPE << " &" << val << ") {" << std::endl;
-			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
-			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
-				 << TROOF_TYPE << ";" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix
+				 << TROOF_TYPE << ");" << std::endl;
 			code << ret << "." << TROOF_VALUE << " = " << val << ";" << std::endl;
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;
 		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_YARN_LITERAL 
 			 << "(const " << YARN_TYPE << " &" << val << ") {" << std::endl;
-			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
-			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
-				 << YARN_TYPE << ";" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix
+				 << YARN_TYPE << ");" << std::endl;
 			code << ret << "." << YARN_VALUE << " = " << val << ";" << std::endl;
 			code << "return " << ret << ";" << std::endl;
 		code << "}" << std::endl;		 
@@ -923,6 +956,7 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 					 << ":" << std::endl;
 					// TODO: Implement code-gen for printing bukkits, probably 
 					//		 reasonable to print out key-value pairs.
+					code << "break;" << std::endl;
 			code << "}" << std::endl;
 			code << "return " << out << ";" << std::endl;
 		code << "}" << std::endl;
@@ -942,10 +976,10 @@ void CodeGenerator::EmitUnaryOperator( const std::string &operatorName,
 	std::string op = "";
 	switch( operatorType ) {
 		case AST::OperatorType::UPPIN:
-			op = "++";
+			op = " + ";
 			break;
 		case AST::OperatorType::NERFIN:
-			op = "--";
+			op = " - ";
 			break;
 		case AST::OperatorType::NOT:
 		case AST::OperatorType::TIL:
@@ -965,15 +999,15 @@ void CodeGenerator::EmitUnaryOperator( const std::string &operatorName,
 					 << ":" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBR_VALUE << " = " << op << operand
-						 << "." << NUMBR_VALUE << ";" << std::endl;
+					code << ret << "." << NUMBR_VALUE << " = " << operand << "." 
+						 << NUMBR_VALUE << op << "1;" << std::endl;
 					code << "return " << ret << ";" << std::endl;
 				code << "case " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE 
 					 << ":" << std::endl;
 					code << ret << "." << VARIABLE_TYPEID << " = " 
 						 << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE << ";" << std::endl;
-					code << ret << "." << NUMBAR_VALUE << " = " << op << operand
-						 << "." << NUMBAR_VALUE << ";" << std::endl;
+					code << ret << "." << NUMBAR_VALUE << " = " << operand << "." 
+						 << NUMBAR_VALUE << op << "1.0;" << std::endl;
 					code << "return " << ret << ";" << std::endl;
 			code << "}" << std::endl;
 			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
@@ -1106,9 +1140,9 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
-						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
-						 << "." << YARN_VALUE << ", " << rightNumbr << ", " 
-						 << rightNumbar << ");" << std::endl;
+						 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN 
+						 << "(" << rightOperand << "." << YARN_VALUE << ", " 
+						 << rightNumbr << ", " << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
@@ -1212,9 +1246,9 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
-						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VALUE << ", " << rightNumbr << ", " 
-						 << rightNumbar << ");" << std::endl;
+						 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN 
+						 << "(" << rightOperand << "." << YARN_VALUE << ", " 
+						 << rightNumbr << ", " << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
@@ -1285,9 +1319,9 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 				code << NUMBR_TYPE << " " << leftNumbr << ";" << std::endl;
 				code << NUMBAR_TYPE << " " << leftNumbar << ";" << std::endl;
 				code << VARIABLE_TYPE << " " << leftType << " = "
-					 << EXTRACT_NUMERIC_FROM_YARN << "(" << leftOperand << "."
-					 << YARN_VALUE << ", " << leftNumbr << ", " << leftNumbar 
-					 << ");" << std::endl;
+					 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN << "(" 
+					 << leftOperand << "." << YARN_VALUE << ", " << leftNumbr 
+					 << ", " << leftNumbar << ");" << std::endl;
 				code << "if(" << leftType << " == " << VARIABLE_TYPE_PREFIX 
 					 << NUMBR_TYPE << ") {" << std::endl;
 					code << "if(" << rightOperand << "." << VARIABLE_TYPEID << " == " 
@@ -1328,9 +1362,10 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 						code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 						code << VARIABLE_TYPE << " " << rightType << " = "
-							 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
-							 << "." << YARN_VALUE << ", " << rightNumbr << ", " 
-							 << rightNumbar << ");" << std::endl;
+							 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN 
+							 << "(" << rightOperand << "." << YARN_VALUE << ", " 
+							 << rightNumbr << ", " << rightNumbar << ");" 
+							 << std::endl;
 						code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 							 << NUMBR_TYPE << ") {" << std::endl;
 							code << ret << "." << VARIABLE_TYPEID << " = " 
@@ -1433,9 +1468,10 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 						code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 						code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 						code << VARIABLE_TYPE << " " << rightType << " = "
-							 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
-							 << "." << YARN_VALUE << ", " << rightNumbr << ", " 
-							 << rightNumbar << ");" << std::endl;
+							 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN 
+							 << "(" << rightOperand << "." << YARN_VALUE << ", " 
+							 << rightNumbr << ", " << rightNumbar << ");" 
+							 << std::endl;
 						code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 							 << NUMBR_TYPE << ") {" << std::endl;
 							code << ret << "." << VARIABLE_TYPEID << " = " 
@@ -1541,9 +1577,9 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
-						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VALUE << ", " << rightNumbr << ", " 
-						 << rightNumbar << ");" << std::endl;
+						 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN 
+						 << "(" << rightOperand << "." << YARN_VALUE << ", " 
+						 << rightNumbr << ", " << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 
@@ -1648,9 +1684,9 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
-						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VALUE << ", " << rightNumbr << ", " 
-						 << rightNumbar << ");" << std::endl;
+						 << VARIABLE_STORAGE_PREFIX << EXTRACT_NUMERIC_FROM_YARN 
+						 << "(" << rightOperand << "." << YARN_VALUE << ", " 
+						 << rightNumbr << ", " << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;
 						code << ret << "." << VARIABLE_TYPEID << " = " 

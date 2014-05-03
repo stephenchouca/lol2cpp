@@ -33,6 +33,7 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string EXTRACT_FROM_BUKKIT_UNSAFE;
 		static const std::string EXTRACT_NUMERIC_FROM_YARN;
 		static const std::string VARIABLE_STORAGE;
+		static const std::string VARIABLE_STORAGE_PREFIX;
 		static const std::string VARIABLE_TYPE_ENUM;
 		static const std::string VARIABLE_TYPE;
 		static const std::string VARIABLE_TYPE_PREFIX;

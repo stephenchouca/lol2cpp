@@ -73,7 +73,7 @@ namespace AST {
 
 	class NumbrLiteral : public Literal {
 		public:
-			NumbrLiteral( std::string & );
+			NumbrLiteral( const std::string & );
 			
 			void Print( std::ostream &out ) {
 				out << DebugIndent() << "NUMBR: " << val_;
@@ -94,7 +94,7 @@ namespace AST {
 
 	class NumbarLiteral : public Literal {
 		public:
-			NumbarLiteral( std::string & );
+			NumbarLiteral( const std::string & );
 			
 			void Print( std::ostream &out ) {
 				out << DebugIndent() << "NUMBAR: " << val_;
@@ -115,7 +115,7 @@ namespace AST {
 
 	class YarnLiteral : public Literal {
 		public:
-			YarnLiteral( yarn_t &val ) : val_( val ) {}
+			YarnLiteral( const yarn_t &val ) : val_( val ) {}
 			
 			void Print( std::ostream &out ) {
 				out << DebugIndent() << "YARN: \"" << val_ << "\"";

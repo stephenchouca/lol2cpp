@@ -14,8 +14,9 @@ int main( int argc, char *argv[] ) {
 	Parser parser;
 	
 	//std::string srcPath( "test/randtokens.lols" );
-	std::string srcPath( "test/large.lols" );
-	//std::string srcPath( "test/oddeven.lols" );
+	//std::string srcPath( "test/large.lols" );
+	std::string srcPath( "test/oddeven.lols" );
+	//std::string srcPath( "test.lol" );
 	//std::string srcPath( "test/99beers.lols" );
 	//std::string srcPath( "test/empty.lols" );
 
@@ -23,26 +24,27 @@ int main( int argc, char *argv[] ) {
 #if 0
 	tokenizer.GetTokens().StartIterating();
 	while( true ) {
-		Token token = tokenizer.GetTokens().GetNextToken();
-		Token nextToken = tokenizer.GetTokens().GetNextToken( 1 );
+		Token token = tokenizer.GetTokens().PeekToken();
+		Token nextToken = tokenizer.GetTokens().PeekToken( 1 );
 		std::cout << token << " " << nextToken << std::endl;
 		if( token.type == TokenType::END_OF_FILE ) {
 			break;
 		}
 		tokenizer.GetTokens().AdvanceToNextToken();
 	}
-#else
 	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
-	
 	if( program != nullptr ) {
 		std::cout << *program << std::endl;
 	} else {
 		std::cout << "NULL" << std::endl;
 	}
-	std::cout << "----------------------------------------------" << std::endl;
-	CodeGenerator codeGen;
-	codeGen.Visit( program );
-	std::cout << codeGen.GetEmittedCode() << std::endl;
+#else
+	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
+	if( program != nullptr ) {
+		CodeGenerator codeGen;
+		codeGen.Visit( program );
+		std::cout << codeGen.GetEmittedCode() << std::endl;
+	}
 #endif
 	return 0;
 }

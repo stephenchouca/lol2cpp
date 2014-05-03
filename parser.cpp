@@ -409,6 +409,10 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 					return nullptr;
 				}
 				forLoopBlock->SetLoopVariableInitExpr( initExpr );
+			} else if( loopVarIsLocal ) {
+				// If loop variable is local and uninitialized, assume it is 
+				// a NUMBR and initialize to 0.
+				forLoopBlock->SetLoopVariableInitExpr( new AST::NumbrLiteral( "0" ) );
 			}
 			
 			AST::UnaryExpression *testExpr = nullptr;
@@ -636,7 +640,24 @@ AST::Statement *Parser::ParseStatement() {
 
 	switch( tokens_->PeekToken().type ) {
 		case TokenType::I:
-			stmt = ParseVarDeclare();
+			switch( tokens_->PeekToken( 1 ).type ) {
+				case TokenType::HAS:
+					stmt = ParseVarDeclare();
+					break;
+				case TokenType::IZ:
+				{
+					AST::FunkshunCall *funkshunCall = ParseFunkshunCall();
+					if( funkshunCall == nullptr ) {
+						break;
+					}
+					
+					AST::VarAssign *varAssign = 
+						AST::VarAssign::CreateImplicitAssign();
+					varAssign->SetAssignValue( funkshunCall );
+					stmt = varAssign;
+					break;
+				}
+			}
 			break;
 		case TokenType::FOUND:
 			stmt = ParseFunkshunReturn();
@@ -684,17 +705,17 @@ AST::Statement *Parser::ParseStatement() {
 			break;
 		}
 		default:
-			{
-				AST::Expression *expr = ParseExpression();
-				if( expr == nullptr ) {
-					break;
-				}
-				
-				AST::VarAssign *varAssign = AST::VarAssign::CreateImplicitAssign();
-				varAssign->SetAssignValue( expr );
-				stmt = varAssign;
+		{
+			AST::Expression *expr = ParseExpression();
+			if( expr == nullptr ) {
+				break;
 			}
+			
+			AST::VarAssign *varAssign = AST::VarAssign::CreateImplicitAssign();
+			varAssign->SetAssignValue( expr );
+			stmt = varAssign;
 			break;
+		}
 	}
 	if( stmt == nullptr ) {
 		return nullptr;

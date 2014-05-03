@@ -5,13 +5,13 @@
 #include "statement.h"
 
 namespace AST {
-	NumbrLiteral::NumbrLiteral( std::string &valStr ) {
+	NumbrLiteral::NumbrLiteral( const std::string &valStr ) {
 		char *end;
 		val_ = std::strtol( valStr.c_str(), &end, 10 );
 		assert( *end == '\0' );
 	}
 	
-	NumbarLiteral::NumbarLiteral( std::string &valStr ) {
+	NumbarLiteral::NumbarLiteral( const std::string &valStr ) {
 		char *end;
 		val_ = std::strtod( valStr.c_str(), &end );
 		assert( *end == '\0' );
