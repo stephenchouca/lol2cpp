@@ -10,7 +10,9 @@ int main( int argc, char *argv[] ) {
 	std::string srcPath( argv[1] );
 	
 	if( srcPath == "--help" ) {
-		std::cout << "Usage: lol2cpp <file>" << std::endl;
+		std::cout << "Usage: lol2cpp <file>" << std::endl << std::endl;
+		std::cout << "After translation, compile generated C++ source using gcc "
+				  << "with: -std=c++11 -O2" << std::endl;
 		return 0;
 	}
 

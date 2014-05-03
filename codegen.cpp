@@ -60,8 +60,10 @@ void CodeGenerator::ProcessEnd( AST::StatementBlock *node ) {
 	std::ostringstream code;
 	const std::list<std::string> &stmts = codeSegments_.top();
 	
-	code << "{" << std::endl 
-		 << VARIABLE_STORAGE << " " << IT_VARIABLE << ";" << std::endl;
+	code << "{" << std::endl;
+	if( node->IsNewScope() ) {
+		code << VARIABLE_STORAGE << " " << IT_VARIABLE << ";" << std::endl;
+	}
 	for( std::list<std::string>::const_iterator it = stmts.cbegin(); 
 		 it != stmts.cend(); ++it ) {
 		code << *it << std::endl;

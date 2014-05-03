@@ -37,8 +37,11 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 	return program;
 }
 
-AST::StatementBlock *Parser::ParseStatementBlock( const StatementBlockType bodyType ) {
-	AST::StatementBlock *stmtBlock = new AST::StatementBlock();
+AST::StatementBlock *Parser::ParseStatementBlock( 
+		const StatementBlockType bodyType ) {
+	bool newScope = ( bodyType == StatementBlockType::PROGRAM_BODY ||
+					  bodyType == StatementBlockType::FUNKSHUN_BODY );
+	AST::StatementBlock *stmtBlock = new AST::StatementBlock( newScope );
 	
 	while( true ) {
 		AST::Statement *stmt = nullptr;
