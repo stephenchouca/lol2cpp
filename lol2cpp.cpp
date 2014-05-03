@@ -1,25 +1,20 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 
-#include "token.h"
 #include "tokenizer.h"
 #include "parser.h"
-#include "ast.h"
-#include "statement.h"
-#include "expression.h"
 #include "codegen.h"
 
 int main( int argc, char *argv[] ) {
-	Tokenizer tokenizer;
-	Parser parser;
+	std::string srcPath( argv[1] );
 	
-	//std::string srcPath( "test/randtokens.lols" );
-	//std::string srcPath( "test/large.lols" );
-	std::string srcPath( "test/oddeven.lols" );
-	//std::string srcPath( "test.lol" );
-	//std::string srcPath( "test/99beers.lols" );
-	//std::string srcPath( "test/empty.lols" );
+	if( srcPath == "--help" ) {
+		std::cout << "Usage: lol2cpp <file>" << std::endl;
+		return 0;
+	}
 
+	Tokenizer tokenizer;
 	tokenizer.Tokenize( srcPath );
 #if 0
 	tokenizer.GetTokens().StartIterating();
@@ -32,19 +27,20 @@ int main( int argc, char *argv[] ) {
 		}
 		tokenizer.GetTokens().AdvanceToNextToken();
 	}
-	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
-	if( program != nullptr ) {
-		std::cout << *program << std::endl;
-	} else {
-		std::cout << "NULL" << std::endl;
-	}
-#else
-	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
-	if( program != nullptr ) {
-		CodeGenerator codeGen;
-		codeGen.Visit( program );
-		std::cout << codeGen.GetEmittedCode() << std::endl;
-	}
 #endif
+
+	Parser parser;
+	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
+	
+	if( program == nullptr ) {
+		return -1;
+	}
+	
+	CodeGenerator codeGen;
+	codeGen.Visit( program );
+	
+	std::ofstream cppOut( "a.cpp" );
+	cppOut << codeGen.GetEmittedCode();
+	
 	return 0;
 }

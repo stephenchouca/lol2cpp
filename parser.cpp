@@ -694,13 +694,13 @@ AST::Statement *Parser::ParseStatement() {
 					stmt = ParseVarCast( id );
 					break;
 				default:
-					{
-						AST::VarAssign *varAssign = 
-							AST::VarAssign::CreateImplicitAssign();
-						varAssign->SetAssignValue( id );
-						stmt = varAssign;
-						break;
-					}
+				{
+					AST::VarAssign *varAssign = 
+						AST::VarAssign::CreateImplicitAssign();
+					varAssign->SetAssignValue( id );
+					stmt = varAssign;
+					break;
+				}
 			}
 			break;
 		}

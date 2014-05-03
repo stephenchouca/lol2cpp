@@ -1,3 +1,4 @@
 *.o
 *.d
-lol2cpp.exe
+a.cpp
+*.exe

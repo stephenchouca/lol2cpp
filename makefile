@@ -21,7 +21,7 @@ all: $(OBJS)
 	$(CC) -MM $(CFLAGS) $*.cpp > $*.d
 
 run: all
-	./lol2cpp
+	./lol2cpp test/99beers.lols
 
 clean:
-	rm -rf *.d *.o lol2cpp
+	rm -rf *.d *.o lol2cpp a.cpp
