@@ -12,22 +12,28 @@ const std::string CodeGenerator::NUMBR_TYPE = "NUMBR";
 const std::string CodeGenerator::NUMBAR_TYPE = "NUMBAR";
 const std::string CodeGenerator::YARN_TYPE = "YARN";
 const std::string CodeGenerator::BUKKIT_TYPE = "BUKKIT";
+const std::string CodeGenerator::BUKKIT_REF_TYPE = "BUKKIT_REF";
 const std::string CodeGenerator::NOOB_TYPE = "NOOB";
 const std::string CodeGenerator::SOURCE_PREFIX = "Source_";
 const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = "Defined_";
+const std::string CodeGenerator::MAEK_PREFIX = "Maek";
+const std::string CodeGenerator::MAEK_TROOF = MAEK_PREFIX + TROOF_TYPE + "()";
+const std::string CodeGenerator::MAEK_NUMBR = MAEK_PREFIX + NUMBR_TYPE + "()";
+const std::string CodeGenerator::MAEK_NUMBAR = MAEK_PREFIX + NUMBAR_TYPE + "()";
+const std::string CodeGenerator::MAEK_YARN = MAEK_PREFIX + YARN_TYPE + "()";
+const std::string CodeGenerator::MAEK_BUKKIT = MAEK_PREFIX + BUKKIT_TYPE + "()";
+const std::string CodeGenerator::MAEK_NOOB = MAEK_PREFIX + NOOB_TYPE + "()";
 const std::string CodeGenerator::EXTRACT_PREFIX = "Extract";
 const std::string CodeGenerator::EXTRACT_TROOF = EXTRACT_PREFIX + TROOF_TYPE + "()";
-const std::string CodeGenerator::EXTRACT_NUMBR = EXTRACT_PREFIX + NUMBR_TYPE + "()";
-const std::string CodeGenerator::EXTRACT_NUMBAR = EXTRACT_PREFIX + NUMBAR_TYPE + "()";
 const std::string CodeGenerator::EXTRACT_YARN = EXTRACT_PREFIX + YARN_TYPE + "()";
-const std::string CodeGenerator::EXTRACT_BUKKIT = EXTRACT_PREFIX + BUKKIT_TYPE + "()";
-const std::string CodeGenerator::EXTRACT_NOOB = EXTRACT_PREFIX + NOOB_TYPE + "()";
 const std::string CodeGenerator::EXTRACT_FROM_BUKKIT = EXTRACT_PREFIX + "FromBukkit";
 const std::string CodeGenerator::EXTRACT_FROM_BUKKIT_UNSAFE = 
 	EXTRACT_FROM_BUKKIT + "Unsafe";
 const std::string CodeGenerator::EXTRACT_NUMERIC_FROM_YARN = "ExtractNumericFromYarn";
 const std::string CodeGenerator::VARIABLE_STORAGE = "Variable";
-const std::string CodeGenerator::VARIABLE_TYPE = VARIABLE_STORAGE + "::Type";
+const std::string CodeGenerator::VARIABLE_TYPE_ENUM = "Type";
+const std::string CodeGenerator::VARIABLE_TYPE = 
+	VARIABLE_STORAGE + "::" + VARIABLE_TYPE_ENUM;
 const std::string CodeGenerator::VARIABLE_TYPE_PREFIX = VARIABLE_TYPE + "::";
 const std::string CodeGenerator::VARIABLE_TYPEID = "type";
 const std::string CodeGenerator::TROOF_VALUE = "troof";
@@ -382,7 +388,7 @@ void CodeGenerator::ProcessEnd( AST::MaekExpression *node ) {
 	
 	code << *it;
 	++it;
-	code << "." << EXTRACT_PREFIX << *it << "()";
+	code << "." << MAEK_PREFIX << *it << "()";
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -454,6 +460,8 @@ void CodeGenerator::ProcessEnd( AST::FunkshunCall *node ) {
 }
 
 void CodeGenerator::EmitBoilerplate( std::ostringstream &code ) {
+	EmitTypedefs( code );
+	
 	for( std::unordered_map<std::string, AST::OperatorType>::const_iterator it = 
 		 requiredOperators_.cbegin(); 
 		 it != requiredOperators_.cend(); ++it ) {
@@ -489,6 +497,437 @@ void CodeGenerator::EmitBoilerplate( std::ostringstream &code ) {
 		}
 	}
 }
+
+void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
+	const std::string variableTypePrefix = VARIABLE_TYPE_ENUM + "::";
+	const std::string srcVar = "src";
+	const std::string srcType = "src";
+	const std::string val = "val";
+	const std::string ret = "ret";
+	const std::string out = "out";
+	const std::string end = "end";
+	
+	code << "#include <iostream>" << std::endl;
+	code << "#include <sstream>" << std::endl;
+	code << "#include <cstdint>" << std::endl;
+	code << "#include <cstdlib>" << std::endl;
+	code << "#include <memory>" << std::endl;
+	code << "#include <string>" << std::endl;
+	code << "#include <unordered_map>" << std::endl;
+	code << "#include <exception>" << std::endl;
+	code << "#include <new>" << std::endl;
+	
+	code << "struct " << VARIABLE_STORAGE << ";" << std::endl;
+	
+	code << "typedef int " << NUMBR_TYPE << ";" << std::endl;
+	code << "typedef float " << NUMBAR_TYPE << ";" << std::endl;
+	code << "typedef bool " << TROOF_TYPE << ";" << std::endl;
+	code << "typedef std::string " << YARN_TYPE << ";" << std::endl;
+	code << "typedef std::unordered_map<" << VARIABLE_STORAGE << ","
+		 << VARIABLE_STORAGE << "," << VARIABLE_STORAGE << "> " 
+		 << BUKKIT_TYPE << ";" << std::endl;
+	code << "typedef std::shared_ptr<" << BUKKIT_TYPE << "> " 
+		 << BUKKIT_REF_TYPE << ";" << std::endl;
+		 
+	code << "struct " << VARIABLE_STORAGE << "{" << std::endl;
+		code << "enum class " << VARIABLE_TYPE_ENUM << ": std::int8_t {" << std::endl;
+			code << NUMBR_TYPE << " = 0, " << NUMBAR_TYPE << ", " << YARN_TYPE 
+				 << ", " << TROOF_TYPE << ", " << NOOB_TYPE << ", " << BUKKIT_TYPE 
+				 << std::endl;
+		code << "};" << std::endl;
+		
+		code << VARIABLE_TYPE_ENUM << " " << VARIABLE_TYPEID << ";" << std::endl;
+		code << "union {" << std::endl;
+			code << NUMBR_TYPE << " " << NUMBR_VALUE << ";" << std::endl;
+			code << NUMBAR_TYPE << " " << NUMBAR_VALUE << ";" << std::endl;
+			code << TROOF_TYPE << " " << TROOF_VALUE << ";" << std::endl;
+			code << YARN_TYPE << " " << YARN_VALUE << ";" << std::endl;
+			code << BUKKIT_REF_TYPE << " " << BUKKIT_VALUE << ";" << std::endl;
+		code << "};" << std::endl;
+		
+		code << VARIABLE_STORAGE << "() : " << VARIABLE_TYPEID << "("
+			 << variableTypePrefix << NOOB_TYPE << ") {}" << std::endl;
+		code << VARIABLE_STORAGE << "(" << VARIABLE_TYPE_ENUM << " " << srcType
+			 << ") : " << VARIABLE_TYPEID << "(" << srcType << ") {" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << NUMBR_VALUE << " = 0;" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << NUMBAR_VALUE << " = 0.0;" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << TROOF_TYPE 
+					 << ":" << std::endl;
+					code << TROOF_VALUE << " = false;" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << "new (&" << YARN_VALUE << ") " << YARN_TYPE 
+						 << "(\"\");" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << "new (&" << BUKKIT_VALUE << ") " << BUKKIT_REF_TYPE 
+						 << "(new " << BUKKIT_TYPE << "());" << std::endl;
+					code << "break;" << std::endl;
+			code << "}" << std::endl;
+		code << "}" << std::endl;
+		code << VARIABLE_STORAGE << "(const " << VARIABLE_STORAGE << " &" << srcVar
+			 << ") : " << VARIABLE_TYPEID << "(" << srcVar << "." << VARIABLE_TYPEID
+			 << ") {" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << NUMBR_VALUE << " = " << srcVar << "." << NUMBR_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << NUMBAR_VALUE << " = " << srcVar << "." << NUMBAR_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << TROOF_TYPE 
+					 << ":" << std::endl;
+					code << TROOF_VALUE << " = " << srcVar << "." << TROOF_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << "new (&" << YARN_VALUE << ") " << YARN_TYPE << "("
+						 << srcVar << "." << YARN_VALUE << ");" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << "new (&" << BUKKIT_VALUE << ") " << BUKKIT_REF_TYPE << "("
+						 << srcVar << "." << BUKKIT_VALUE << ");" << std::endl;
+					code << "break;" << std::endl;
+			code << "}" << std::endl;
+		code << "}" << std::endl;
+		code << "~" << VARIABLE_STORAGE << "() {" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << BUKKIT_VALUE << ".reset();" << std::endl;
+					code << "break;" << std::endl;
+			code << "}" << std::endl;
+		code << "}" << std::endl;
+		
+		code << "inline " << TROOF_TYPE << " " << EXTRACT_TROOF << " {" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << TROOF_TYPE << ") return " << TROOF_VALUE << ";" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << "return " << NUMBR_VALUE << " != 0;" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << "return " << NUMBAR_VALUE << " != 0.0;" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << "return " << YARN_VALUE << " != \"\";" << std::endl;
+				code << "case " << variableTypePrefix << NOOB_TYPE 
+					 << ":" << std::endl;
+					code << "return false;" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << "return " << BUKKIT_VALUE << "->size() > 0;" << std::endl;
+			code << "}" << std::endl;
+			code << "return false;" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << TROOF_TYPE << " " << EXTRACT_YARN << " {" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << YARN_TYPE << ") return " << YARN_VALUE << ";" << std::endl;
+			code << "std::ostringstream " << out << ";" << std::endl;
+			code << out << " << *this;" << std::endl;
+			code << "return " << out << ".str();" << std::endl;
+		code << "}" << std::endl;
+		
+		code << "inline " << VARIABLE_STORAGE << " " << MAEK_NUMBR 
+			 << " {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
+				 << NUMBR_TYPE << ");" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NUMBAR_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBR_VALUE << " = (" << NUMBR_TYPE << ")" 
+					 << NUMBAR_VALUE << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NUMBR_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBR_VALUE << " = " << NUMBR_VALUE 
+					 << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << YARN_TYPE << ") {" << std::endl;
+				code << "char *" << end << ";" << std::endl;
+				code << ret << "." << NUMBR_VALUE << " = std::strtol(" << YARN_VALUE
+					 << ".c_str(), &" << end << ", 10);" << std::endl;
+				code << "if(*" << end << " != '\\0') throw " << LOLCODE_EXCEPTION
+					 << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << TROOF_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBR_VALUE << " = " << TROOF_VALUE 
+					 << " ? 1 : 0;" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NOOB_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBR_VALUE << " = 0;" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "}" << std::endl;
+			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " " << MAEK_NUMBAR 
+			 << " {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
+				 << NUMBAR_TYPE << ");" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NUMBR_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBAR_VALUE << " = (" << NUMBAR_TYPE << ")" 
+					 << NUMBR_VALUE << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NUMBAR_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBAR_VALUE << " = " << NUMBAR_VALUE 
+					 << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << YARN_TYPE << ") {" << std::endl;
+				code << "char *" << end << ";" << std::endl;
+				code << ret << "." << NUMBAR_VALUE << " = std::strtod(" << YARN_VALUE
+					 << ".c_str(), &" << end << ");" << std::endl;
+				code << "if(*" << end << " != '\\0') throw " << LOLCODE_EXCEPTION
+					 << ";" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << TROOF_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBAR_VALUE << " = " << TROOF_VALUE 
+					 << " ? 1.0 : 0.0;" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NOOB_TYPE << ") {" << std::endl;
+				code << ret << "." << NUMBAR_VALUE << " = 0.0;" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "}" << std::endl;
+			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " " << MAEK_YARN
+			 << " {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
+				 << YARN_TYPE << ");" << std::endl;
+			code << ret << "." << YARN_VALUE << " = " << EXTRACT_YARN 
+				 << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " " << MAEK_TROOF
+			 << " {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << "(" << variableTypePrefix 
+				 << TROOF_TYPE << ");" << std::endl;
+			code << ret << "." << TROOF_VALUE << " = " << EXTRACT_TROOF 
+				 << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " " << MAEK_NOOB
+			 << " {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "inline " << VARIABLE_STORAGE << " " << MAEK_BUKKIT
+			 << " {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
+				 << BUKKIT_TYPE << ";" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << NOOB_TYPE << ") {" << std::endl;
+				code << "new (&" << ret << "." << BUKKIT_VALUE << ") " 
+					 << BUKKIT_REF_TYPE << "(new " << BUKKIT_TYPE 
+					 << "());" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "} else if(" << VARIABLE_TYPEID << " == " << variableTypePrefix
+				 << BUKKIT_TYPE << ") {" << std::endl;
+				code << "new (&" << ret << "." << BUKKIT_VALUE << ") " 
+					 << BUKKIT_REF_TYPE << "(" << BUKKIT_VALUE << ");" << std::endl;
+				code << "return " << ret << ";" << std::endl;
+			code << "}" << std::endl;
+			code << "throw " << LOLCODE_EXCEPTION << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		
+		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_NUMBR_LITERAL 
+			 << "(const " << NUMBR_TYPE << " &" << val << ") {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
+				 << NUMBR_TYPE << ";" << std::endl;
+			code << ret << "." << NUMBR_VALUE << " = " << val << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_NUMBAR_LITERAL 
+			 << "(const " << NUMBAR_TYPE << " &" << val << ") {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
+				 << NUMBAR_TYPE << ";" << std::endl;
+			code << ret << "." << NUMBAR_VALUE << " = " << val << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_TROOF_LITERAL 
+			 << "(const " << TROOF_TYPE << " &" << val << ") {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
+				 << TROOF_TYPE << ";" << std::endl;
+			code << ret << "." << TROOF_VALUE << " = " << val << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;
+		code << "static inline " << VARIABLE_STORAGE << " " << CREATE_YARN_LITERAL 
+			 << "(const " << YARN_TYPE << " &" << val << ") {" << std::endl;
+			code << VARIABLE_STORAGE << " " << ret << ";" << std::endl;
+			code << ret << "." << VARIABLE_TYPEID << " = " << variableTypePrefix
+				 << YARN_TYPE << ";" << std::endl;
+			code << ret << "." << YARN_VALUE << " = " << val << ";" << std::endl;
+			code << "return " << ret << ";" << std::endl;
+		code << "}" << std::endl;		 
+		
+		code << VARIABLE_STORAGE << " &operator=(const " << VARIABLE_STORAGE << " &"
+			 << srcVar << ") {" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << BUKKIT_VALUE << ".reset();" << std::endl;
+					code << "break;" << std::endl;
+			code << "}" << std::endl;
+			code << VARIABLE_TYPEID << " = " << srcVar << "." << VARIABLE_TYPEID
+				 << ";" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << NUMBR_VALUE << " = " << srcVar << "." << NUMBR_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << NUMBAR_VALUE << " = " << srcVar << "." << NUMBAR_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << TROOF_TYPE 
+					 << ":" << std::endl;
+					code << TROOF_VALUE << " = " << srcVar << "." << TROOF_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << "new (&" << YARN_VALUE << ") " << YARN_TYPE << "("
+						 << srcVar << "." << YARN_VALUE << ");" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << "new (&" << BUKKIT_VALUE << ") " << BUKKIT_REF_TYPE << "("
+						 << srcVar << "." << BUKKIT_VALUE << ");" << std::endl;
+					code << "break;" << std::endl;
+			code << "}" << std::endl;
+			code << "return *this;" << std::endl;
+		code << "}" << std::endl;
+		code << "bool operator==(const " << VARIABLE_STORAGE << " &" << srcVar
+			 << ") const {" << std::endl;
+			code << "if(" << VARIABLE_TYPEID << " != " << srcVar << "." 
+				 << VARIABLE_TYPEID << ") return false;" << std::endl;
+			code << "switch(" << VARIABLE_TYPEID << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << "return " << NUMBR_VALUE << " == " << srcVar << "." 
+						 << NUMBR_VALUE << ";" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << "return " << NUMBAR_VALUE << " == " << srcVar << "." 
+						 << NUMBAR_VALUE << ";" << std::endl;
+				code << "case " << variableTypePrefix << TROOF_TYPE 
+					 << ":" << std::endl;
+					code << "return " << TROOF_VALUE << " == " << srcVar << "." 
+						 << TROOF_VALUE << ";" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << "return " << YARN_VALUE << " == " << srcVar << "." 
+						 << YARN_VALUE << ";" << std::endl;
+				code << "case " << variableTypePrefix << NOOB_TYPE 
+					 << ":" << std::endl;
+					code << "return true;" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << "return " << BUKKIT_VALUE << " == " << srcVar << "." 
+						 << BUKKIT_VALUE << ";" << std::endl;
+			code << "}" << std::endl;
+		code << "}" << std::endl;
+		code << "std::size_t operator()(const " << VARIABLE_STORAGE << " &" << srcVar
+			 << ") const {" << std::endl;
+			code << "switch(" << srcVar << "." << VARIABLE_TYPEID 
+				 << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << "return std::hash<" << NUMBR_TYPE << ">()(" << srcVar
+						 << "." << NUMBR_VALUE << ");" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					code << "return std::hash<" << NUMBAR_TYPE << ">()(" << srcVar
+						 << "." << NUMBAR_VALUE << ");" << std::endl;
+				code << "case " << variableTypePrefix << TROOF_TYPE 
+					 << ":" << std::endl;
+					code << "return std::hash<" << TROOF_TYPE << ">()(" << srcVar
+						 << "." << TROOF_VALUE << ");" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << "return std::hash<" << YARN_TYPE << ">()(" << srcVar
+						 << "." << YARN_VALUE << ");" << std::endl;
+				code << "case " << variableTypePrefix << NOOB_TYPE 
+					 << ":" << std::endl;
+					code << "return std::hash<" << NUMBR_TYPE << ">()(0);" 
+						 << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					code << "return std::hash<" << BUKKIT_REF_TYPE << ">()(" 
+						 << srcVar << "." << BUKKIT_VALUE << ");" << std::endl;
+			code << "}" << std::endl;
+		code << "}" << std::endl;
+		
+		code << "friend std::ostream &operator<<(std::ostream &" << out << ", const "
+			 << VARIABLE_STORAGE << " &" << srcVar << ") {" << std::endl;
+			code << "switch(" << srcVar << "." << VARIABLE_TYPEID 
+				 << ") {" << std::endl;
+				code << "case " << variableTypePrefix << NUMBR_TYPE 
+					 << ":" << std::endl;
+					code << out << " << " << srcVar << "." << NUMBR_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << NUMBAR_TYPE 
+					 << ":" << std::endl;
+					// TODO: Specifications require default of two decimal
+					//		 places printed only.
+					code << out << " << " << srcVar << "." << NUMBAR_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << TROOF_TYPE 
+					 << ":" << std::endl;
+					code << out << " << (" << srcVar << "." << TROOF_VALUE 
+						 << " ? \"WIN\" : \"FAIL\");" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << YARN_TYPE 
+					 << ":" << std::endl;
+					code << out << " << " << srcVar << "." << YARN_VALUE 
+						 << ";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << NOOB_TYPE 
+					 << ":" << std::endl;
+					code << out << " << \"NOOB\";" << std::endl;
+					code << "break;" << std::endl;
+				code << "case " << variableTypePrefix << BUKKIT_TYPE 
+					 << ":" << std::endl;
+					// TODO: Implement code-gen for printing bukkits, probably 
+					//		 reasonable to print out key-value pairs.
+			code << "}" << std::endl;
+			code << "return " << out << ";" << std::endl;
+		code << "}" << std::endl;
+	code << "};" << std::endl;
+};
 
 void CodeGenerator::EmitUnaryOperator( const std::string &operatorName, 
 									   AST::OperatorType operatorType,
@@ -667,8 +1106,8 @@ void CodeGenerator::EmitBinaryOperator( const std::string &operatorName,
 					code << NUMBR_TYPE << " " << rightNumbr << ";" << std::endl;
 					code << NUMBAR_TYPE << " " << rightNumbar << ";" << std::endl;
 					code << VARIABLE_TYPE << " " << rightType << " = "
-						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand << "."
-						 << YARN_VALUE << ", " << rightNumbr << ", " 
+						 << EXTRACT_NUMERIC_FROM_YARN << "(" << rightOperand 
+						 << "." << YARN_VALUE << ", " << rightNumbr << ", " 
 						 << rightNumbar << ");" << std::endl;
 					code << "if(" << rightType << " == " << VARIABLE_TYPE_PREFIX 
 						 << NUMBR_TYPE << ") {" << std::endl;

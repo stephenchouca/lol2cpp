@@ -15,20 +15,25 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string NUMBAR_TYPE;
 		static const std::string YARN_TYPE;
 		static const std::string BUKKIT_TYPE;
+		static const std::string BUKKIT_REF_TYPE;
 		static const std::string NOOB_TYPE;
 		static const std::string SOURCE_PREFIX;
 		static const std::string SOURCE_DEFINED_PREFIX;
+		static const std::string MAEK_PREFIX;
+		static const std::string MAEK_TROOF;
+		static const std::string MAEK_NUMBR;
+		static const std::string MAEK_NUMBAR;
+		static const std::string MAEK_YARN;
+		static const std::string MAEK_BUKKIT;
+		static const std::string MAEK_NOOB;
 		static const std::string EXTRACT_PREFIX;
 		static const std::string EXTRACT_TROOF;
-		static const std::string EXTRACT_NUMBR;
-		static const std::string EXTRACT_NUMBAR;
 		static const std::string EXTRACT_YARN;
-		static const std::string EXTRACT_BUKKIT;
-		static const std::string EXTRACT_NOOB;
 		static const std::string EXTRACT_FROM_BUKKIT;
 		static const std::string EXTRACT_FROM_BUKKIT_UNSAFE;
 		static const std::string EXTRACT_NUMERIC_FROM_YARN;
 		static const std::string VARIABLE_STORAGE;
+		static const std::string VARIABLE_TYPE_ENUM;
 		static const std::string VARIABLE_TYPE;
 		static const std::string VARIABLE_TYPE_PREFIX;
 		static const std::string VARIABLE_TYPEID;
@@ -240,6 +245,7 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessNaryExpressionEnd( AST::NaryExpression * );
 	
 		void EmitBoilerplate( std::ostringstream & );
+		void EmitTypedefs( std::ostringstream & );
 		void EmitUnaryOperator( const std::string &, 
 								AST::OperatorType, 
 								std::ostringstream & );
