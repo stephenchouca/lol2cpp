@@ -9,6 +9,6 @@ HAI
 	I HAS A SLOT 2 IN array ITZ A TROOF
 	VISIBLE SLOT 2 IN array
 	I HAS A SLOT "anotherArray" IN array ITZ A BUKKIT
-	SLOT 1 IN SLOT "anotherArray" IN array R 3
+	SLOT 1 IN SLOT "anotherArray" IN array R 3.14159
 	VISIBLE SLOT 1 IN SLOT "anotherArray" IN array
 KTHXBYE

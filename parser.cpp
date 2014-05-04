@@ -39,9 +39,7 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 
 AST::StatementBlock *Parser::ParseStatementBlock( 
 		const StatementBlockType bodyType ) {
-	bool newScope = ( bodyType == StatementBlockType::PROGRAM_BODY ||
-					  bodyType == StatementBlockType::FUNKSHUN_BODY );
-	AST::StatementBlock *stmtBlock = new AST::StatementBlock( newScope );
+	AST::StatementBlock *stmtBlock = new AST::StatementBlock();
 	
 	while( true ) {
 		AST::Statement *stmt = nullptr;
@@ -412,10 +410,6 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 					return nullptr;
 				}
 				forLoopBlock->SetLoopVariableInitExpr( initExpr );
-			} else if( loopVarIsLocal ) {
-				// If loop variable is local and uninitialized, assume it is 
-				// a NUMBR and initialize to 0.
-				forLoopBlock->SetLoopVariableInitExpr( new AST::NumbrLiteral( "0" ) );
 			}
 			
 			AST::UnaryExpression *testExpr = nullptr;

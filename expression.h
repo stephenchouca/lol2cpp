@@ -51,7 +51,12 @@ namespace AST {
 			virtual Expression *Clone() = 0;
 	};
 	
-	class Literal : public Expression {};
+	class Literal : public Expression {
+		public:
+			enum class Type { TROOF, NUMBR, NUMBAR, YARN, NOOB };
+			
+			virtual Type GetType() const = 0;
+	};
 
 	class TroofLiteral : public Literal {
 		public:
@@ -65,7 +70,8 @@ namespace AST {
 			
 			TroofLiteral *Clone() { return new TroofLiteral( val_ ); }
 			
-			troof_t GetValue() { return val_; }
+			Type GetType() const { return Type::TROOF; }
+			troof_t GetValue() const { return val_; }
 			
 		private:
 			troof_t val_;
@@ -83,7 +89,8 @@ namespace AST {
 			
 			NumbrLiteral *Clone() { return new NumbrLiteral( val_ ); }
 			
-			numbr_t GetValue() { return val_; }
+			Type GetType() const { return Type::NUMBR; }
+			numbr_t GetValue() const { return val_; }
 		
 		private:
 			NumbrLiteral( numbr_t val ) : val_( val ) {}
@@ -104,7 +111,8 @@ namespace AST {
 			
 			NumbarLiteral *Clone() { return new NumbarLiteral( val_ ); }
 			
-			numbar_t GetValue() { return val_; }
+			Type GetType() const { return Type::NUMBAR; }
+			numbar_t GetValue() const { return val_; }
 		
 		private:
 			NumbarLiteral( numbar_t val ) : val_( val ) {}
@@ -125,7 +133,8 @@ namespace AST {
 			
 			YarnLiteral *Clone() { return new YarnLiteral( val_ ); }
 			
-			yarn_t GetValue() { return val_; }
+			Type GetType() const { return Type::YARN; }
+			yarn_t GetValue() const { return val_; }
 			
 		private:
 			yarn_t val_;
@@ -140,6 +149,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			NoobLiteral *Clone() { return new NoobLiteral(); }
+			
+			Type GetType() const { return Type::NOOB; }
 	};
 
 	class TypeIdentifier : public ASTNode {

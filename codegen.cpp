@@ -61,9 +61,7 @@ void CodeGenerator::ProcessEnd( AST::StatementBlock *node ) {
 	const std::list<std::string> &stmts = codeSegments_.top();
 	
 	code << "{" << std::endl;
-	if( node->IsNewScope() ) {
-		code << VARIABLE_STORAGE << " " << IT_VARIABLE << ";" << std::endl;
-	}
+	code << VARIABLE_STORAGE << " " << IT_VARIABLE << ";" << std::endl;
 	for( std::list<std::string>::const_iterator it = stmts.cbegin(); 
 		 it != stmts.cend(); ++it ) {
 		code << *it << std::endl;
@@ -97,10 +95,143 @@ void CodeGenerator::ProcessEnd( AST::ORlyBlock *node ) {
 }
 
 void CodeGenerator::ProcessEnd( AST::WtfBlock *node ) {
-	std::ostringstream code;
+	std::ostringstream code, numbrCases, yarnCases, numbarCases, troofCases, noobCase;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	// TODO: Implement.
+	const std::string switchVar = "switchVar";
+	bool firstYarnCase = true;
+	bool firstNumbarCase = true;
+	bool firstTroofCase = true;
+	
+	unsigned int i = 1;
+	for( AST::OmgBlockListIterator omgIt = node->GetOmgBlocks().begin(); 
+		 omgIt != node->GetOmgBlocks().end(); ++omgIt, ++i ) {
+		const AST::Literal *label = omgIt->first;
+		switch( label->GetType() ) {
+			case AST::Literal::Type::NUMBR:
+			{
+				const AST::NumbrLiteral *numbrLabel = 
+					static_cast<const AST::NumbrLiteral *>( label );
+				numbrCases << "case " << numbrLabel->GetValue() << ":" << std::endl;
+				numbrCases << switchVar << " = " << i << ";" << std::endl;
+				numbrCases << "break;" << std::endl;
+				firstTroofCase = false;
+				break;
+			}
+			case AST::Literal::Type::YARN:
+			{
+				const AST::YarnLiteral *yarnLabel = 
+					static_cast<const AST::YarnLiteral *>( label );
+				yarnCases << ( firstYarnCase ? "" : "else " ) << "if(" 
+					   	  << IT_VARIABLE << "." << YARN_VALUE << " == " << "\"" 
+						  << yarnLabel->GetValue() << "\") " << switchVar 
+						  << " = " << i << ";" << std::endl;
+				firstYarnCase = false;
+				break;
+			}
+			case AST::Literal::Type::NUMBAR:
+			{
+				const AST::NumbarLiteral *numbarLabel = 
+					static_cast<const AST::NumbarLiteral *>( label );
+				numbarCases << ( firstNumbarCase ? "" : "else " ) << "if(" 
+							<< IT_VARIABLE << "." << NUMBAR_VALUE << " == "  
+							<< numbarLabel->GetValue() << ") " << switchVar 
+							<< " = " << i << ";" << std::endl;
+				firstNumbarCase = false;
+				break;
+			}
+			case AST::Literal::Type::TROOF:
+			{
+				const AST::TroofLiteral *troofLabel = 
+					static_cast<const AST::TroofLiteral *>( label );
+				troofCases << ( firstTroofCase ? "" : "else " ) << "if(" 
+						   << ( troofLabel->GetValue() ? "" : "!" ) << IT_VARIABLE
+						   << "." << TROOF_VALUE << ") " << switchVar << " = "
+						   << i << ";" << std::endl;
+				break;
+			}
+			case AST::Literal::Type::NOOB:
+				assert( noobCase.str() == "" );
+				noobCase << switchVar << " = " << i << ";" << std::endl;
+				break;
+			default:
+				assert( false );
+				break;
+		}
+	}
+	
+	bool mixedTypes = false;
+	const std::string numbrCasesStr = numbrCases.str();
+	const std::string yarnCasesStr = yarnCases.str();
+	const std::string numbarCasesStr = numbarCases.str();
+	const std::string troofCasesStr = troofCases.str();
+	const std::string noobCaseStr = noobCase.str();
+	
+	code << "{" << std::endl;
+	code << "unsigned int " << switchVar << " = 0;" << std::endl;
+	if( numbrCasesStr != "" ) {
+		code << ( mixedTypes ? "else " : "" ) << "if(" << IT_VARIABLE << "." 
+			 << VARIABLE_TYPEID << " == " << VARIABLE_TYPE_PREFIX << NUMBR_TYPE
+			 << ") {" << std::endl;
+		code << "switch(" << IT_VARIABLE << "." << NUMBR_VALUE << ") {" << std::endl;
+		code << numbrCasesStr;
+		code << "}" << std::endl;
+		code << "}";
+		mixedTypes = true;
+	}
+	if( yarnCasesStr != "" ) {
+		code << ( mixedTypes ? "else " : "" ) << "if(" << IT_VARIABLE << "." 
+			 << VARIABLE_TYPEID << " == " << VARIABLE_TYPE_PREFIX << YARN_TYPE
+			 << ") {" << std::endl;
+		code << yarnCasesStr;
+		code << "}";
+		mixedTypes = true;
+	}
+	if( numbarCasesStr != "" ) {
+		code << ( mixedTypes ? "else " : "" ) << "if(" << IT_VARIABLE << "." 
+			 << VARIABLE_TYPEID << " == " << VARIABLE_TYPE_PREFIX << NUMBAR_TYPE
+			 << ") {" << std::endl;
+		code << numbarCasesStr;
+		code << "}";
+		mixedTypes = true;
+	}
+	if( troofCasesStr != "" ) {
+		code << ( mixedTypes ? "else " : "" ) << "if(" << IT_VARIABLE << "." 
+			 << VARIABLE_TYPEID << " == " << VARIABLE_TYPE_PREFIX << TROOF_TYPE
+			 << ") {" << std::endl;
+		code << troofCasesStr;
+		code << "}";
+		mixedTypes = true;
+	}
+	if( noobCaseStr != "" ) {
+		code << ( mixedTypes ? "else " : "" ) << "if(" << IT_VARIABLE << "." 
+			 << VARIABLE_TYPEID << " == " << VARIABLE_TYPE_PREFIX << NOOB_TYPE
+			 << ") {" << std::endl;
+		code << noobCaseStr;
+		code << "}";
+		mixedTypes = true;
+	}
+	code << std::endl;
+	
+	i = 1;
+	
+	code << "switch(" << switchVar << ") {" << std::endl;
+	for( AST::OmgBlockListIterator omgIt = node->GetOmgBlocks().begin(); 
+		 omgIt != node->GetOmgBlocks().end(); ++omgIt, ++i ) {
+		++it;
+		code << "case " << i << ":" << std::endl;
+		if( omgIt->second->GetStatements().size() > 0 ) {
+			code << *it << std::endl;
+		}
+		++it;
+	}
+	if( node->GetOmgwtfBody() != nullptr ) {
+		code << "default:" << std::endl;
+		code << *it << std::endl;
+	}
+	code << "}" << std::endl;
+	
+	code << "}" << std::endl;
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -109,6 +240,7 @@ void CodeGenerator::ProcessEnd( AST::WtfBlock *node ) {
 void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
+	
 	std::string loopVar;
 	
 	code << "for(";
@@ -129,6 +261,10 @@ void CodeGenerator::ProcessEnd( AST::ForLoopBlock *node ) {
 			if( node->GetLoopVariableInitExpr() != nullptr ) {
 				code << " = " << *it;
 				++it;
+			} else if( node->GetLoopVariableIsLocal() ) {
+				// If loop variable is local and not initialized in source code, 
+				// assume it is a NUMBR (and initialize it to 0).
+				code << "(" << VARIABLE_TYPE_PREFIX << NUMBR_TYPE << ")";
 			}
 		}
 	}
@@ -534,6 +670,7 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 	const std::string end = "end";
 	
 	code << "#include <iostream>" << std::endl;
+	code << "#include <iomanip>" << std::endl;
 	code << "#include <sstream>" << std::endl;
 	code << "#include <cstdint>" << std::endl;
 	code << "#include <cstdlib>" << std::endl;
@@ -954,10 +1091,8 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 					code << "break;" << std::endl;
 				code << "case " << variableTypePrefix << NUMBAR_TYPE 
 					 << ":" << std::endl;
-					// TODO: Specifications require default of two decimal
-					//		 places printed only.
-					code << out << " << " << srcVar << "." << NUMBAR_VALUE 
-						 << ";" << std::endl;
+					code << out << " << std::setprecision(2) << std::fixed << " 
+						 << srcVar << "." << NUMBAR_VALUE << ";" << std::endl;
 					code << "break;" << std::endl;
 				code << "case " << variableTypePrefix << TROOF_TYPE 
 					 << ":" << std::endl;

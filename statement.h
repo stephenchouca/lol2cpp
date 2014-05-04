@@ -36,7 +36,6 @@ namespace AST {
 	
 	class StatementBlock : public ASTNode {
 		public:
-			StatementBlock( bool newScope = false ) : newScope_( newScope ) {}
 			~StatementBlock();
 			
 			void Print( std::ostream & );
@@ -45,14 +44,12 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			StatementList &GetStatements() { return stmts_; }
-			bool IsNewScope() { return newScope_; }
 			
 			void AddStatement( Statement * );
 			void SwapStatement( StatementListIterator &, Statement * );
 			
 		private:
 			StatementList stmts_;
-			bool newScope_;
 	};
 
 	class ORlyBlock : public Statement {
