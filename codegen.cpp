@@ -226,6 +226,25 @@ void CodeGenerator::ProcessEnd( AST::LiteralVarDeclare *node ) {
 	codeSegments_.top().push_back( code.str() );
 }
 
+void CodeGenerator::ProcessEnd( AST::SlotVarDeclare *node ) {
+	std::ostringstream code;
+	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
+	
+	code << *it;
+	++it;
+	
+	if( node->GetInitValue() != nullptr ) {
+		code << " = " << *it;
+	} else if( node->GetInitType() != nullptr ) {
+		code << " = " << VARIABLE_STORAGE << "(" << VARIABLE_TYPE_PREFIX 
+			 << *it << ")";
+	}
+	code << ";";
+	
+	codeSegments_.pop();
+	codeSegments_.top().push_back( code.str() );
+}
+
 void CodeGenerator::ProcessEnd( AST::VarAssign *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();

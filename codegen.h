@@ -75,8 +75,8 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessEnd( AST::LiteralVarDeclare * );
 		//void ProcessBegin( AST::SrsVarDeclare *node ) { ProcessBegin(); }
 		//void ProcessEnd( AST::SrsVarDeclare * );
-		//void ProcessBegin( AST::SlotVarDeclare *node ) { ProcessBegin(); }
-		//void ProcessEnd( AST::SlotVarDeclare * );
+		void ProcessBegin( AST::SlotVarDeclare *node ) { ProcessBegin(); }
+		void ProcessEnd( AST::SlotVarDeclare * );
 		void ProcessBegin( AST::VarAssign *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::VarAssign * );
 		void ProcessBegin( AST::FunkshunReturn *node ) { ProcessBegin(); }

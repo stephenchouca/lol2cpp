@@ -35,6 +35,7 @@ int main( int argc, char *argv[] ) {
 	AST::Program *program = parser.Parse( &tokenizer.GetTokens() );
 	
 	if( program == nullptr ) {
+		std::cout << "Error: syntax error" << std::endl;
 		return -1;
 	}
 	
