@@ -6,13 +6,22 @@
 #include "parser.h"
 #include "codegen.h"
 
+void PrintHelp() {
+	std::cout << "Usage: lol2cpp <file>" << std::endl << std::endl;
+	std::cout << "After translation, compile generated C++ source using gcc "
+			  << "(or another C++ compiler) with: -std=c++11 -O2" << std::endl;
+}
+
 int main( int argc, char *argv[] ) {
+	if( argc == 1 ) {
+		PrintHelp();
+		return 0;
+	}
+	
 	std::string srcPath( argv[1] );
 	
 	if( srcPath == "--help" ) {
-		std::cout << "Usage: lol2cpp <file>" << std::endl << std::endl;
-		std::cout << "After translation, compile generated C++ source using gcc "
-				  << "(or another C++ compiler) with: -std=c++11 -O2" << std::endl;
+		PrintHelp();
 		return 0;
 	}
 
