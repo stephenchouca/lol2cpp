@@ -22,6 +22,8 @@ all: $(OBJS)
 
 run: all
 	./lol2cpp test/99beers.lols
+	g++ -std=c++11 -O2 a.cpp
+	a.exe
 
 clean:
 	rm -rf *.d *.o *.exe lol2cpp a.cpp
