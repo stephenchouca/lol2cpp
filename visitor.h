@@ -18,6 +18,7 @@ namespace AST {
 	class VarAssign;
 	class FunkshunReturn;
 	class GtfoStatement;
+	class WhatevrStatement;
 	class VisibleStatement;
 	class GimmehStatement;
 	class Program;
@@ -84,6 +85,7 @@ namespace AST {
 			virtual void ProcessBegin( FunkshunReturn *node ) {}
 			virtual void ProcessEnd( FunkshunReturn *node ) {}
 			virtual void Process( GtfoStatement *node ) {}
+			virtual void Process( WhatevrStatement *node ) {}
 			virtual void ProcessBegin( VisibleStatement *node ) {}
 			virtual void ProcessEnd( VisibleStatement *node ) {}
 			virtual void ProcessBegin( GimmehStatement *node ) {}
@@ -165,6 +167,7 @@ namespace AST {
 			virtual void Visit( VarAssign * ) = 0;
 			virtual void Visit( FunkshunReturn * ) = 0;
 			virtual void Visit( GtfoStatement *node ) { Process( node ); }
+			virtual void Visit( WhatevrStatement *node ) { Process( node ); }
 			virtual void Visit( VisibleStatement * ) = 0;
 			virtual void Visit( GimmehStatement * ) = 0;
 			virtual void Visit( Program * ) = 0;

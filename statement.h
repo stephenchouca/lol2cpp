@@ -324,6 +324,15 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 	};
+	
+	class WhatevrStatement : public Statement {
+		public:
+			void Print( std::ostream &out ) {
+				out << DebugIndent() << "WHATEVR";
+			}
+			
+			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+	};
 
 	class VisibleStatement : public Statement {
 		public:

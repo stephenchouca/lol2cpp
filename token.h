@@ -66,6 +66,7 @@ enum class TokenType {
 	WTF,
 	OMG,
 	GTFO,
+	WHATEVR,
 	OMGWTF,
 	IM,
 	IN,

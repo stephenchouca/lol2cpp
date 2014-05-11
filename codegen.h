@@ -15,8 +15,10 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		static const std::string NUMBAR_TYPE;
 		static const std::string YARN_TYPE;
 		static const std::string BUKKIT_TYPE;
+		static const std::string BUKKIT_ITERATOR_TYPE;
 		static const std::string BUKKIT_REF_TYPE;
 		static const std::string NOOB_TYPE;
+		static const std::string TEMP_PREFIX;
 		static const std::string SOURCE_PREFIX;
 		static const std::string SOURCE_DEFINED_PREFIX;
 		static const std::string MAEK_PREFIX;
@@ -82,6 +84,7 @@ class CodeGenerator : public AST::ASTProgramOrderVisitor {
 		void ProcessBegin( AST::FunkshunReturn *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::FunkshunReturn * );
 		void Process( AST::GtfoStatement * );
+		void Process( AST::WhatevrStatement * );
 		void ProcessBegin( AST::VisibleStatement *node ) { ProcessBegin(); }
 		void ProcessEnd( AST::VisibleStatement * );
 		void ProcessBegin( AST::GimmehStatement *node ) { ProcessBegin(); }

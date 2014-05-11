@@ -126,6 +126,8 @@ std::string TokenTypeToString( TokenType type ) {
 			return "OMG";
 		case TokenType::GTFO:
 			return "GTFO";
+		case TokenType::WHATEVR:
+			return "WHATEVR";
 		case TokenType::OMGWTF:
 			return "OMGWTF";
 		case TokenType::IM:

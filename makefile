@@ -24,4 +24,4 @@ run: all
 	./lol2cpp test/99beers.lols
 
 clean:
-	rm -rf *.d *.o lol2cpp a.cpp
+	rm -rf *.d *.o *.exe lol2cpp a.cpp

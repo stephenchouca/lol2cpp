@@ -14,6 +14,18 @@ AST::Program *Parser::Parse( TokenList *tokens ) {
 	tokens_->StartIterating();
 
 	AcceptToken( TokenType::HAI );
+	
+	// Not really used right now; will possibly be useful in future when 
+	// grammar is altered in future (e.g. possibly range-loop construct).
+	if( tokens_->PeekToken().type == TokenType::NUMBAR_LITERAL ) {
+		const std::string lolcodeVersion = tokens_->PeekToken().string;
+		if( lolcodeVersion != "1.2" ) {
+			return nullptr;
+		}
+		tokens_->AdvanceToNextToken();
+	}
+	lolcodeVersion_ = LolcodeVersion::V12;
+	
 	AcceptToken( TokenType::LINE_DELIMITER );
 
 	AST::StatementBlock *body = ParseProgramBody();
@@ -312,6 +324,7 @@ AST::LoopBlock *Parser::ParseLoopBlock() {
 		case TokenType::WATCHIN:
 		{
 			AST::RangeLoopBlock *rangeLoopBlock = new AST::RangeLoopBlock( id );
+			tokens_->AdvanceToNextToken();
 			
 			bool iteratorIsLocal = false;
 			if( tokens_->PeekToken().type == TokenType::YR ) {
@@ -666,8 +679,14 @@ AST::Statement *Parser::ParseStatement() {
 			stmt = ParseGimmehStatement();
 			break;
 		case TokenType::GTFO:
+			// TODO: To add support for breaking out of outer loop, probably want 
+			//		 to refactor this out to another function.
 			tokens_->AdvanceToNextToken();
 			stmt = new AST::GtfoStatement();
+			break;
+		case TokenType::WHATEVR:
+			tokens_->AdvanceToNextToken();
+			stmt = new AST::WhatevrStatement();
 			break;
 		case TokenType::IDENTIFIER:
 		case TokenType::SRS:

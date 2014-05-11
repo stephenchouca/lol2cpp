@@ -7,9 +7,106 @@
 #include "statement.h"
 #include "expression.h"
 
+/*************************************************************************************
+ Program := ProgramBegin ProgramStatementBlock ProgramEnd
+ ProgramBegin := 'HAI' [VersionNumber] LineDelimiter
+ ProgramEnd := 'KTHXBYE' LineDelimiter*
+ VersionNumber := '1.2'
+ ProgramStatementBlock := (Statement | ORlyBlock | WtfBlock | 
+ 						  LoopBlock | FunkshunBlock | PlzBlock)*
+ StatementBlock := (Statement | ORlyBlock | WtfBlock | LoopBlock | PlzBlock)*
+ Statement := [VarDeclare | VarAssign | VarCast | FunkshunReturn | 
+ 			  VisibleStmt | GimmehStmt | 'GTFO' | Expression] LineDelimiter
+ FunkshunBlock := FunkshunDeclare StatementBlock FunkshunEnd
+ FunkshunDeclare := 'HOW' 'IZ' 'I' LiteralIdentifier 
+ 				    [('YR' | 'DAT') LiteralIdentifier 
+ 				    ('AN' ('YR' | 'DAT') LiteralIdentifier)*] LineDelimiter
+ FunkshunEnd := 'IF' 'U' 'SAY' 'SO' LineDelimiter
+ FunkshunReturn := 'FOUND' 'YR' Expression
+ FunkshunCall := 'I' 'IZ' LiteralIdentifier ['YR' Expression 
+				 ('AN' 'YR' Expression)*] ('MKAY' | LineDelimiter)
+ ORlyBlock := ORlyStmt YaStmt StatementBlock (MeebeStmt StatementBlock)* 
+ 			  [NoStmt StatementBlock] EndConditionalBlock
+ ORlyStmt := 'O' 'RLY' '?' LineDelimiter
+ YaStmt := 'YA' 'RLY' LineDelimiter
+ MebbeStmt := 'MEBBE' Expression LineDelimiter
+ NoStmt := 'NO' 'WAI' LineDelimiter
+ EndConditionalBlock := 'OIC' LineDelimiter
+ WtfBlock := WtfStmt OmgBlock+ [OmgwtfBlock] EndConditionalBlock
+ WtfStmt := 'WTF' '?' LineDelimiter
+ OmgBlock := 'OMG' Literal LineDelimiter StatementBlock
+ OmgwtfBlock := 'OMGWTF' LineDelimiter StatementBlock
+ LoopBlock := LoopBegin StatementBlock LoopEnd
+ LoopBegin := 'IM' 'IN' 'YR' LiteralIdentifier 
+ 			  [ForLoopInit | RangeLoopInit] LineDelimiter
+ ForLoopInit := ('UPPIN' | 'NERFIN' | 'WITH' | UnaryOperator | LiteralIdentifier) 
+				['YR'] LoopVarIdentifier ['FROM' Expression] 
+				[('TIL' | 'WILE') Expression]
+ RangeLoopInit := 'WATCHIN' ['YR'] LoopVarIdentifier 'FROM' BukkitRef
+ LoopEnd := 'IM' 'OUTTA' 'YR' LiteralIdentifier LineDelimiter
+ PlzBlock := PlzStmt StatementBlock ONoesBlock* [OWellBlock] KThxStmt
+ PlzStmt := 'PLZ' LineDelimiter
+ ONoesBlock := 'O' 'NOES' Expression LineDelimiter StatementBlock
+ OWellBlock := 'O' 'WELL' LineDelimiter StatementBlock
+ KThxStmt := 'KTHX' LineDelimiter
+ VarDeclare := 'I' 'HAS' 'A' ExplicitIdentifier ['ITZ' (Expression | 'A' Type)]
+ Type := 'NOOB' | 'TROOF' | 'NUMBR' | 'NUMBAR' | 'YARN' | 'BUKKIT'
+ VarAssign := ExplicitIdentifier 'R' Expression
+ VarCast := ExplicitIdentifier 'IS' 'NOW' 'A' Type
+ VisibleStmt : = 'VISIBLE' Expression (Expression)* ['!']
+ GimmehStmt := 'GIMMEH' ['LONG'] ExplicitIdentifier
+ Expression := UnaryExpr | BinaryExpr | NaryExpr | Identifier | 
+ 			   Literal | FunkshunCall | CastExpr
+ BukkitRef := Identifier | FunkshunCall | CastExpr
+ FilezRef := Identifier | FunkshunCall | CastExpr
+ CastExpr := 'MAEK' Expression ['A'] Type
+ UnaryExpr := UnaryOperator Expression
+ BinaryExpr := BinaryOperator Expression ['AN'] Expression
+ NaryExpr := NaryOperator Expression (['AN'] Expression)* ('MKAY' | LineDelimiter)
+ Identifier := LiteralIdentifier | SrsIdentifier | ItIdentifier | SlotIdentifier
+ ExplicitIdentifier := LiteralIdentifier | SrsIdentifier | SlotIdentifier
+ LoopVarIdentifier := LiteralIdentifier | SrsIdentifier
+ LiteralIdentifier := ('A'-'Z' | 'a'-'z') . ('A'-'Z' | 'a'-'z' | '0'-'9' | '_')*
+ SrsIdentifier := 'SRS' Expression
+ ItIdentifier := 'IT'
+ SlotIdentifier := 'SLOT' Expression 'IN' BukkitRef
+ Literal := TroofLiteral | NumbrLiteral | NumbarLiteral | YarnLiteral | NoobLiteral
+ TroofLiteral := 'WIN' | 'FAIL'
+ NumbrLiteral := ['-'] ('0'-'9')+
+ NumbarLiteral := ['-'] (('0'-'9')+ . '.' . ('0'-'9')* | 
+				  ('0'-'9')* . '.' . ('0'-'9')+)
+ YarnLiteral := '"' (<character>)* '"'
+ NoobLiteral := 'NOOB'
+ LineDelimiter := ',' | '\n'
+ UnaryOperator := 'NOT'
+ BinaryOperator := ('SUM' 'OF' | 'DIFF' 'OF' | 'PRODUKT' 'OF' | 'QUOSHUNT' 'OF' | 
+ 				   'MOD' 'OF' | 'BIGGR' 'OF' | 'SMALLR' 'OF' | 'BOTH' 'OF' | 
+ 				   'EITHER' 'OF' | 'WON' 'OF' | 'BOTH' 'SAEM' | 'DIFFRINT')
+ NaryOperator := 'ALL' 'OF' | 'ANY' 'OF' | 'SMOOSH'
+ 
+ ======================================= TODO =======================================
+ - Objects ("TING")
+ - Indirection function call through variables (map YARN to functions?)
+
+ ==== File I/O ====
+ VisibleStmt : = 'VISIBLE' Expression (Expression)* ['!'] ['TO' FilezRef]
+ GimmehStmt := 'GIMMEH' ['LONG'] ExplicitIdentifier ['FROM' FilezRef]
+ Type := 'NOOB' | 'TROOF' | 'NUMBR' | 'NUMBAR' | 'YARN' | 'BUKKIT' | 'FILEZ'
+ OpenFilezStmt := 'OPENIN' 'FILEZ' Expression ['FOR' ('GIMMEH' | 'VISIBLE' 
+				  ['AT' 'BYE'])] 'AS' ExplicitIdentifier
+ CloseFilezStmt := 'CLOSIN' 'FILEZ' FilezRef
+
+ ==== Global variables ====
+ VarDeclare := 'I' 'HAS' 'A' ['SHARD'] ExplicitIdentifier 
+			   ['ITZ' (Expression | 'A' Type)]
+*************************************************************************************/
+
 class Parser {
+	private:
+		enum class LolcodeVersion { V12 };
+		
 	public:
-		Parser() : tokens_( nullptr ), lineGood_( true ) {}
+		Parser() : tokens_( nullptr ) {}
 
 		AST::Program *Parse( TokenList * );
 
@@ -108,10 +205,11 @@ class Parser {
 	
 	private:
 		TokenList *tokens_;
+		bool lineGood_;
+		
+		LolcodeVersion lolcodeVersion_;
 		
 		AST::FunkshunList funkshuns_;
-
-		bool lineGood_;
 };
 
 #endif

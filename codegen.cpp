@@ -12,8 +12,10 @@ const std::string CodeGenerator::NUMBR_TYPE = "NUMBR";
 const std::string CodeGenerator::NUMBAR_TYPE = "NUMBAR";
 const std::string CodeGenerator::YARN_TYPE = "YARN";
 const std::string CodeGenerator::BUKKIT_TYPE = "BUKKIT";
+const std::string CodeGenerator::BUKKIT_ITERATOR_TYPE = "BUKKIT_ITERATOR";
 const std::string CodeGenerator::BUKKIT_REF_TYPE = "BUKKIT_REF";
 const std::string CodeGenerator::NOOB_TYPE = "NOOB";
+const std::string CodeGenerator::TEMP_PREFIX = "Temp";
 const std::string CodeGenerator::SOURCE_PREFIX = "Source_";
 const std::string CodeGenerator::SOURCE_DEFINED_PREFIX = "Defined_";
 const std::string CodeGenerator::MAEK_PREFIX = "Maek";
@@ -288,7 +290,23 @@ void CodeGenerator::ProcessEnd( AST::RangeLoopBlock *node ) {
 	std::ostringstream code;
 	std::list<std::string>::const_iterator it = codeSegments_.top().cbegin();
 	
-	// TODO: Implement.
+	const std::string loopVar = *(it++);
+	const std::string bukkitRef = *(it++);
+	const std::string tempBukkitRef = TEMP_PREFIX + "_BukkitRef";
+	const std::string loopVarIterator = tempBukkitRef + "_Iterator";
+	
+	code << "{" << std::endl;
+	code << VARIABLE_STORAGE << " " << tempBukkitRef << " = " << bukkitRef 
+		 << "." << MAEK_BUKKIT << ";" << std::endl;
+	code << BUKKIT_ITERATOR_TYPE << " " << loopVarIterator << " = " 
+		 << tempBukkitRef << "." << BUKKIT_VALUE << "->begin();" << std::endl;
+	code << "for(" << VARIABLE_STORAGE << " " << loopVar << "; " << loopVarIterator 
+		 << " != " << tempBukkitRef << "." << BUKKIT_VALUE << "->end(); ++"
+		 << loopVarIterator << ") {" << std::endl;
+	code << loopVar << " = " << loopVarIterator << "->first;" << std::endl;
+	code << *it;
+	code << "}" << std::endl;
+	code << "}" << std::endl;
 	
 	codeSegments_.pop();
 	codeSegments_.top().push_back( code.str() );
@@ -405,6 +423,10 @@ void CodeGenerator::ProcessEnd( AST::FunkshunReturn *node ) {
 
 void CodeGenerator::Process( AST::GtfoStatement *node ) {
 	codeSegments_.top().push_back( "break;" );
+}
+
+void CodeGenerator::Process( AST::WhatevrStatement *node ) {
+	codeSegments_.top().push_back( "continue;" );
 }
 
 void CodeGenerator::ProcessEnd( AST::VisibleStatement *node ) {
@@ -1117,6 +1139,10 @@ void CodeGenerator::EmitTypedefs( std::ostringstream &code ) {
 			code << "return " << out << ";" << std::endl;
 		code << "}" << std::endl;
 	code << "};" << std::endl;
+	
+	code << "typedef std::unordered_map<" << VARIABLE_STORAGE << ","
+	 << VARIABLE_STORAGE << "," << VARIABLE_STORAGE << ">::iterator " 
+	 << BUKKIT_ITERATOR_TYPE << ";" << std::endl;
 };
 
 void CodeGenerator::EmitUnaryOperator( const std::string &operatorName, 

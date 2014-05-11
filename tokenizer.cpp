@@ -158,6 +158,8 @@ TokenType Tokenizer::GetTokenType( const std::string &str ) {
 		return TokenType::OMG;
 	} else if( str == "GTFO" ) {
 		return TokenType::GTFO;
+	} else if( str == "WHATEVR" ) {
+		return TokenType::WHATEVR;
 	} else if( str == "OMGWTF" ) {
 		return TokenType::OMGWTF;
 	} else if( str == "IM" ) {

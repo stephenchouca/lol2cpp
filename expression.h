@@ -155,14 +155,7 @@ namespace AST {
 
 	class TypeIdentifier : public ASTNode {
 		public:
-			enum class Type {
-				NUMBR, 
-				NUMBAR, 
-				TROOF, 
-				YARN, 
-				BUKKIT, 
-				NOOB 
-			};
+			enum class Type { NUMBR, NUMBAR, TROOF, YARN, BUKKIT, NOOB };
 		
 		public:
 			TypeIdentifier( Type type ) : type_( type ) {}
@@ -179,7 +172,12 @@ namespace AST {
 			Type type_;
 	};
 
-	class Identifier : public Expression {};
+	class Identifier : public Expression {
+		public:
+			enum class Type { LITERAL, SRS, IT, SLOT };
+			
+			virtual Type GetType() const = 0;
+	};
 
 	class LiteralIdentifier : public Identifier {
 		public:
@@ -193,6 +191,7 @@ namespace AST {
 			
 			LiteralIdentifier *Clone() { return new LiteralIdentifier( id_ ); }
 			
+			Type GetType() const { return Type::LITERAL; }
 			std::string GetIdentifier() { return id_; }
 			
 		private:
@@ -212,6 +211,9 @@ namespace AST {
 			
 			SrsIdentifier *Clone() { return new SrsIdentifier( ref_->Clone() ); }
 			
+			Type GetType() const { return Type::SRS; }
+			Expression *GetReference() { return ref_; }
+			
 		private:
 			Expression *ref_;
 	};
@@ -225,6 +227,8 @@ namespace AST {
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
 			ItIdentifier *Clone() { return new ItIdentifier(); }
+			
+			Type GetType() const { return Type::IT; }
 	};
 
 	class SlotIdentifier : public Identifier {
@@ -242,6 +246,7 @@ namespace AST {
 			
 			SlotIdentifier *Clone();
 			
+			Type GetType() const { return Type::SLOT; }
 			Expression *GetKey() { return key_; }
 			Expression *GetBukkitRef() { return bukkitRef_; }
 			bool GetSafety() { return isSafe_; }
