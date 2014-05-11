@@ -32,7 +32,29 @@ namespace AST {
 	typedef std::list<NoesBlock>::iterator NoesBlockListIterator;
 	typedef std::list<FunkshunParam>::iterator FunkshunParamListIterator;
 	
-	class Statement : public ASTNode {};
+	class Statement : public ASTNode {
+		public:
+			enum class Type {
+				ORLY_BLOCK,
+				WTF_BLOCK,
+				FOR_LOOP_BLOCK,
+				RANGE_LOOP_BLOCK,
+				FUNKSHUN_BLOCK,
+				FUNKSHUN_DECLARE,
+				PLZ_BLOCK,
+				LITERAL_VAR_DECLARE,
+				SRS_VAR_DECLARE,
+				SLOT_VAR_DECLARE,
+				VAR_ASSIGN,
+				FUNKSHUN_RETURN,
+				GTFO,
+				WHATEVR,
+				VISIBLE,
+				GIMMEH
+			};
+			
+			virtual Type GetType() const = 0;
+	};
 	
 	class StatementBlock : public ASTNode {
 		public:
@@ -46,7 +68,7 @@ namespace AST {
 			StatementList &GetStatements() { return stmts_; }
 			
 			void AddStatement( Statement * );
-			void SwapStatement( StatementListIterator &, Statement * );
+			//void SwapStatement( StatementListIterator &, Statement * );
 			
 		private:
 			StatementList stmts_;
@@ -62,6 +84,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::ORLY_BLOCK; }
 			StatementBlock *GetYaRlyBody() { return yaRlyBody_; }
 			MebbeBlockList &GetMebbeBlocks() { return mebbeBlocks_; }
 			StatementBlock *GetNoWaiBody() { return noWaiBody_; }
@@ -85,6 +108,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::WTF_BLOCK; }
 			OmgBlockList &GetOmgBlocks() { return omgBlocks_; }
 			StatementBlock *GetOmgwtfBody() { return omgwtfBody_; }
 			
@@ -132,6 +156,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::FOR_LOOP_BLOCK; }
 			Expression *GetLoopVariableIncExpr() { return loopVarIncExpr_; }
 			Expression *GetLoopVariableInitExpr() { return loopVarInitExpr_; }
 			UnaryExpression *GetLoopGuard() { return loopGuard_; }
@@ -156,6 +181,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::RANGE_LOOP_BLOCK; }
 			Expression *GetBukkitRef() { return bukkitRef_; }
 			
 			void SetBukkitRef( Expression * );
@@ -174,6 +200,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::FUNKSHUN_BLOCK; }
 			LiteralIdentifier *GetName() { return name_; }
 			FunkshunParamList &GetParameters() { return params_; }
 			StatementBlock *GetBody() { return body_; }
@@ -196,6 +223,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::FUNKSHUN_DECLARE; }
 			LiteralIdentifier *GetFunkshunName() { return funkshunName_; }
 		
 		private:
@@ -211,6 +239,8 @@ namespace AST {
 			unsigned int GetWidth() { return 3; }
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Type GetType() const { return Type::PLZ_BLOCK; }
 			
 			void AddONoesBlock( Expression *, StatementBlock * );
 			void SetOWelBody( StatementBlock * );
@@ -248,6 +278,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::LITERAL_VAR_DECLARE; }
 			LiteralIdentifier *GetVariable() { return varId_; }
 			
 		private:
@@ -260,6 +291,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::SRS_VAR_DECLARE; }
 			SrsIdentifier *GetVariable() { return varId_; }
 		
 		private:
@@ -272,6 +304,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::SLOT_VAR_DECLARE; }
 			SlotIdentifier *GetVariable() { return varId_; }
 			
 		private:
@@ -291,6 +324,7 @@ namespace AST {
 				return new VarAssign( new ItIdentifier() );
 			}
 			
+			Type GetType() const { return Type::VAR_ASSIGN; }
 			Identifier *GetVariable() { return varId_; }
 			Expression *GetAssignValue() { return assignVal_; }
 			
@@ -308,9 +342,10 @@ namespace AST {
 			
 			void Print( std::ostream & );
 			
-			Expression *GetReturnValue() { return retVal_; }
-			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Type GetType() const { return Type::FUNKSHUN_RETURN; }
+			Expression *GetReturnValue() { return retVal_; }
 			
 		private:
 			Expression *retVal_;
@@ -323,6 +358,8 @@ namespace AST {
 			}
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Type GetType() const { return Type::GTFO; }
 	};
 	
 	class WhatevrStatement : public Statement {
@@ -332,6 +369,8 @@ namespace AST {
 			}
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
+			
+			Type GetType() const { return Type::WHATEVR; }
 	};
 
 	class VisibleStatement : public Statement {
@@ -343,6 +382,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::VISIBLE; }
 			ExpressionList &GetExpressions() { return exprs_; }
 			bool GetSuppressNewLine() { return suppressNewline_; }
 			
@@ -363,6 +403,7 @@ namespace AST {
 			
 			void Accept( ASTVisitor *visitor ) { visitor->Visit( this ); }
 			
+			Type GetType() const { return Type::GIMMEH; }
 			Identifier *GetTargetVariable() { return targetVar_; }
 			bool IsLong() { return isLong_; }
 			

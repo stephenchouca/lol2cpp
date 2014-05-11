@@ -165,6 +165,13 @@ AST::StatementBlock *Parser::ParseStatementBlock(
 	}
 }
 
+AST::StatementBlock *Parser::ParseFunkshunBody() {
+	AST::StatementBlock *funkshunBody = 
+		ParseStatementBlock( StatementBlockType::FUNKSHUN_BODY );
+	funkshunBody->AddStatement( new AST::FunkshunReturn( new AST::ItIdentifier() ) );
+	return funkshunBody;
+}
+
 AST::ORlyBlock *Parser::ParseORlyBlock() {
 	AcceptToken( TokenType::O );
 	AcceptToken( TokenType::RLY );
@@ -667,6 +674,9 @@ AST::Statement *Parser::ParseStatement() {
 					stmt = varAssign;
 					break;
 				}
+				default:
+					tokens_->SkipToNextLine();
+					return nullptr;
 			}
 			break;
 		case TokenType::FOUND:

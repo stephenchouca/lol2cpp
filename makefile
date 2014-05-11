@@ -1,5 +1,6 @@
 CC=g++
-CFLAGS=-c -std=c++11
+LFLAGS=-Wall -Werror
+CFLAGS=$(LFLAGS) -c -std=c++11 
 
 OBJS=lol2cpp.o \
 	 codegen.o \
@@ -12,7 +13,7 @@ OBJS=lol2cpp.o \
 	 token.o
 
 all: $(OBJS)
-	$(CC) $(OBJS) -o lol2cpp
+	$(CC) $(OBJS) $(LFLAGS) -o lol2cpp
 
 -include $(OBJS:.o=.d)
 

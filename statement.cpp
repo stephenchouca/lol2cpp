@@ -30,7 +30,8 @@ namespace AST {
 		stmts_.push_back( stmt );
 		stmt->SetParent( this );
 	}
-	
+
+#if 0	
 	void StatementBlock::SwapStatement( StatementListIterator &it, Statement *stmt ) {
 		if( it == stmts_.end() ) {
 			return;
@@ -44,6 +45,7 @@ namespace AST {
 		it = stmts_.erase( it );
 		--it;
 	}
+#endif
 		
 	ORlyBlock::ORlyBlock( StatementBlock *yaRlyBody ) :
 			yaRlyBody_( yaRlyBody ), noWaiBody_( nullptr ) {

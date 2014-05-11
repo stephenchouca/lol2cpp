@@ -128,40 +128,38 @@ class Parser {
 			
 		AST::StatementBlock *ParseStatementBlock( const StatementBlockType );
 		AST::StatementBlock *ParseProgramBody() {
-			ParseStatementBlock( StatementBlockType::PROGRAM_BODY );
+			return ParseStatementBlock( StatementBlockType::PROGRAM_BODY );
 		}
-		AST::StatementBlock *ParseProgramGlobals(){
-			ParseStatementBlock( StatementBlockType::PROGRAM_GLOBALS );
+		AST::StatementBlock *ParseProgramGlobals() {
+			return ParseStatementBlock( StatementBlockType::PROGRAM_GLOBALS );
 		}
-		AST::StatementBlock *ParseFunkshunBody(){
-			ParseStatementBlock( StatementBlockType::FUNKSHUN_BODY );
+		AST::StatementBlock *ParseFunkshunBody();
+		AST::StatementBlock *ParseORlyYaBody() {
+			return ParseStatementBlock( StatementBlockType::ORLY_YA );
 		}
-		AST::StatementBlock *ParseORlyYaBody(){
-			ParseStatementBlock( StatementBlockType::ORLY_YA );
+		AST::StatementBlock *ParseORlyMebbeBody() {
+			return ParseStatementBlock( StatementBlockType::ORLY_MEBBE );
 		}
-		AST::StatementBlock *ParseORlyMebbeBody(){
-			ParseStatementBlock( StatementBlockType::ORLY_MEBBE );
+		AST::StatementBlock *ParseORlyNoBody() {
+			return ParseStatementBlock( StatementBlockType::ORLY_NO );
 		}
-		AST::StatementBlock *ParseORlyNoBody(){
-			ParseStatementBlock( StatementBlockType::ORLY_NO );
+		AST::StatementBlock *ParseWtfOmgBody() {
+			return ParseStatementBlock( StatementBlockType::WTF_OMG );
 		}
-		AST::StatementBlock *ParseWtfOmgBody(){
-			ParseStatementBlock( StatementBlockType::WTF_OMG );
+		AST::StatementBlock *ParseWtfOmgwtfBody() {
+			return ParseStatementBlock( StatementBlockType::WTF_OMGWTF );
 		}
-		AST::StatementBlock *ParseWtfOmgwtfBody(){
-			ParseStatementBlock( StatementBlockType::WTF_OMGWTF );
+		AST::StatementBlock *ParseLoopBody() {
+			return ParseStatementBlock( StatementBlockType::LOOP_BODY );
 		}
-		AST::StatementBlock *ParseLoopBody(){
-			ParseStatementBlock( StatementBlockType::LOOP_BODY );
+		AST::StatementBlock *ParsePlzBody() {
+			return ParseStatementBlock( StatementBlockType::PLZ_BODY );
 		}
-		AST::StatementBlock *ParsePlzBody(){
-			ParseStatementBlock( StatementBlockType::PLZ_BODY );
+		AST::StatementBlock *ParsePlzONoesBody() {
+			return ParseStatementBlock( StatementBlockType::PLZ_ONOES );
 		}
-		AST::StatementBlock *ParsePlzONoesBody(){
-			ParseStatementBlock( StatementBlockType::PLZ_ONOES );
-		}
-		AST::StatementBlock *ParsePlzOWelBody(){
-			ParseStatementBlock( StatementBlockType::PLZ_OWEL );
+		AST::StatementBlock *ParsePlzOWelBody() {
+			return ParseStatementBlock( StatementBlockType::PLZ_OWEL );
 		}
 
 		AST::ORlyBlock *ParseORlyBlock();
